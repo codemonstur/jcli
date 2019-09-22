@@ -1,7 +1,9 @@
 package jcli.errors;
 
-public final class MissingArgument extends Exception {
-    public MissingArgument(final String message) {
-        super(message);
+import jcli.Argument;
+
+public final class MissingArgument extends InvalidCommandLine {
+    public MissingArgument(final Argument argument) {
+        super("Missing argument " + argument.longName());
     }
 }

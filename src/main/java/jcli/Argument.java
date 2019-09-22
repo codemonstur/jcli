@@ -8,11 +8,11 @@ import static jcli.Parser.FAKE_NULL;
 @Retention(RUNTIME)
 public @interface Argument {
 
+    boolean isFlag() default false;
     boolean mandatory() default false;
-    // FIXME the name should really just be a char
-    String name();
+    char name() default ' ';
     String longName() default "";
-    String _default() default FAKE_NULL;
+    String defaultValue() default FAKE_NULL;
     String description() default "";
 
 }

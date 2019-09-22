@@ -1,7 +1,7 @@
 import jcli.Argument;
-import jcli.errors.InvalidArgumentName;
+import jcli.errors.InvalidArgumentConfiguration;
 import jcli.errors.InvalidArgumentType;
-import jcli.errors.MissingArgument;
+import jcli.errors.InvalidCommandLine;
 import org.junit.Test;
 
 import java.util.Set;
@@ -12,7 +12,7 @@ import static org.junit.Assert.fail;
 public class TestInvalidArguments {
 
     public static class Arguments {
-        @Argument(name = "file")
+        @Argument(longName = "file")
         public final Set file;
 
         public Arguments(final Set file) {
@@ -21,11 +21,11 @@ public class TestInvalidArguments {
     }
 
     @Test(expected = InvalidArgumentType.class)
-    public void parseMissingArgument() throws InvalidArgumentName, MissingArgument, InvalidArgumentType {
-        final String[] args = { "-file", "file.txt" };
+    public void argumentWithInvalidType() throws InvalidArgumentConfiguration, InvalidCommandLine {
+        final String[] args = {};
         parseCommandLineArguments(args, Arguments.class);
 
-        fail("Parser failed to throw exception");
+        fail("Parser failed to throw exception InvalidArgumentType");
     }
 
 }
