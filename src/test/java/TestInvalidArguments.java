@@ -1,6 +1,6 @@
-import jcli.Argument;
-import jcli.errors.InvalidArgumentConfiguration;
-import jcli.errors.InvalidArgumentType;
+import jcli.CliOption;
+import jcli.errors.InvalidOptionConfiguration;
+import jcli.errors.InvalidOptionType;
 import jcli.errors.InvalidCommandLine;
 import org.junit.Test;
 
@@ -12,18 +12,18 @@ import static org.junit.Assert.fail;
 public class TestInvalidArguments {
 
     public static class Arguments {
-        @Argument(longName = "file")
+        @CliOption(longName = "file")
         public final Set file;
 
-        public Arguments(final Set file) {
-            this.file = file;
+        public Arguments() {
+            file = null;
         }
     }
 
-    @Test(expected = InvalidArgumentType.class)
-    public void argumentWithInvalidType() throws InvalidArgumentConfiguration, InvalidCommandLine {
+    @Test(expected = InvalidOptionType.class)
+    public void argumentWithInvalidType() throws InvalidOptionConfiguration, InvalidCommandLine {
         final String[] args = {};
-        parseCommandLineArguments(args, Arguments.class);
+        parseCommandLineArguments(args, Arguments::new);
 
         fail("Parser failed to throw exception InvalidArgumentType");
     }

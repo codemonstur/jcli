@@ -43,4 +43,7 @@ public enum Reflection {;
         return null;
     }
 
+    public static boolean isBooleanType(final Field field) {
+        return field.getType().equals(Boolean.class) || field.getType().equals(boolean.class);
+    }
 }

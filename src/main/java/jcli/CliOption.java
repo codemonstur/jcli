@@ -6,7 +6,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static jcli.Parser.FAKE_NULL;
 
 @Retention(RUNTIME)
-public @interface Argument {
+public @interface CliOption {
 
     boolean isFlag() default false;
     boolean mandatory() default false;

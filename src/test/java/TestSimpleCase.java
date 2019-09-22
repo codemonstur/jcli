@@ -1,5 +1,5 @@
-import jcli.Argument;
-import jcli.errors.InvalidArgumentConfiguration;
+import jcli.CliOption;
+import jcli.errors.InvalidOptionConfiguration;
 import jcli.errors.InvalidCommandLine;
 import org.junit.Test;
 
@@ -9,18 +9,18 @@ import static org.junit.Assert.assertEquals;
 public class TestSimpleCase {
 
     public static class Arguments {
-        @Argument(mandatory = true, longName = "file")
+        @CliOption(mandatory = true, longName = "file")
         public final String file;
 
-        public Arguments(final String file) {
-            this.file = file;
+        public Arguments() {
+            this.file = null;
         }
     }
 
     @Test
-    public void parseSimple() throws InvalidArgumentConfiguration, InvalidCommandLine {
+    public void parseSimple() throws InvalidOptionConfiguration, InvalidCommandLine {
         final String[] args = { "--file", "file.txt" };
-        final Arguments arguments = parseCommandLineArguments(args, Arguments.class);
+        final Arguments arguments = parseCommandLineArguments(args, Arguments::new);
 
         assertEquals("The file argument is not equal", "file.txt", arguments.file);
     }
