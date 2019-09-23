@@ -1,5 +1,4 @@
 import jcli.CliOption;
-import jcli.errors.InvalidOptionConfiguration;
 import jcli.errors.InvalidCommandLine;
 import org.junit.Test;
 
@@ -10,15 +9,11 @@ public class TestSimpleCase {
 
     public static class Arguments {
         @CliOption(mandatory = true, longName = "file")
-        public final String file;
-
-        public Arguments() {
-            this.file = null;
-        }
+        public String file;
     }
 
     @Test
-    public void parseSimple() throws InvalidOptionConfiguration, InvalidCommandLine {
+    public void parseSimple() throws InvalidCommandLine {
         final String[] args = { "--file", "file.txt" };
         final Arguments arguments = parseCommandLineArguments(args, Arguments::new);
 

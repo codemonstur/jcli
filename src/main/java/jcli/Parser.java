@@ -19,18 +19,18 @@ public enum Parser {;
         try {
             final T o = supplier.get();
             return applyArgumentsToInstance(args, toFieldAndOptionMap(o.getClass()), o);
-        } catch (IllegalAccessException | NoSuchFieldException e) {
+        } catch (IllegalAccessException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
-    private static Map<String, FieldAndOption> toFieldAndOptionMap(final Class clazz)
-            throws NoSuchFieldException, IllegalAccessException, InvalidOptionConfiguration {
+    private static Map<String, FieldAndOption> toFieldAndOptionMap(final Class clazz) throws InvalidOptionConfiguration {
         final Map<String, FieldAndOption> map = new HashMap<>();
 
         for (final Field field : listFields(clazz)) {
             if (Modifier.isStatic(field.getModifiers())) continue;
             if (!field.isAnnotationPresent(CliOption.class)) continue;
+            if (Modifier.isFinal(field.getModifiers())) throw new InvalidOptionModifier(field);
 
             makeAccessible(field);
 
@@ -59,11 +59,31 @@ public enum Parser {;
             map.put(option.longName(), new FieldAndOption(field, option));
     }
 
-    private static void makeAccessible(final Field field) throws IllegalAccessException, NoSuchFieldException {
+    /*
+     * This code used to remove the final modifier from the field using this code:
+     *
+     *    Field modifiersField = Field.class.getDeclaredField("modifiers");
+     *    modifiersField.setAccessible(true);
+     *    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+     *
+     * However, since Java 12 this hack no longer works. Instead you will get an exception:
+     *
+     *    java.lang.NoSuchFieldException: modifiers
+     *
+     * There is a workaround available for Java 12 using a VarHandle documented here:
+     * https://stackoverflow.com/questions/56039341/get-declared-fields-of-java-lang-reflect-fields-in-jdk12/56042394#56042394
+     * VarHandles were introduced in Java 9.
+     *
+     * We therefore have these options:
+     *
+     *  1. Use the original hack, making the library unusable in Java 12 and forwards
+     *  2. Use the new hack, making the library unusable in Java 8 and lower
+     *  3. Don't remove the final modifier, forcing users to provide a class with mutable fields
+     *
+     * I have chosen 3 for now, if a different solution presents itself I will revisit the decision.
+     */
+    private static void makeAccessible(final Field field) {
         field.setAccessible(true);
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     }
 
     private static <T> T applyArgumentsToInstance(final String[] args, final Map<String, FieldAndOption> map, final T instance)
@@ -134,4 +154,5 @@ public enum Parser {;
             throw new MissingCommandLineValue(arg);
         return  equalsIndex == -1 ? arguments[index+1] : arg.substring(equalsIndex);
     }
+
 }

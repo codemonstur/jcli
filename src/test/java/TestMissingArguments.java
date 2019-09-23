@@ -9,15 +9,11 @@ public class TestMissingArguments {
 
     public static class Arguments {
         @CliOption(mandatory = true, longName = "file")
-        public final String file;
-
-        public Arguments() {
-            this.file = null;
-        }
+        public String file;
     }
 
     @Test(expected = UnknownCommandLineOption.class)
-    public void parseUnknownCommandLineOption() throws InvalidOptionConfiguration, InvalidCommandLine {
+    public void parseUnknownCommandLineOption() throws InvalidCommandLine {
         final String[] args = { "--something", "file.txt" };
         parseCommandLineArguments(args, Arguments::new);
 
@@ -25,7 +21,7 @@ public class TestMissingArguments {
     }
 
     @Test(expected = MissingArgument.class)
-    public void parseMissingArgument() throws InvalidOptionConfiguration, InvalidCommandLine {
+    public void parseMissingArgument() throws InvalidCommandLine {
         final String[] args = { };
         parseCommandLineArguments(args, Arguments::new);
 
@@ -33,7 +29,7 @@ public class TestMissingArguments {
     }
 
     @Test(expected = MissingCommandLineValue.class)
-    public void parseUnknownCommandLineValue() throws InvalidOptionConfiguration, InvalidCommandLine {
+    public void parseUnknownCommandLineValue() throws InvalidCommandLine {
         final String[] args = { "--file" };
         parseCommandLineArguments(args, Arguments::new);
 

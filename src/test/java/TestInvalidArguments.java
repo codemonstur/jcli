@@ -1,7 +1,6 @@
 import jcli.CliOption;
-import jcli.errors.InvalidOptionConfiguration;
-import jcli.errors.InvalidOptionType;
 import jcli.errors.InvalidCommandLine;
+import jcli.errors.InvalidOptionType;
 import org.junit.Test;
 
 import java.util.Set;
@@ -13,15 +12,11 @@ public class TestInvalidArguments {
 
     public static class Arguments {
         @CliOption(longName = "file")
-        public final Set file;
-
-        public Arguments() {
-            file = null;
-        }
+        public Set file;
     }
 
     @Test(expected = InvalidOptionType.class)
-    public void argumentWithInvalidType() throws InvalidOptionConfiguration, InvalidCommandLine {
+    public void argumentWithInvalidType() throws InvalidCommandLine {
         final String[] args = {};
         parseCommandLineArguments(args, Arguments::new);
 
