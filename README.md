@@ -16,11 +16,11 @@ When it is done I want the code to look something like this:
 public static void main(final String.. args) {
     try {
         final Arguments arguments = parseCommandLineArguments(args, Arguments::new);
-        if (arguments.help) System.exit(printCliHelp());
+        if (arguments.help) System.exit(printCliHelp(Arguments.class));
 
         // ... do your stuff
     } catch (InvalidCommandLine e) {
-        printCliHelpWithError(e, Arguments.class);
+        printCliHelp(e, Arguments.class);
     }
 }
 ```
@@ -33,13 +33,15 @@ public static void main(final String.. args) {
             .addClassConvertor(Something.class, StringToSomething)
             .addFieldConvertor(fieldId, StringToSomething)
             .parse(args);
-        if (arguments.help) System.exit(printCliHelp());
+        if (arguments.help) System.exit(printCliHelp(Arguments.class));
 
         // ... do your stuff
     } catch (InvalidCommandLine e) {
-        printCliHelpWithError(e, Arguments.class);
+        printCliHelp(e, Arguments.class);
     }
 }
 ```
 
-You define a class with some fields and annotate them with the Argument annotation.
+You define a class with some fields and annotate them with the CliOption annotation.
+Then you call the static function.
+You get your arguments out.
