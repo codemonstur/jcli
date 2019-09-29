@@ -5,7 +5,9 @@ import jcli.errors.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static java.lang.Boolean.TRUE;
@@ -88,9 +90,12 @@ public enum Parser {;
 
     private static <T> T applyArgumentsToInstance(final String[] args, final Map<String, FieldAndOption> map, final T instance)
             throws InvalidCommandLine, IllegalAccessException {
+        final Set<CliOption> parsedOptions = new HashSet<>();
         for (int i = 0; i < args.length; i++) {
             final FieldAndOption fao = map.remove(argumentToName(args[i]));
             if (fao == null) throw new UnknownCommandLineOption(args[i]);
+            parsedOptions.add(fao.option);
+
             if (fao.option.isFlag()) {
                 isFlagArgument(args[i]);
                 fao.field.set(instance, TRUE);
@@ -100,6 +105,7 @@ public enum Parser {;
         }
 
         for (final FieldAndOption fao : map.values()) {
+            if (parsedOptions.contains(fao.option)) continue;
             if (fao.option.mandatory()) throw new MissingArgument(fao.option);
 
             // FIXME this might be the better option
