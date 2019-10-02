@@ -9,7 +9,7 @@ import static jcli.Parser.FAKE_NULL;
 public @interface CliOption {
 
     boolean isFlag() default false;
-    boolean mandatory() default false;
+    boolean isMandatory() default false;
     char name() default ' ';
     String longName() default "";
     String defaultValue() default FAKE_NULL;

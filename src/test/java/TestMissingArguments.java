@@ -8,11 +8,11 @@ import static org.junit.Assert.fail;
 public class TestMissingArguments {
 
     public static class Arguments {
-        @CliOption(mandatory = true, longName = "file")
+        @CliOption(isMandatory = true, longName = "file")
         public String file;
     }
 
-    @Test(expected = UnknownCommandLineOption.class)
+    @Test(expected = UnknownCommandLineArgument.class)
     public void parseUnknownCommandLineOption() throws InvalidCommandLine {
         final String[] args = { "--something", "file.txt" };
         parseCommandLineArguments(args, Arguments::new);

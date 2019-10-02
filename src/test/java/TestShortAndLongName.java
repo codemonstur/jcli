@@ -10,7 +10,7 @@ import static org.junit.Assert.fail;
 public class TestShortAndLongName {
 
     public static class Arguments {
-        @CliOption(name = 'f', longName = "file", mandatory = true)
+        @CliOption(name = 'f', longName = "file", isMandatory = true)
         public String file;
     }
 

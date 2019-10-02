@@ -22,7 +22,7 @@ public enum Parser {;
             final T o = supplier.get();
             return applyArgumentsToInstance(args, toFieldAndOptionMap(o.getClass()), o);
         } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -30,25 +30,25 @@ public enum Parser {;
         final Map<String, FieldAndOption> map = new HashMap<>();
 
         for (final Field field : listFields(clazz)) {
-            if (Modifier.isStatic(field.getModifiers())) continue;
             if (!field.isAnnotationPresent(CliOption.class)) continue;
-            if (Modifier.isFinal(field.getModifiers())) throw new InvalidOptionModifier(field);
+            if (Modifier.isStatic(field.getModifiers())) throw new InvalidModifierStatic(field);
+            if (Modifier.isFinal(field.getModifiers())) throw new InvalidModifierFinal(field);
 
             makeAccessible(field);
 
-            final CliOption argument = field.getAnnotation(CliOption.class);
+            final CliOption option = field.getAnnotation(CliOption.class);
             if (!isValidFieldType(field.getType()))
-                throw new InvalidOptionType(argument);
-            if (argument.name() == ' ' && argument.longName().isEmpty())
+                throw new InvalidOptionType(option);
+            if (option.name() == ' ' && option.longName().isEmpty())
                 throw new InvalidOptionName(field.getName());
-            if (argument.isFlag() && !isBooleanType(field))
+            if (option.isFlag() && !isBooleanType(field))
                 throw new FlagTypeNotBoolean(field);
 
             // FIXME test if this is really desired, maybe better to just leave the field alone with whatever was defined in the class
-            if (!argument.mandatory() && argument.defaultValue().equals(FAKE_NULL))
-                throw new MissingDefaultForOption(argument);
+            if (!option.isMandatory() && !option.isFlag() && option.defaultValue().equals(FAKE_NULL))
+                throw new MissingDefaultForOption(option);
 
-            addFieldAndOption(map, field, argument);
+            addFieldAndOption(map, field, option);
         }
 
         return map;
@@ -93,7 +93,7 @@ public enum Parser {;
         final Set<CliOption> parsedOptions = new HashSet<>();
         for (int i = 0; i < args.length; i++) {
             final FieldAndOption fao = map.remove(argumentToName(args[i]));
-            if (fao == null) throw new UnknownCommandLineOption(args[i]);
+            if (fao == null) throw new UnknownCommandLineArgument(args[i]);
             parsedOptions.add(fao.option);
 
             if (fao.option.isFlag()) {
@@ -106,7 +106,7 @@ public enum Parser {;
 
         for (final FieldAndOption fao : map.values()) {
             if (parsedOptions.contains(fao.option)) continue;
-            if (fao.option.mandatory()) throw new MissingArgument(fao.option);
+            if (fao.option.isMandatory()) throw new MissingArgument(fao.option);
 
             // FIXME this might be the better option
             // if (fao.argument.defaultValue().equals(FAKE_NULL)) continue;
@@ -122,7 +122,7 @@ public enum Parser {;
     }
 
     private static <T> boolean argumentIntoObject(final String[] arguments, final int index, final Field field, final T instance)
-            throws MissingCommandLineValue, IllegalAccessException {
+            throws MissingCommandLineValue, IllegalAccessException, InvalidArgumentValue {
         final String argument = arguments[index];
         final boolean longForm = isLongForm(argument);
         final String value = argumentToValue(arguments, index);
@@ -135,20 +135,20 @@ public enum Parser {;
     }
 
     private static String argumentToName(final String argument) throws InvalidCommandLine {
-        if (argument.charAt(0) != '-') throw new InvalidCommandLineOption(argument);
+        if (argument.charAt(0) != '-') throw new InvalidCommandLineArgument(argument);
         if (argument.startsWith("--")) {
-            if (argument.length() == 2) throw new CommandLineOptionTooShort();
+            if (argument.length() == 2) throw new CommandLineArgumentTooShort();
             final int equalsIndex = argument.indexOf('=');
             return equalsIndex == -1 ? argument.substring(2) : argument.substring(2, equalsIndex);
         }
 
-        if (argument.length() == 1) throw new CommandLineOptionTooShort();
+        if (argument.length() == 1) throw new CommandLineArgumentTooShort();
         int equalsIndex = argument.indexOf('=');
         if (equalsIndex == -1) {
             if (argument.length() > 2) throw new SingleDashLongFormArgument(argument);
             return argument.substring(1);
         }
-        if (equalsIndex == 1) throw new InvalidCommandLineOption(argument);
+        if (equalsIndex == 1) throw new InvalidCommandLineArgument(argument);
         if (equalsIndex > 2) throw new SingleDashLongFormArgument(argument);
         return argument.substring(1, 2);
     }
@@ -158,7 +158,7 @@ public enum Parser {;
         final int equalsIndex = arg.indexOf('=');
         if (equalsIndex == -1 && index+1 >= arguments.length)
             throw new MissingCommandLineValue(arg);
-        return  equalsIndex == -1 ? arguments[index+1] : arg.substring(equalsIndex);
+        return  equalsIndex == -1 ? arguments[index+1] : arg.substring(equalsIndex+1);
     }
 
 }
