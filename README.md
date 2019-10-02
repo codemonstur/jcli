@@ -41,6 +41,17 @@ public static void main(final String.. args) {
     }
 }
 ```
+Or perhaps like this:
+```
+public static void main(final String.. args) {
+    final Arguments arguments = newCliParser()
+        .object(Arguments::new)
+        .onErrorPrintHelpAndExit()
+        .onHelpPrintHelpAndExit()
+        .parse(args);
+    // ... do your stuff
+}
+```
 
 You define a class with some fields and annotate them with the CliOption annotation.
 Then you call the static function.

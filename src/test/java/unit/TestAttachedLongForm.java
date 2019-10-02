@@ -1,8 +1,10 @@
+package unit;
+
 import jcli.CliOption;
 import jcli.errors.InvalidCommandLine;
 import org.junit.Test;
 
-import static jcli.Parser.parseCommandLineArguments;
+import static jcli.CliParser.parseCommandLineArguments;
 import static org.junit.Assert.assertEquals;
 
 public class TestAttachedLongForm {

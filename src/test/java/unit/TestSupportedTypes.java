@@ -1,3 +1,5 @@
+package unit;
+
 import jcli.CliOption;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionType;
@@ -17,7 +19,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static java.lang.String.format;
-import static jcli.Parser.parseCommandLineArguments;
+import static jcli.CliParser.parseCommandLineArguments;
 import static org.junit.Assert.*;
 
 public class TestSupportedTypes {

@@ -1,3 +1,5 @@
+package unit;
+
 import jcli.CliOption;
 import jcli.errors.InvalidCommandLine;
 import org.junit.Test;
@@ -6,7 +8,7 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
-import static jcli.Parser.parseCommandLineArguments;
+import static jcli.CliParser.parseCommandLineArguments;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 

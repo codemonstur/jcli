@@ -1,9 +1,11 @@
+package unit;
+
 import jcli.CliOption;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.MissingArgument;
 import org.junit.Test;
 
-import static jcli.Parser.parseCommandLineArguments;
+import static jcli.CliParser.parseCommandLineArguments;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 

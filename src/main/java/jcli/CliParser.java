@@ -13,14 +13,27 @@ import java.util.function.Supplier;
 import static java.lang.Boolean.TRUE;
 import static jcli.Reflection.*;
 
-public enum Parser {;
+public enum CliParser {;
     static final String FAKE_NULL = "\u0000\u0001\u0002\u0003\u0004YEAH_I_REALLY_HOPE_NO_ONE_EVER_USES_THIS_STRING";
 
     public static <T> T parseCommandLineArguments(final String[] args, final Supplier<T> supplier)
             throws InvalidOptionConfiguration, InvalidCommandLine {
+        return parseCommandLineArguments(args, supplier.get());
+    }
+
+    public static <T> T parseCommandLineArguments(final String[] args, final T object)
+            throws InvalidOptionConfiguration, InvalidCommandLine {
         try {
-            final T o = supplier.get();
-            return applyArgumentsToInstance(args, toFieldAndOptionMap(o.getClass()), o);
+            return applyArgumentsToInstance(args, toFieldAndOptionMap(object.getClass()), object, Reflection::toFieldType);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> T parseCommandLineArguments(final String[] args, final T object, final ToFieldType convert)
+            throws InvalidOptionConfiguration, InvalidCommandLine {
+        try {
+            return applyArgumentsToInstance(args, toFieldAndOptionMap(object.getClass()), object, convert);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -43,9 +56,11 @@ public enum Parser {;
                 throw new InvalidOptionName(field.getName());
             if (option.isFlag() && !isBooleanType(field))
                 throw new FlagTypeNotBoolean(field);
+            if (option.isHelp() && !isBooleanType(field))
+                throw new HelpTypeNotBoolean(field);
 
-            // FIXME test if this is really desired, maybe better to just leave the field alone with whatever was defined in the class
-            if (!option.isMandatory() && !option.isFlag() && option.defaultValue().equals(FAKE_NULL))
+            // TODO test if this is really desired, maybe better to just leave the field alone with whatever was defined in the class
+            if (!option.isMandatory() && !option.isFlag() && !option.isHelp() && option.defaultValue().equals(FAKE_NULL))
                 throw new MissingDefaultForOption(option);
 
             addFieldAndOption(map, field, option);
@@ -61,34 +76,8 @@ public enum Parser {;
             map.put(option.longName(), new FieldAndOption(field, option));
     }
 
-    /*
-     * This code used to remove the final modifier from the field using this code:
-     *
-     *    Field modifiersField = Field.class.getDeclaredField("modifiers");
-     *    modifiersField.setAccessible(true);
-     *    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-     *
-     * However, since Java 12 this hack no longer works. Instead you will get an exception:
-     *
-     *    java.lang.NoSuchFieldException: modifiers
-     *
-     * There is a workaround available for Java 12 using a VarHandle documented here:
-     * https://stackoverflow.com/questions/56039341/get-declared-fields-of-java-lang-reflect-fields-in-jdk12/56042394#56042394
-     * VarHandles were introduced in Java 9.
-     *
-     * We therefore have these options:
-     *
-     *  1. Use the original hack, making the library unusable in Java 12 and forwards
-     *  2. Use the new hack, making the library unusable in Java 8 and lower
-     *  3. Don't remove the final modifier, forcing users to provide a class with mutable fields
-     *
-     * I have chosen 3 for now, if a different solution presents itself I will revisit the decision.
-     */
-    private static void makeAccessible(final Field field) {
-        field.setAccessible(true);
-    }
-
-    private static <T> T applyArgumentsToInstance(final String[] args, final Map<String, FieldAndOption> map, final T instance)
+    private static <T> T applyArgumentsToInstance(final String[] args, final Map<String, FieldAndOption> map,
+                                                  final T instance, final ToFieldType convert)
             throws InvalidCommandLine, IllegalAccessException {
         final Set<CliOption> parsedOptions = new HashSet<>();
         for (int i = 0; i < args.length; i++) {
@@ -96,19 +85,19 @@ public enum Parser {;
             if (fao == null) throw new UnknownCommandLineArgument(args[i]);
             parsedOptions.add(fao.option);
 
-            if (fao.option.isFlag()) {
+            if (fao.option.isFlag() || fao.option.isHelp()) {
                 isFlagArgument(args[i]);
                 fao.field.set(instance, TRUE);
                 continue;
             }
-            if (argumentIntoObject(args, i, fao.field, instance)) i++;
+            if (argumentIntoObject(args, i, fao.field, instance, convert)) i++;
         }
 
         for (final FieldAndOption fao : map.values()) {
             if (parsedOptions.contains(fao.option)) continue;
             if (fao.option.isMandatory()) throw new MissingArgument(fao.option);
 
-            // FIXME this might be the better option
+            // TODO this might be the better option
             // if (fao.argument.defaultValue().equals(FAKE_NULL)) continue;
 
             fao.field.set(instance, toFieldType(fao.field.getType(), fao.option.defaultValue()));
@@ -121,12 +110,13 @@ public enum Parser {;
         if (argument.contains("=")) throw new LongFormFlagArgument();
     }
 
-    private static <T> boolean argumentIntoObject(final String[] arguments, final int index, final Field field, final T instance)
+    private static <T> boolean argumentIntoObject(final String[] arguments, final int index, final Field field,
+                                                  final T instance, final ToFieldType convert)
             throws MissingCommandLineValue, IllegalAccessException, InvalidArgumentValue {
         final String argument = arguments[index];
         final boolean longForm = isLongForm(argument);
         final String value = argumentToValue(arguments, index);
-        field.set(instance, toFieldType(field.getType(), value));
+        field.set(instance, convert.toFieldType(field.getType(), value));
         return !longForm;
     }
 

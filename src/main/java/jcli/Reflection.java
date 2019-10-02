@@ -16,6 +16,40 @@ import java.util.regex.Pattern;
 
 public enum Reflection {;
 
+    public interface StringToType<T> {
+        T toType(String value);
+    }
+    public interface ToFieldType {
+        Object toFieldType(Class<?> type, String value) throws InvalidArgumentValue;
+    }
+
+    /*
+     * This code used to remove the final modifier from the field using this code:
+     *
+     *    Field modifiersField = Field.class.getDeclaredField("modifiers");
+     *    modifiersField.setAccessible(true);
+     *    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+     *
+     * However, since Java 12 this hack no longer works. Instead you will get an exception:
+     *
+     *    java.lang.NoSuchFieldException: modifiers
+     *
+     * There is a workaround available for Java 12 using a VarHandle documented here:
+     * https://stackoverflow.com/questions/56039341/get-declared-fields-of-java-lang-reflect-fields-in-jdk12/56042394#56042394
+     * VarHandles were introduced in Java 9.
+     *
+     * We therefore have these options:
+     *
+     *  1. Use the original hack, making the library unusable in Java 12 and forwards
+     *  2. Use the new hack, making the library unusable in Java 8 and lower
+     *  3. Don't remove the final modifier, forcing users to provide a class with mutable fields
+     *
+     * I have chosen 3 for now, if a different solution presents itself I will revisit the decision.
+     */
+    public static void makeAccessible(final Field field) {
+        field.setAccessible(true);
+    }
+
     public static List<Field> listFields(final Class<?> type) {
         return listFields(new ArrayList<>(), type);
     }

@@ -1,10 +1,12 @@
+package unit;
+
 import jcli.CliOption;
 import jcli.errors.*;
 import org.junit.Test;
 
 import java.net.URI;
 
-import static jcli.Parser.parseCommandLineArguments;
+import static jcli.CliParser.parseCommandLineArguments;
 import static org.junit.Assert.fail;
 
 public class TestInvalidArguments {
