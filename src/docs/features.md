@@ -1,12 +1,20 @@
 
-Steal some features from here:
-https://github.com/h908714124/jbock#features-overview
-https://github.com/h908714124/jbock/blob/master/READ_MORE.md
+## Potential future features
 
-PositionalArguments
-Support the Optional class
+These are features that don't exist yet in the code, but they could be done.
+Or exist already in other parsers.
 
-add a map collector
+### 1. PositionalArguments
+
+just plain words, numbered
+
+### 2. Support the Optional class
+
+Optional isn't supported as a type
+If the value doesn't exist set to Optional.empty()
+Else convert to its type and set that.
+
+### 3. map collectors
 
 add a lookup DB type thing that maps the argument to something in the DB:
 - from a Map<String, Object> instance
@@ -14,19 +22,32 @@ add a lookup DB type thing that maps the argument to something in the DB:
 - from a ResourceBundle instance
 - from a Properties instance 
 
-escape sequence to disable CliOption's
+### 4. escape sequence
 
-allowPrefixedPositionalArguments
+If we encounter '--' with nothing else we stop parsing the arguments
 
-Builder
-    .withIndent(2)                                                  // default is 7
-    .withResourceBundle(ResourceBundle.getBundle("UserOpts"))       // default is none
+### 5. allowPrefixedPositionalArguments
 
-Consider:
+a boolean flag on the Arguments class. 
+If set we will not throw an error if we encounter an argument that starts with a '-' or '--'.
+Instead, we will treat it as a positional argument.
+And throw an error is none are defined.
+
+### 6. Setting the help tab size
+
+Builder.withIndent(2)
+
+### 7. Adding a resource bundle for generating errors and help
+
+Builder.withResourceBundle(ResourceBundle.getBundle("UserOpts"))
+
+### 8. Different way to treat Boolean's
+
 Currently the Boolean class works like the boolean primitive:
 - It is a flag
 - If the argument is there the value is set to true
 - If the argument isn't there the value is set to false
+
 The Boolean class could be considered an optional field. The behavior would be like this:
 - The argument always requires a value
 - If the value is false set to Boolean.FALSE
