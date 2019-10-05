@@ -54,13 +54,11 @@ public enum CliParser {;
                 throw new InvalidOptionType(option);
             if (option.name() == ' ' && option.longName().isEmpty())
                 throw new InvalidOptionName(field.getName());
-            if (option.isFlag() && !isBooleanType(field))
-                throw new FlagTypeNotBoolean(field);
             if (option.isHelp() && !isBooleanType(field))
                 throw new HelpTypeNotBoolean(field);
 
             // TODO test if this is really desired, maybe better to just leave the field alone with whatever was defined in the class
-            if (!option.isMandatory() && !option.isFlag() && !option.isHelp() && option.defaultValue().equals(FAKE_NULL))
+            if (!option.isMandatory() && !isBooleanType(field) && !option.isHelp() && option.defaultValue().equals(FAKE_NULL))
                 throw new MissingDefaultForOption(option);
 
             addFieldAndOption(map, field, option);
@@ -85,7 +83,7 @@ public enum CliParser {;
             if (fao == null) throw new UnknownCommandLineArgument(args[i]);
             parsedOptions.add(fao.option);
 
-            if (fao.option.isFlag() || fao.option.isHelp()) {
+            if (isBooleanType(fao.field) || fao.option.isHelp()) {
                 isFlagArgument(args[i]);
                 fao.field.set(instance, TRUE);
                 continue;
@@ -106,21 +104,21 @@ public enum CliParser {;
         return instance;
     }
 
-    private static void isFlagArgument(final String argument) throws LongFormFlagArgument {
-        if (argument.contains("=")) throw new LongFormFlagArgument();
+    private static void isFlagArgument(final String argument) throws AttachedFormFlagArgument {
+        if (argument.contains("=")) throw new AttachedFormFlagArgument();
     }
 
     private static <T> boolean argumentIntoObject(final String[] arguments, final int index, final Field field,
                                                   final T instance, final ToFieldType convert)
             throws MissingCommandLineValue, IllegalAccessException, InvalidArgumentValue {
         final String argument = arguments[index];
-        final boolean longForm = isLongForm(argument);
+        final boolean attachedForm = isAttachedForm(argument);
         final String value = argumentToValue(arguments, index);
         field.set(instance, convert.toFieldType(field.getType(), value));
-        return !longForm;
+        return !attachedForm;
     }
 
-    private static boolean isLongForm(final String argument) {
+    private static boolean isAttachedForm(final String argument) {
         return argument.contains("=");
     }
 
@@ -135,11 +133,11 @@ public enum CliParser {;
         if (argument.length() == 1) throw new CommandLineArgumentTooShort();
         int equalsIndex = argument.indexOf('=');
         if (equalsIndex == -1) {
-            if (argument.length() > 2) throw new SingleDashLongFormArgument(argument);
+            if (argument.length() > 2) throw new SingleDashAttachedFormArgument(argument);
             return argument.substring(1);
         }
         if (equalsIndex == 1) throw new InvalidCommandLineArgument(argument);
-        if (equalsIndex > 2) throw new SingleDashLongFormArgument(argument);
+        if (equalsIndex > 2) throw new SingleDashAttachedFormArgument(argument);
         return argument.substring(1, 2);
     }
 

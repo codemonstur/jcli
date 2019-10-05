@@ -2,13 +2,14 @@ package jcli;
 
 import jcli.errors.InvalidCommandLine;
 
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import static java.lang.Boolean.TRUE;
-import static jcli.CliHelp.printHelp;
+import static jcli.CliHelp.getHelp;
 import static jcli.CliParser.parseCommandLineArguments;
 import static jcli.Reflection.*;
 
@@ -29,8 +30,12 @@ public class CliParserBuilder<T> {
     private Supplier<T> supplier;
     private boolean onErrorPrintHelpAndExit = false;
     private boolean onHelpPrintHelpAndExit = false;
+    private int helpExitCode = 1;
+    private int errorExitCode = 2;
     private CliErrorConsumer onErrorCall;
     private CliHelpConsumer<T> onHelpCall;
+    private PrintStream helpOut = System.out;
+    private PrintStream errorOut = System.err;
     private Map<Class<?>, StringToType<?>> classConverters = new HashMap<>();
 
     public CliParserBuilder<T> name(final String name) {
@@ -49,12 +54,28 @@ public class CliParserBuilder<T> {
         onErrorCall = consumer;
         return this;
     }
+    public CliParserBuilder<T> errorExitCode(final int code) {
+        this.errorExitCode = code;
+        return this;
+    }
+    public CliParserBuilder<T> errorStream(final PrintStream errorOut) {
+        this.errorOut = errorOut;
+        return this;
+    }
     public CliParserBuilder<T> onHelpPrintHelpAndExit() {
         onHelpPrintHelpAndExit = true;
         return this;
     }
     public CliParserBuilder<T> onHelpCall(final CliHelpConsumer<T> consumer) {
         onHelpCall = consumer;
+        return this;
+    }
+    public CliParserBuilder<T> helpExitCode(final int code) {
+        this.helpExitCode = code;
+        return this;
+    }
+    public CliParserBuilder<T> helpStream(final PrintStream helpOut) {
+        this.helpOut = helpOut;
         return this;
     }
 
@@ -75,16 +96,16 @@ public class CliParserBuilder<T> {
             if (isHelpSelected(arguments)) {
                 if (onHelpCall != null) onHelpCall.cliHelpRequested(arguments, args);
                 if (onHelpPrintHelpAndExit) {
-                    printHelp(name, object.getClass());
-                    System.exit(1);
+                    helpOut.println(getHelp(name, object.getClass()));
+                    System.exit(helpExitCode);
                 }
             }
             return arguments;
         } catch (InvalidCommandLine e) {
             if (onErrorCall != null) onErrorCall.cliArgumentsInvalid(e, args);
             if (onErrorPrintHelpAndExit) {
-                printHelp(name, object.getClass());
-                System.exit(2);
+                helpOut.println(getHelp(name, object.getClass()));
+                System.exit(errorExitCode);
             }
             throw e;
         }

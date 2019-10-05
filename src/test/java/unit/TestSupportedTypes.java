@@ -92,6 +92,12 @@ public class TestSupportedTypes {
         private Pattern pattern;
         @CliOption(isMandatory = true, longName = "charset")
         private Charset charset;
+        @CliOption(isMandatory = true, longName = "enum")
+        private TestEnum enumValue;
+    }
+
+    private enum TestEnum {
+        test, something
     }
 
     @Test
@@ -100,12 +106,12 @@ public class TestSupportedTypes {
             "--intClass", "1", "--intPrimitive", "1", "--floatClass", "1.0", "--floatPrimitive", "1.0",
             "--byteClass", "1", "--bytePrimitive", "1", "--charClass", "a", "--charPrimitive", "a",
             "--shortClass", "1", "--shortPrimitive", "1", "--longClass", "1", "--longPrimitive", "1",
-            "--booleanClass", "true", "--booleanPrimitive", "true", "--file", ".", "--bigDecimal", "1",
+            "--booleanClass", "--booleanPrimitive", "--file", ".", "--bigDecimal", "1",
             "--bigInteger", "1", "--uri", "http://www.google.com", "--path", "..", "--instant", "2019-10-02T10:23:54.735Z",
             "--localTime", "12:24:39.562", "--localDate", "2019-10-02", "--localDateTime", "2019-10-02T12:25:27.081",
             "--offsetDateTime", "2019-10-02T12:25:49.005+02:00", "--zonedDateTime", "2019-10-02T12:26:10.461+02:00[Europe/Amsterdam]",
             "--optionalDouble", "1.0", "--optionalInt", "1", "--optionalLong", "1", "--pattern", ".*",
-            "--charset", "UTF-8" };
+            "--charset", "UTF-8", "--enum", "test"};
         final AllSupportedTypes arguments = parseCommandLineArguments(args, AllSupportedTypes::new);
 
         assertNotNull(format("The %s argument was not set", "bigDecimal"), arguments.bigDecimal);
@@ -140,6 +146,7 @@ public class TestSupportedTypes {
         assertEquals(format("The %s argument was not set", "doublePrimitive"),1.0, arguments.doublePrimitive, 0.0000001);
         assertEquals(format("The %s argument was not set", "floatPrimitive"),1.0f, arguments.floatPrimitive, 0.0000001f);
         assertEquals(format("The %s argument was not set", "longPrimitive"), 1, arguments.longPrimitive);
+        assertEquals(format("The %s argument was not set", "enumValue"), TestEnum.test, arguments.enumValue);
         assertTrue(format("The %s argument was not set", "booleanPrimitive"), arguments.booleanPrimitive);
     }
 

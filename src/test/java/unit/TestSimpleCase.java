@@ -20,7 +20,7 @@ public class TestSimpleCase {
     }
 
     public static class Flag {
-        @CliOption(name = 'f', isFlag= true)
+        @CliOption(name = 'f')
         public boolean file;
     }
 

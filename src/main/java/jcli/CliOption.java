@@ -9,7 +9,6 @@ import static jcli.CliParser.FAKE_NULL;
 public @interface CliOption {
 
     boolean isHelp() default false;
-    boolean isFlag() default false;
     boolean isMandatory() default false;
     char name() default ' ';
     String longName() default "";

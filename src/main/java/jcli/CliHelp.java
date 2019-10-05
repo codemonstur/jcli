@@ -33,9 +33,7 @@ public enum CliHelp {;
                 throw new InvalidOptionType(option);
             if (option.name() == ' ' && option.longName().isEmpty())
                 throw new InvalidOptionName(field.getName());
-            if (option.isFlag() && !isBooleanType(field))
-                throw new FlagTypeNotBoolean(field);
-            if (!option.isMandatory() && !option.isFlag() && !option.isHelp() && option.defaultValue().equals(FAKE_NULL))
+            if (!option.isMandatory() && !isBooleanType(field) && !option.isHelp() && option.defaultValue().equals(FAKE_NULL))
                 throw new MissingDefaultForOption(option);
 
             builder.append("\t")
@@ -43,7 +41,7 @@ public enum CliHelp {;
                 .append("\t")
                 .append(option.isMandatory() ? "mandatory" : " optional")
                 .append(" ")
-                .append(option.isFlag() || option.isHelp() ? " flag" : "value")
+                .append(isBooleanType(field) || option.isHelp() ? " flag" : "value")
                 .append("\t\t")
                 .append(option.description())
                 .append("\n");

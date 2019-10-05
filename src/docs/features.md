@@ -4,10 +4,7 @@ https://github.com/h908714124/jbock#features-overview
 https://github.com/h908714124/jbock/blob/master/READ_MORE.md
 
 PositionalArguments
-Flags are automatic from the selected type (boolean or Boolean)
 Support the Optional class
-
-long form is really called attached form
 
 add a map collector
 
@@ -21,11 +18,18 @@ escape sequence to disable CliOption's
 
 allowPrefixedPositionalArguments
 
-String[] argv = {"-f hello.txt"};
-Parser.newParser()
-    .withErrorExitCode(2)                                           // default is 1
-    .withErrorStream(new PrintStream(new ByteArrayOutputStream()))  // default is System.err
-    .withOutputStream(new PrintStream(new ByteArrayOutputStream())) // default is System.out
+Builder
     .withIndent(2)                                                  // default is 7
     .withResourceBundle(ResourceBundle.getBundle("UserOpts"))       // default is none
-    .parseOrExit(argv);
+
+Consider:
+Currently the Boolean class works like the boolean primitive:
+- It is a flag
+- If the argument is there the value is set to true
+- If the argument isn't there the value is set to false
+The Boolean class could be considered an optional field. The behavior would be like this:
+- The argument always requires a value
+- If the value is false set to Boolean.FALSE
+- If the value is true set to Boolean.TRUE
+- If the argument isn't provided set to null
+- All other values (or no value) throws exception

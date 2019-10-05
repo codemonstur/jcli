@@ -67,7 +67,7 @@ public enum Reflection {;
             , OptionalDouble.class, OptionalInt.class, OptionalLong.class, Pattern.class, Charset.class
             ));
     public static boolean isValidFieldType(final Class<?> type) {
-        return VALID_FIELDS.contains(type);
+        return VALID_FIELDS.contains(type) || type.isEnum();
     }
 
 
@@ -104,20 +104,21 @@ public enum Reflection {;
             if (type.isAssignableFrom(OptionalDouble.class)) {
                 return value == null || value.isEmpty()
                      ? OptionalDouble.empty()
-                     : OptionalDouble.of(Double.valueOf(value));
+                     : OptionalDouble.of(Double.parseDouble(value));
             }
             if (type.isAssignableFrom(OptionalInt.class)) {
                 return value == null || value.isEmpty()
                      ? OptionalInt.empty()
-                     : OptionalInt.of(Integer.valueOf(value));
+                     : OptionalInt.of(Integer.parseInt(value));
             }
             if (type.isAssignableFrom(OptionalLong.class)) {
                 return value == null || value.isEmpty()
                      ? OptionalLong.empty()
-                     : OptionalLong.of(Long.valueOf(value));
+                     : OptionalLong.of(Long.parseLong(value));
             }
             if (type.isAssignableFrom(Pattern.class)) return Pattern.compile(value);
             if (type.isAssignableFrom(Charset.class)) return Charset.forName(value);
+            if (type.isEnum()) return Enum.valueOf((Class<Enum>)type, value);
         } catch (Exception e) {
             throw new InvalidArgumentValue(value);
         }

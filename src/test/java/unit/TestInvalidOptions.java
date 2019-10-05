@@ -25,10 +25,6 @@ public class TestInvalidOptions {
         @CliOption(isMandatory = true)
         public String file;
     }
-    public static class NotBoolean {
-        @CliOption(longName = "file", isFlag = true, isMandatory = true)
-        public String file;
-    }
     public static class MissingDefault {
         @CliOption(longName = "file")
         public String file;
@@ -56,14 +52,6 @@ public class TestInvalidOptions {
         parseCommandLineArguments(args, NoName::new);
 
         fail("Parser failed to throw exception InvalidOptionName");
-    }
-
-    @Test(expected = FlagTypeNotBoolean.class)
-    public void optionFlagNotBoolean() throws InvalidCommandLine {
-        final String[] args = {};
-        parseCommandLineArguments(args, NotBoolean::new);
-
-        fail("Parser failed to throw exception FlagTypeNotBoolean");
     }
 
     @Test(expected = MissingDefaultForOption.class)

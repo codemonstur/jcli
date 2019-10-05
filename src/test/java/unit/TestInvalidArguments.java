@@ -16,7 +16,7 @@ public class TestInvalidArguments {
         public String file;
     }
     public static class Flag {
-        @CliOption(name = 'f', isFlag = true)
+        @CliOption(name = 'f')
         public boolean file;
     }
     public static class WrongValue {
@@ -40,7 +40,7 @@ public class TestInvalidArguments {
         fail("Parser failed to throw exception CommandLineArgumentTooShort");
     }
 
-    @Test(expected = SingleDashLongFormArgument.class)
+    @Test(expected = SingleDashAttachedFormArgument.class)
     public void argumentLongSingleDash() throws InvalidCommandLine {
         final String[] args = { "-file", "data.txt" };
         parseCommandLineArguments(args, Arguments::new);
@@ -48,7 +48,7 @@ public class TestInvalidArguments {
         fail("Parser failed to throw exception SingleDashLongFormArgument");
     }
 
-    @Test(expected = LongFormFlagArgument.class)
+    @Test(expected = AttachedFormFlagArgument.class)
     public void argumentLongFlag() throws InvalidCommandLine {
         final String[] args = { "-f=boe" };
         parseCommandLineArguments(args, Flag::new);
