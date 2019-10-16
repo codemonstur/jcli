@@ -4,10 +4,7 @@ import jcli.errors.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static java.lang.Boolean.TRUE;
@@ -24,7 +21,8 @@ public enum CliParser {;
     public static <T> T parseCommandLineArguments(final String[] args, final T object)
             throws InvalidOptionConfiguration, InvalidCommandLine {
         try {
-            return applyArgumentsToInstance(args, toFieldAndOptionMap(object.getClass()), object, Reflection::toFieldType);
+            final Class<?> clazz = object.getClass();
+            return applyArgumentsToInstance(args, toFieldAndOptionMap(clazz), toFieldAndPositionList(clazz), object, Reflection::toFieldType);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -33,10 +31,31 @@ public enum CliParser {;
     public static <T> T parseCommandLineArguments(final String[] args, final T object, final ToFieldType convert)
             throws InvalidOptionConfiguration, InvalidCommandLine {
         try {
-            return applyArgumentsToInstance(args, toFieldAndOptionMap(object.getClass()), object, convert);
+            final Class<?> clazz = object.getClass();
+            return applyArgumentsToInstance(args, toFieldAndOptionMap(clazz), toFieldAndPositionList(clazz), object, convert);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static List<FieldAndPosition> toFieldAndPositionList(final Class clazz) {
+        final List<FieldAndPosition> list = new ArrayList<>();
+
+        for (final Field field : listFields(clazz)) {
+            if (!field.isAnnotationPresent(CliPositional.class)) continue;
+            if (Modifier.isStatic(field.getModifiers())) throw new InvalidModifierStatic(field);
+            if (Modifier.isFinal(field.getModifiers())) throw new InvalidModifierFinal(field);
+
+            makeAccessible(field);
+
+            final CliPositional positional = field.getAnnotation(CliPositional.class);
+            if (!isValidFieldType(field.getType()))
+                throw new InvalidOptionType(positional);
+
+            list.add(positional.index(), new FieldAndPosition(field, positional));
+        }
+
+        return list;
     }
 
     private static Map<String, FieldAndOption> toFieldAndOptionMap(final Class clazz) throws InvalidOptionConfiguration {
@@ -74,21 +93,31 @@ public enum CliParser {;
             map.put(option.longName(), new FieldAndOption(field, option));
     }
 
-    private static <T> T applyArgumentsToInstance(final String[] args, final Map<String, FieldAndOption> map,
-                                                  final T instance, final ToFieldType convert)
-            throws InvalidCommandLine, IllegalAccessException {
-        final Set<CliOption> parsedOptions = new HashSet<>();
-        for (int i = 0; i < args.length; i++) {
-            final FieldAndOption fao = map.remove(argumentToName(args[i]));
-            if (fao == null) throw new UnknownCommandLineArgument(args[i]);
-            parsedOptions.add(fao.option);
+    private static <T> T applyArgumentsToInstance(final String[] args, final Map<String, FieldAndOption> map
+            , final List<FieldAndPosition> list, final T instance, final ToFieldType convert) throws InvalidCommandLine, IllegalAccessException {
 
-            if (isBooleanType(fao.field) || fao.option.isHelp()) {
-                isFlagArgument(args[i]);
-                fao.field.set(instance, TRUE);
-                continue;
+        final Set<CliOption> parsedOptions = new HashSet<>();
+
+        for (int i = 0; i < args.length; i++) {
+            if (isOption(args[i])) {
+                final FieldAndOption fao = map.remove(argumentToName(args[i]));
+                if (fao == null) throw new UnknownCommandLineArgument(args[i]);
+                parsedOptions.add(fao.option);
+
+                if (isBooleanType(fao.field) || fao.option.isHelp()) {
+                    isFlagArgument(args[i]);
+                    fao.field.set(instance, TRUE);
+                    continue;
+                }
+                if (argumentIntoObject(args, i, fao.field, instance, convert)) i++;
+            } else {
+                // it must be a positional if its not an option
+                if (list.isEmpty()) throw new TooManyPositionalArguments();
+                final FieldAndPosition fap = list.remove(0);
+                if (fap == null) throw new UnknownCommandLineArgument(args[i]);
+
+                fap.field.set(instance, convert.toFieldType(fap.field.getType(), args[i]));
             }
-            if (argumentIntoObject(args, i, fao.field, instance, convert)) i++;
         }
 
         for (final FieldAndOption fao : map.values()) {
@@ -101,7 +130,18 @@ public enum CliParser {;
             fao.field.set(instance, toFieldType(fao.field.getType(), fao.option.defaultValue()));
         }
 
+        for (final FieldAndPosition fap : list) {
+            if (FAKE_NULL.equals(fap.position.defaultValue()))
+                throw new MissingArgument(fap.position);
+
+            fap.field.set(instance, convert.toFieldType(fap.field.getType(), fap.position.defaultValue()));
+        }
+
         return instance;
+    }
+
+    private static boolean isOption(final String argument) {
+        return !argument.isEmpty() && argument.charAt(0) == '-';
     }
 
     private static void isFlagArgument(final String argument) throws AttachedFormFlagArgument {

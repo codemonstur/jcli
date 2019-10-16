@@ -56,14 +56,6 @@ public class TestInvalidArguments {
         fail("Parser failed to throw exception LongFormFlagArgument");
     }
 
-    @Test(expected = InvalidCommandLineArgument.class)
-    public void argumentWithoutDashes() throws InvalidCommandLine {
-        final String[] args = { "f=boe" };
-        parseCommandLineArguments(args, Arguments::new);
-
-        fail("Parser failed to throw exception InvalidCommandLineArgument");
-    }
-
     @Test(expected = InvalidArgumentValue.class)
     public void argumentWrongValue() throws InvalidCommandLine {
         final String[] args = { "-o", "%&^*%" };
