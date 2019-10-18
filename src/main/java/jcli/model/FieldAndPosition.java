@@ -1,4 +1,6 @@
-package jcli;
+package jcli.model;
+
+import jcli.annotations.CliPositional;
 
 import java.lang.reflect.Field;
 

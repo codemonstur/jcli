@@ -1,8 +1,11 @@
 package example;
 
-import jcli.CliOption;
+import jcli.annotations.CliOption;
 import jcli.CliParserBuilder;
 import jcli.errors.InvalidCommandLine;
+
+import static jcli.CliHelp.printHelp;
+import static jcli.CliParserBuilder.newCliParser;
 
 public class BuilderExample {
 
@@ -11,7 +14,11 @@ public class BuilderExample {
         public String file;
     }
 
-    public static void main(final String... args) throws InvalidCommandLine {
+    public static void main(final String... args) {
+        printHelp("example", Arguments.class);
+    }
+
+    public static void exampleOne(final String... args) throws InvalidCommandLine {
         final Arguments arguments = new CliParserBuilder<Arguments>()
             .name("test")
             .object(Arguments::new)
@@ -22,4 +29,34 @@ public class BuilderExample {
         // do stuff
     }
 
+    public static void exampleTwo(final String... args) throws InvalidCommandLine {
+        final Arguments arguments = newCliParser(Arguments::new)
+            .name("test")
+            .onErrorPrintHelpAndExit()
+            .onHelpPrintHelpAndExit()
+            .parse(args);
+
+        // do stuff
+    }
+
+    public static void exampleThree(final String... args) throws InvalidCommandLine {
+        final Arguments arguments = CliParserBuilder.<Arguments>newCliParser()
+            .object(Arguments::new)
+            .name("test")
+            .onErrorPrintHelpAndExit()
+            .onHelpPrintHelpAndExit()
+            .parse(args);
+
+        // do stuff
+    }
+
+    public static void exampleFour(final String... args) {
+        final Arguments arguments = newCliParser(Arguments::new)
+            .name("test")
+            .onErrorPrintHelpAndExit()
+            .onHelpPrintHelpAndExit()
+            .parseSuppressErrors(args);
+
+        // do stuff
+    }
 }

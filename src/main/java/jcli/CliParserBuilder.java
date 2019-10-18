@@ -1,5 +1,6 @@
 package jcli;
 
+import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 
 import java.io.PrintStream;
@@ -22,6 +23,9 @@ public class CliParserBuilder<T> {
         void cliHelpRequested(A arguments, String[] args);
     }
 
+    public static <U> CliParserBuilder<U> newCliParser(final Supplier<U> supplier) {
+        return new CliParserBuilder<U>().object(supplier);
+    }
     public static <U> CliParserBuilder<U> newCliParser() {
         return new CliParserBuilder<>();
     }
@@ -35,7 +39,6 @@ public class CliParserBuilder<T> {
     private CliErrorConsumer onErrorCall;
     private CliHelpConsumer<T> onHelpCall;
     private PrintStream helpOut = System.out;
-    private PrintStream errorOut = System.err;
     private Map<Class<?>, StringToType<?>> classConverters = new HashMap<>();
 
     public CliParserBuilder<T> name(final String name) {
@@ -56,10 +59,6 @@ public class CliParserBuilder<T> {
     }
     public CliParserBuilder<T> errorExitCode(final int code) {
         this.errorExitCode = code;
-        return this;
-    }
-    public CliParserBuilder<T> errorStream(final PrintStream errorOut) {
-        this.errorOut = errorOut;
         return this;
     }
     public CliParserBuilder<T> onHelpPrintHelpAndExit() {
@@ -88,6 +87,15 @@ public class CliParserBuilder<T> {
 //    public <D> CliParserBuilder addFieldConverter(final int fieldId, StringToType<D> converter) {
 //
 //    }
+
+    // Not pretty but so far the only solution to the checked Exception problem
+    public T parseSuppressErrors(final String[] args) {
+        try {
+            return parse(args);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     public T parse(final String[] args) throws InvalidCommandLine {
         final T object = supplier.get();
