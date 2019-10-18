@@ -1,58 +1,48 @@
-# jcli
+
+[![GitHub Release](https://img.shields.io/github/release/codemonstur/jcli.svg)](https://github.com/codemonstur/jcli/releases) 
+[![Build Status](https://travis-ci.org/codemonstur/jcli.svg?branch=master)](https://travis-ci.org/codemonstur/jcli)
+[![Maintainability](https://api.codeclimate.com/v1/badges/63924c44946973cb37f8/maintainability)](https://codeclimate.com/github/codemonstur/jcli/maintainability)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
+[![HitCount](http://hits.dwyl.com/codemonstur/jcli.svg)](http://hits.dwyl.com/codemonstur/jcli)
+[![Coverage Status](https://coveralls.io/repos/github/codemonstur/jcli/badge.svg?branch=master)](https://coveralls.io/github/codemonstur/jcli?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/813d8482256b4ed88e2ff1018d53f06e)](https://www.codacy.com/app/codemonstur/jcli)
+[![Sputnik](https://sputnik.ci/conf/badge)](https://sputnik.ci/app#/builds/codemonstur/jcli)
+[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
+
+# jcli - tinier than picocli
 
 A command line arguments parser.
 
-There is no help and several features are missing.
-There are also limited tests at the moment.
-This code is not production ready.
-But if you feel adventurous feel free to use it.
+Getting better and better. 
+There are a number of tests and a lot is covered.
+This code is close to production ready.
+I have started using it here and there.
 
 The project was born, like so many before it, out of frustration with the existing options.
 
 The design philosophy is; make command line argument parsing simple so you can start writing real code. 
 
-When it is done I want the code to look something like this:
-```
-public static void main(final String.. args) {
-    try {
-        final Arguments arguments = parseCommandLineArguments(args, Arguments::new);
-        if (arguments.help) System.exit(printCliHelp(Arguments.class));
+## Usage
 
-        // ... do your stuff
-    } catch (InvalidCommandLine e) {
-        printCliHelp(e, Arguments.class);
-    }
-}
-```
-Or perhaps like this:
-```
-public static void main(final String.. args) {
-    try {
-        final Arguments arguments = newCliParser()
-            .object(Arguments::new)
-            .addClassConvertor(Something.class, StringToSomething)
-            .addFieldConvertor(fieldId, StringToSomething)
-            .parse(args);
-        if (arguments.help) System.exit(printCliHelp(Arguments.class));
+Include it as a dependency.
+Use the builder to parse an class you wrote and decorated with the proper annotations.
 
-        // ... do your stuff
-    } catch (InvalidCommandLine e) {
-        printCliHelp(e, Arguments.class);
-    }
-}
-```
-Or perhaps like this:
 ```
 public static void main(final String.. args) {
-    final Arguments arguments = newCliParser()
-        .object(Arguments::new)
+    final Arguments arguments = newCliParser(Arguments::new)
         .onErrorPrintHelpAndExit()
         .onHelpPrintHelpAndExit()
-        .parse(args);
+        .parseSuppressErrors(args);
+
     // ... do your stuff
 }
 ```
 
-You define a class with some fields and annotate them with the CliOption annotation.
-Then you call the static function.
-You get your arguments out.
+There are other options and ways to call the parser.
+This is so far the cleanest and easiest.
+My favorite.
+
+## Future features
+
+There are some ideas listed in `src/main/docs/future_features.md`
+

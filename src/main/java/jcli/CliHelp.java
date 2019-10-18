@@ -24,6 +24,9 @@ public enum CliHelp {;
     }
 
     public static String getHelp(final String builderName, final Class<?> clazz) throws InvalidOptionConfiguration {
+        return getHelp(builderName, "   ", clazz);
+    }
+    public static String getHelp(final String builderName, final String indent, final Class<?> clazz) throws InvalidOptionConfiguration {
         final StringBuilder builder = new StringBuilder();
         String name = builderName;
         if (clazz.isAnnotationPresent(CliCommand.class)) {
@@ -83,13 +86,13 @@ public enum CliHelp {;
         }
 
         for (final HelpOption option : options) {
-            builder.append("   ")
+            builder.append(indent)
                 .append(padRight(option.name, maxNameLength))
-                .append("   ")
+                .append(indent)
                 .append(padRight(option.need, maxNeedLength))
                 .append(" ")
                 .append(padRight(option.type, maxTypeLength))
-                .append("   ")
+                .append(indent)
                 .append(option.description)
                 .append("\n");
         }

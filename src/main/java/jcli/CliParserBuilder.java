@@ -39,6 +39,7 @@ public class CliParserBuilder<T> {
     private CliErrorConsumer onErrorCall;
     private CliHelpConsumer<T> onHelpCall;
     private PrintStream helpOut = System.out;
+    private String helpIndent;
     private Map<Class<?>, StringToType<?>> classConverters = new HashMap<>();
 
     public CliParserBuilder<T> name(final String name) {
@@ -75,6 +76,10 @@ public class CliParserBuilder<T> {
     }
     public CliParserBuilder<T> helpStream(final PrintStream helpOut) {
         this.helpOut = helpOut;
+        return this;
+    }
+    public CliParserBuilder<T> indent(final String indent) {
+        this.helpIndent = indent;
         return this;
     }
 
