@@ -24,20 +24,16 @@ If we encounter '--' with nothing else we stop parsing the arguments
 
 ### 4. allowPrefixedPositionalArguments
 
-a boolean flag on the Arguments class. 
+A boolean flag on the Arguments class. 
 If set we will not throw an error if we encounter an argument that starts with a '-' or '--'.
 Instead, we will treat it as a positional argument.
 And throw an error is none are defined.
 
-### 5. Setting the help tab size
-
-Builder.withIndent(2)
-
-### 6. Adding a resource bundle for generating errors and help
+### 5. Adding a resource bundle for generating errors and help
 
 Builder.withResourceBundle(ResourceBundle.getBundle("UserOpts"))
 
-### 7. Different way to treat Boolean's
+### 6. Different way to treat Boolean's
 
 Currently the Boolean class works like the boolean primitive:
 - It is a flag
@@ -50,3 +46,10 @@ The Boolean class could be considered an optional field. The behavior would be l
 - If the value is true set to Boolean.TRUE
 - If the argument isn't provided set to null
 - All other values (or no value) throws exception
+
+### 7. Show the default value in the help
+
+```
+Options:
+  --speed=<kn>  Speed in knots [default: 10].
+```

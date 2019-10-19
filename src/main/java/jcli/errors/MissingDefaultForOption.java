@@ -1,6 +1,6 @@
 package jcli.errors;
 
-import jcli.CliOption;
+import jcli.annotations.CliOption;
 
 public final class MissingDefaultForOption extends InvalidOptionConfiguration {
     public MissingDefaultForOption(final CliOption argument) {

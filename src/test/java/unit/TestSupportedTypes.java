@@ -1,6 +1,6 @@
 package unit;
 
-import jcli.CliOption;
+import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionType;
 import org.junit.Test;

@@ -1,7 +1,7 @@
 package unit;
 
-import jcli.CliOption;
-import jcli.CliPositional;
+import jcli.annotations.CliOption;
+import jcli.annotations.CliPositional;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.TooManyPositionalArguments;
 import org.junit.Test;

@@ -1,6 +1,10 @@
 package jcli;
 
+import jcli.annotations.CliOption;
+import jcli.annotations.CliPositional;
 import jcli.errors.*;
+import jcli.model.FieldAndOption;
+import jcli.model.FieldAndPosition;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -9,9 +13,9 @@ import java.util.function.Supplier;
 
 import static java.lang.Boolean.TRUE;
 import static jcli.Reflection.*;
+import static jcli.annotations.Constants.FAKE_NULL;
 
 public enum CliParser {;
-    static final String FAKE_NULL = "\u0000\u0001\u0002\u0003\u0004YEAH_I_REALLY_HOPE_NO_ONE_EVER_USES_THIS_STRING";
 
     public static <T> T parseCommandLineArguments(final String[] args, final Supplier<T> supplier)
             throws InvalidOptionConfiguration, InvalidCommandLine {
