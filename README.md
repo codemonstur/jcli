@@ -1,7 +1,7 @@
 
 [![Build Status](https://travis-ci.org/codemonstur/jcli.svg?branch=master)](https://travis-ci.org/codemonstur/jcli)
 [![GitHub Release](https://img.shields.io/github/release/codemonstur/jcli.svg)](https://github.com/codemonstur/jcli/releases) 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.codemonstur/htmlcompiler/badge.svg)](http://mvnrepository.com/artifact/com.github.codemonstur/htmlcompiler)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.codemonstur/jcli/badge.svg)](http://mvnrepository.com/artifact/com.github.codemonstur/jci)
 [![Maintainability](https://api.codeclimate.com/v1/badges/63924c44946973cb37f8/maintainability)](https://codeclimate.com/github/codemonstur/jcli/maintainability)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 [![Coverage Status](https://coveralls.io/repos/github/codemonstur/jcli/badge.svg?branch=master)](https://coveralls.io/github/codemonstur/jcli?branch=master)
