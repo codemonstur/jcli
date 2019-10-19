@@ -1,0 +1,6 @@
+0.9.4
+
+- Added positional arguments
+- Added the CLI builders
+- Added custom class converters
+- Added example code
