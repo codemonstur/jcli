@@ -1,11 +1,11 @@
 
 [![Build Status](https://travis-ci.org/codemonstur/jcli.svg?branch=master)](https://travis-ci.org/codemonstur/jcli)
 [![GitHub Release](https://img.shields.io/github/release/codemonstur/jcli.svg)](https://github.com/codemonstur/jcli/releases) 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.codemonstur/jcli/badge.svg)](http://mvnrepository.com/artifact/com.github.codemonstur/jci)
-[![Maintainability](https://api.codeclimate.com/v1/badges/e7d70d686eafc595e04d/maintainability)](https://codeclimate.com/github/codemonstur/jcli/maintainability)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.codemonstur/jcli/badge.svg)](http://mvnrepository.com/artifact/com.github.codemonstur/jcli)
+[![Maintainability](https://api.codeclimate.com/v1/badges/63924c44946973cb37f8/maintainability)](https://codeclimate.com/github/codemonstur/jcli/maintainability)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 [![Coverage Status](https://coveralls.io/repos/github/codemonstur/jcli/badge.svg?branch=master)](https://coveralls.io/github/codemonstur/jcli?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1436fca32a66475c8244666f4402b38e)](https://www.codacy.com/manual/codemonstur/jcli?)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/813d8482256b4ed88e2ff1018d53f06e)](https://www.codacy.com/app/codemonstur/jcli)
 [![Sputnik](https://sputnik.ci/conf/badge)](https://sputnik.ci/app#/builds/codemonstur/jcli)
 [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
 

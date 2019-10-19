@@ -1,5 +1,3 @@
-include .env
-export
 
 .PHONY: clean build check-versions release-notes deploy graal
 
