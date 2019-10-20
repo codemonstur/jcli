@@ -1,0 +1,4 @@
+0.9.5
+
+Added a cleaner way to call the builder
+Added configurable indent for help
