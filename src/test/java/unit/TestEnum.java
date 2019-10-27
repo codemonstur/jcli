@@ -2,7 +2,7 @@ package unit;
 
 import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
-import jcli.annotations.CliUnderscoreToDash;
+import jcli.annotations.CliUnderscoreIsDash;
 import jcli.errors.InvalidCommandLine;
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ public class TestEnum {
         private ArgumentEnum subaction;
     }
 
-    @CliUnderscoreToDash
+    @CliUnderscoreIsDash
     private enum ArgumentEnum {
         test, something, dummy, dash_underscore
     }

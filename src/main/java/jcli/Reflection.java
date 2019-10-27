@@ -1,6 +1,6 @@
 package jcli;
 
-import jcli.annotations.CliUnderscoreToDash;
+import jcli.annotations.CliUnderscoreIsDash;
 import jcli.errors.InvalidArgumentValue;
 
 import java.io.File;
@@ -121,7 +121,7 @@ public enum Reflection {;
             if (type.isAssignableFrom(Charset.class)) return Charset.forName(value);
             if (type.isEnum()) {
                 String enumName = value;
-                if (type.isAnnotationPresent(CliUnderscoreToDash.class))
+                if (type.isAnnotationPresent(CliUnderscoreIsDash.class))
                     enumName = enumName.replaceAll("-", "_");
                 return Enum.valueOf((Class<Enum>)type, enumName);
             }
