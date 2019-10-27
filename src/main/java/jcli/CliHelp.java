@@ -19,6 +19,9 @@ import static jcli.annotations.Constants.FAKE_NULL;
 
 public enum CliHelp {;
 
+    public static void printHelp(final Class<?> clazz) {
+        System.out.println(getHelp(null, clazz));
+    }
     public static void printHelp(final String name, final Class<?> clazz) {
         System.out.println(getHelp(name, clazz));
     }
