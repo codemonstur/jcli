@@ -1,0 +1,4 @@
+0.9.6
+
+Added an annotation CliUnderscoreIsDash
+Added a printHelp call without program name
