@@ -29,35 +29,11 @@ public enum CliHelp {;
     public static String getHelp(final String builderName, final Class<?> clazz) throws InvalidOptionConfiguration {
         return getHelp(builderName, "   ", clazz);
     }
+
     public static String getHelp(final String builderName, final String indent, final Class<?> clazz) throws InvalidOptionConfiguration {
         final StringBuilder builder = new StringBuilder();
-        String name = builderName;
-        if (clazz.isAnnotationPresent(CliCommand.class)) {
-            final CliCommand command = clazz.getAnnotation(CliCommand.class);
-
-            name = isNullOrEmpty(builderName) ? command.name() : builderName;
-
-            final String description = command.description();
-            if (!isNullOrEmpty(description)) builder.append(description).append("\n\n");
-
-            final String[] examples = command.examples();
-            if (hasExamples(examples)) {
-                builder.append("Examples:\n");
-                for (final String example : examples) {
-                    builder.append("   ").append(name).append(" ").append(example).append("\n");
-                }
-                builder.append("\n");
-            }
-        }
-
-        final List<String> positionalNames = toPositionalNames(clazz);
-
-        builder.append("Usage: ")
-            .append(name)
-            .append(" [options] ")
-            .append(join(" ", positionalNames))
-            .append("\n\n")
-            .append("Options:\n");
+        final String name = processCliCommandAnnotation(builder, builderName, clazz);
+        printUsage(builder, name, clazz);
 
         final List<HelpOption> options = new ArrayList<>();
 
@@ -101,6 +77,37 @@ public enum CliHelp {;
         }
 
         return builder.toString();
+    }
+
+    private static String processCliCommandAnnotation(final StringBuilder builder, final String builderName, final Class<?> clazz) {
+        String name = builderName;
+        if (clazz.isAnnotationPresent(CliCommand.class)) {
+            final CliCommand command = clazz.getAnnotation(CliCommand.class);
+
+            name = isNullOrEmpty(builderName) ? command.name() : builderName;
+
+            final String description = command.description();
+            if (!isNullOrEmpty(description)) builder.append(description).append("\n\n");
+
+            final String[] examples = command.examples();
+            if (hasExamples(examples)) {
+                builder.append("Examples:\n");
+                for (final String example : examples) {
+                    builder.append("   ").append(name).append(" ").append(example).append("\n");
+                }
+                builder.append("\n");
+            }
+        }
+        return name;
+    }
+
+    private static void printUsage(final StringBuilder builder, final String name, final Class<?> clazz) {
+        builder.append("Usage: ")
+                .append(name)
+                .append(" [options] ")
+                .append(join(" ", toPositionalNames(clazz)))
+                .append("\n\n")
+                .append("Options:\n");
     }
 
     private static boolean hasExamples(String[] examples) {
