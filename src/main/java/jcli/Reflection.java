@@ -5,6 +5,7 @@ import jcli.errors.InvalidArgumentValue;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -65,7 +66,7 @@ public enum Reflection {;
             , Character.class, char.class, Short.class, short.class, Long.class, long.class, Boolean.class
             , boolean.class, File.class, BigDecimal.class, BigInteger.class, URI.class, Path.class, Instant.class
             , LocalTime.class, LocalDate.class, LocalDateTime.class, OffsetDateTime.class, ZonedDateTime.class
-            , OptionalDouble.class, OptionalInt.class, OptionalLong.class, Pattern.class, Charset.class
+            , OptionalDouble.class, OptionalInt.class, OptionalLong.class, Pattern.class, Charset.class, List.class
             ));
     public static boolean isValidFieldType(final Class<?> type) {
         return VALID_FIELDS.contains(type) || type.isEnum();
@@ -134,4 +135,12 @@ public enum Reflection {;
     public static boolean isBooleanType(final Field field) {
         return field.getType().equals(Boolean.class) || field.getType().equals(boolean.class);
     }
+    public static boolean isListType(final Field field) {
+        return field.getType().equals(List.class);
+    }
+
+    public static Class<?> toParameterType(final Field field) {
+        return (Class<?>) ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
+    }
+
 }

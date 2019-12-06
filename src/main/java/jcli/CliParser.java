@@ -81,13 +81,17 @@ public enum CliParser {;
                 throw new HelpTypeNotBoolean(field);
 
             // TODO test if this is really desired, maybe better to just leave the field alone with whatever was defined in the class
-            if (!option.isMandatory() && !isBooleanType(field) && !option.isHelp() && option.defaultValue().equals(FAKE_NULL))
-                throw new MissingDefaultForOption(option);
+            if (isMissingDefault(option, field)) throw new MissingDefaultForOption(option);
 
             addFieldAndOption(map, field, option);
         }
 
         return map;
+    }
+
+    private static boolean isMissingDefault(final CliOption option, final Field field) {
+        if (field.getType().equals(List.class)) return false;
+        return !option.isMandatory() && !isBooleanType(field) && !option.isHelp() && option.defaultValue().equals(FAKE_NULL);
     }
 
     private static void addFieldAndOption(final Map<String, FieldAndOption> map, final Field field, final CliOption option) {
@@ -100,8 +104,11 @@ public enum CliParser {;
     private static <T> T applyArgumentsToInstance(final String[] args, final Map<String, FieldAndOption> map
             , final List<FieldAndPosition> list, final T instance, final ToFieldType convert) throws InvalidCommandLine, IllegalAccessException {
 
+        initializeLists(instance);
+
         final Set<CliOption> parsedOptions = new HashSet<>();
 
+        // Set the arguments into the object
         for (int i = 0; i < args.length; i++) {
             if (isOption(args[i])) {
                 final FieldAndOption fao = map.remove(argumentToName(args[i]));
@@ -111,6 +118,16 @@ public enum CliParser {;
                 if (isBooleanType(fao.field) || fao.option.isHelp()) {
                     isFlagArgument(args[i]);
                     fao.field.set(instance, TRUE);
+                    continue;
+                }
+                if (isListType(fao.field)) {
+                    final List optionList = (List)fao.field.get(instance);
+                    final String argument = args[i];
+                    final boolean attachedForm = isAttachedForm(argument);
+                    final String value = argumentToValue(args, i);
+                    optionList.add(convert.toFieldType(toParameterType(fao.field), value));
+                    map.put(argumentToName(args[i]), fao);
+                    if (!attachedForm) i++;
                     continue;
                 }
                 if (argumentIntoObject(args, i, fao.field, instance, convert)) i++;
@@ -124,8 +141,10 @@ public enum CliParser {;
             }
         }
 
+        // check the left over options
         for (final FieldAndOption fao : map.values()) {
             if (parsedOptions.contains(fao.option)) continue;
+            if (isListType(fao.field)) continue;
             if (fao.option.isMandatory()) throw new MissingArgument(fao.option);
 
             // TODO this might be the better option
@@ -134,6 +153,7 @@ public enum CliParser {;
             fao.field.set(instance, toFieldType(fao.field.getType(), fao.option.defaultValue()));
         }
 
+        // check the left over positionals
         for (final FieldAndPosition fap : list) {
             if (FAKE_NULL.equals(fap.position.defaultValue()))
                 throw new MissingArgument(fap.position);
@@ -142,6 +162,17 @@ public enum CliParser {;
         }
 
         return instance;
+    }
+
+    private static <T> void initializeLists(final T instance) throws IllegalAccessException {
+        for (final Field field : listFields(instance.getClass())) {
+            if (!field.isAnnotationPresent(CliOption.class)) continue;
+            if (!isListType(field)) continue;
+
+            makeAccessible(field);
+
+            field.set(instance, new ArrayList<>());
+        }
     }
 
     private static boolean isOption(final String argument) {
