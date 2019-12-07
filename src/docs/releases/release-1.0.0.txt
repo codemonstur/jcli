@@ -1,0 +1,4 @@
+1.0.0
+
+The last version added the repeatable arguments feature. The remaining features on the list are all nice to haves,
+no longer need to haves. I'm releasing this tool as a production ready version.

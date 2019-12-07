@@ -9,14 +9,11 @@
 [![Sputnik](https://sputnik.ci/conf/badge)](https://sputnik.ci/app#/builds/codemonstur/jcli)
 [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
 
-# jcli - tinier than picocli
+# jcli - tiny, simple, gets out of your way
 
 A command line arguments parser.
 
-Getting better and better. 
-There are a number of tests and a lot is covered.
-This code is close to production ready.
-I have started using it here and there.
+Production ready.
 
 The project was born, like so many before it, out of frustration with the existing options.
 
@@ -25,7 +22,7 @@ The design philosophy is; make command line argument parsing simple so you can s
 ## Usage
 
 Include it as a dependency.
-Use the builder to parse an class you wrote and decorated with the proper annotations.
+Use the builder to parse a class you decorated with the proper annotations.
 
 ```
 public static void main(final String.. args) {
@@ -38,9 +35,26 @@ public static void main(final String.. args) {
 }
 ```
 
-There are other options and ways to call the parser.
-This is so far the cleanest and easiest.
-My favorite.
+A decorated class looks like this:
+
+```
+@CliCommand(name = "command", description =
+    "General description of the tool that will show up at the start of the help")
+public final class CliArguments {
+
+    @CliOption(name = 'r', longName = "repeatable")
+    public List<String> repeatable;
+    @CliOption(name = 'o', longName = "output-file", defaultValue = "")
+    public String outputFile;
+
+    @CliPositional(index = 0)
+    public Action action;
+
+    @CliOption(name = 'h', longName = "help", isHelp = true)
+    public boolean help;
+
+}
+```
 
 ## Future features
 
