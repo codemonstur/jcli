@@ -81,17 +81,12 @@ public enum CliParser {;
                 throw new HelpTypeNotBoolean(field);
 
             // TODO test if this is really desired, maybe better to just leave the field alone with whatever was defined in the class
-            if (isMissingDefault(option, field)) throw new MissingDefaultForOption(option);
+            if (hasMissingDefault(option, field)) throw new MissingDefaultForOption(option);
 
             addFieldAndOption(map, field, option);
         }
 
         return map;
-    }
-
-    private static boolean isMissingDefault(final CliOption option, final Field field) {
-        if (field.getType().equals(List.class)) return false;
-        return !option.isMandatory() && !isBooleanType(field) && !option.isHelp() && option.defaultValue().equals(FAKE_NULL);
     }
 
     private static void addFieldAndOption(final Map<String, FieldAndOption> map, final Field field, final CliOption option) {

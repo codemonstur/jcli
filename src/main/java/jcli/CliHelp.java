@@ -50,7 +50,7 @@ public enum CliHelp {;
                 throw new InvalidOptionType(option);
             if (option.name() == ' ' && option.longName().isEmpty())
                 throw new InvalidOptionName(field.getName());
-            if (!option.isMandatory() && !isBooleanType(field) && !option.isHelp() && option.defaultValue().equals(FAKE_NULL))
+            if (hasMissingDefault(option, field))
                 throw new MissingDefaultForOption(option);
 
             final String optionName = toName(option);
