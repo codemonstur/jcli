@@ -31,7 +31,7 @@ public class TestEnum {
     }
 
     @Test
-    public void optionWithInvalidType() throws InvalidCommandLine {
+    public void enumArguments() throws InvalidCommandLine {
         final String[] args = { "--underscore", "dash-underscore", "--test", "test", "something" };
         final EnumTypes arguments = parseCommandLineArguments(args, EnumTypes::new);
 

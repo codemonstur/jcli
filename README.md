@@ -26,7 +26,7 @@ Use the builder to parse a class you decorated with the proper annotations.
 
 ```
 public static void main(final String.. args) {
-    final Arguments arguments = newCliParser(Arguments::new)
+    final CliArguments arguments = newCliParser(CliArguments::new)
         .onErrorPrintHelpAndExit()
         .onHelpPrintHelpAndExit()
         .parseSuppressErrors(args);
