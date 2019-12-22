@@ -1,4 +1,4 @@
-package unit;
+package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;

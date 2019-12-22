@@ -1,4 +1,4 @@
-package unit;
+package unittests;
 
 import jcli.annotations.CliCommand;
 import jcli.annotations.CliOption;

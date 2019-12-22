@@ -1,4 +1,4 @@
-package unit;
+package unittests;
 
 public class TestCustomConverters {
 
