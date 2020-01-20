@@ -81,7 +81,7 @@ public enum CliParser {;
                 throw new HelpTypeNotBoolean(field);
 
             // TODO test if this is really desired, maybe better to just leave the field alone with whatever was defined in the class
-            if (hasMissingDefault(option, field)) throw new MissingDefaultForOption(option);
+            // if (hasMissingDefault(option, field)) throw new MissingDefaultForOption(option);
 
             addFieldAndOption(map, field, option);
         }
@@ -142,8 +142,7 @@ public enum CliParser {;
             if (isListType(fao.field)) continue;
             if (fao.option.isMandatory()) throw new MissingArgument(fao.option);
 
-            // TODO this might be the better option
-            // if (fao.argument.defaultValue().equals(FAKE_NULL)) continue;
+            if (fao.option.defaultValue().equals(FAKE_NULL)) continue;
 
             fao.field.set(instance, toFieldType(fao.field.getType(), fao.option.defaultValue()));
         }

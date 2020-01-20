@@ -15,7 +15,6 @@ import static java.lang.String.join;
 import static jcli.Reflection.*;
 import static jcli.Util.isNullOrEmpty;
 import static jcli.Util.padRight;
-import static jcli.annotations.Constants.FAKE_NULL;
 
 public enum CliHelp {;
 
@@ -26,8 +25,11 @@ public enum CliHelp {;
         System.out.println(getHelp(name, clazz));
     }
 
-    public static String getHelp(final String builderName, final Class<?> clazz) throws InvalidOptionConfiguration {
-        return getHelp(builderName, "   ", clazz);
+    public static String getHelp(final Class<?> clazz) throws InvalidOptionConfiguration {
+        return getHelp(null, clazz);
+    }
+    public static String getHelp(final String name, final Class<?> clazz) throws InvalidOptionConfiguration {
+        return getHelp(name, "   ", clazz);
     }
 
     public static String getHelp(final String builderName, final String indent, final Class<?> clazz) throws InvalidOptionConfiguration {
@@ -50,8 +52,8 @@ public enum CliHelp {;
                 throw new InvalidOptionType(option);
             if (option.name() == ' ' && option.longName().isEmpty())
                 throw new InvalidOptionName(field.getName());
-            if (hasMissingDefault(option, field))
-                throw new MissingDefaultForOption(option);
+//            if (hasMissingDefault(option, field))
+//                throw new MissingDefaultForOption(option);
 
             final String optionName = toName(option);
             final String optionNeed = option.isMandatory() ? "mandatory" : "optional";
@@ -103,11 +105,11 @@ public enum CliHelp {;
 
     private static void printUsage(final StringBuilder builder, final String name, final Class<?> clazz) {
         builder.append("Usage: ")
-                .append(name)
-                .append(" [options] ")
-                .append(join(" ", toPositionalNames(clazz)))
-                .append("\n\n")
-                .append("Options:\n");
+            .append(name)
+            .append(" [options] ")
+            .append(join(" ", toPositionalNames(clazz)))
+            .append("\n\n")
+            .append("Options:\n");
     }
 
     private static boolean hasExamples(String[] examples) {
@@ -133,4 +135,5 @@ public enum CliHelp {;
         if (!option.longName().isEmpty()) builder.add("--"+option.longName());
         return join(" ", builder);
     }
+
 }

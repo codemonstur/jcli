@@ -54,11 +54,11 @@ public class TestInvalidOptions {
         fail("Parser failed to throw exception InvalidOptionName");
     }
 
-    @Test(expected = MissingDefaultForOption.class)
-    public void optionMissingDefault() throws InvalidCommandLine {
-        final String[] args = {};
-        parseCommandLineArguments(args, MissingDefault::new);
-
-        fail("Parser failed to throw exception MissingDefaultForOption");
-    }
+//    @Test(expected = MissingDefaultForOption.class)
+//    public void optionMissingDefault() throws InvalidCommandLine {
+//        final String[] args = {};
+//        parseCommandLineArguments(args, MissingDefault::new);
+//
+//        fail("Parser failed to throw exception MissingDefaultForOption");
+//    }
 }

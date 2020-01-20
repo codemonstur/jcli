@@ -1,0 +1,4 @@
+1.1.0
+
+Updated license
+Made the defaultValue configuration optional. null will be set instead

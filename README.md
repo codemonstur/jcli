@@ -22,6 +22,15 @@ The design philosophy is; make command line argument parsing simple so you can s
 ## Usage
 
 Include it as a dependency.
+
+```
+<dependency>
+    <groupId>com.github.codemonstur</groupId>
+    <artifactId>jcli</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 Use the builder to parse a class you decorated with the proper annotations.
 
 ```

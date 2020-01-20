@@ -1,6 +1,5 @@
 package jcli;
 
-import jcli.annotations.CliOption;
 import jcli.annotations.CliUnderscoreIsDash;
 import jcli.errors.InvalidArgumentValue;
 
@@ -16,8 +15,6 @@ import java.nio.file.Paths;
 import java.time.*;
 import java.util.*;
 import java.util.regex.Pattern;
-
-import static jcli.annotations.Constants.FAKE_NULL;
 
 public enum Reflection {;
 
@@ -146,9 +143,9 @@ public enum Reflection {;
         return (Class<?>) ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
     }
 
-    public static boolean hasMissingDefault(final CliOption option, final Field field) {
-        if (field.getType().equals(List.class)) return false;
-        return !option.isMandatory() && !isBooleanType(field) && !option.isHelp() && option.defaultValue().equals(FAKE_NULL);
-    }
+//    public static boolean hasMissingDefault(final CliOption option, final Field field) {
+//        if (field.getType().equals(List.class)) return false;
+//        return !option.isMandatory() && !isBooleanType(field) && !option.isHelp() && option.defaultValue().equals(FAKE_NULL);
+//    }
 
 }
