@@ -53,3 +53,11 @@ The Boolean class could be considered an optional field. The behavior would be l
 Options:
   --speed=<kn>  Speed in knots [default: 10].
 ```
+
+### 8. Support repeatable flag
+
+Add repeatable functionality to jcli positional
+```
+@Repeatable
+List<String> command
+```
