@@ -1,6 +1,6 @@
 package unittests;
 
-public class TestCustomConverters {
+public class DisabledTstCustomConverters {
 
 /*
     FIXME add the ability to add a custom converter for different Types

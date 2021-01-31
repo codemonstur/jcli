@@ -3,8 +3,8 @@ enablePreview: false
 dependencies:
   - repository: junit:junit:4.13.1
     scope: test
-  - repository: com.github.stefanbirkner:system-rules:1.19.0
-    scope: test
+#  - repository: com.github.stefanbirkner:system-rules:1.19.0
+#    scope: test
 
 build
     echo [${PROJECT_NAME}] Building
