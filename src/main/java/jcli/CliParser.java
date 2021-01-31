@@ -101,8 +101,10 @@ public enum CliParser {;
 
         initializeLists(instance);
 
+        final int totalNumberOfPositionalArguments = list.size();
         final Set<CliOption> parsedOptions = new HashSet<>();
 
+        int positionalArgumentIndex = 1;
         // Set the arguments into the object
         for (int i = 0; i < args.length; i++) {
             if (isOption(args[i])) {
@@ -128,7 +130,8 @@ public enum CliParser {;
                 if (argumentIntoObject(args, i, fao.field, instance, convert)) i++;
             } else {
                 // it must be a positional if its not an option
-                if (list.isEmpty()) throw new TooManyPositionalArguments();
+                if (list.isEmpty()) throw new TooManyPositionalArguments(totalNumberOfPositionalArguments, positionalArgumentIndex);
+                positionalArgumentIndex++;
                 final FieldAndPosition fap = list.remove(0);
                 if (fap == null) throw new UnknownCommandLineArgument(args[i]);
 
