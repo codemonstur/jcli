@@ -3,10 +3,10 @@ package jcli;
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static java.lang.Boolean.TRUE;
@@ -38,7 +38,7 @@ public class CliParserBuilder<T> {
     private int errorExitCode = 2;
     private CliErrorConsumer onErrorCall;
     private CliHelpConsumer<T> onHelpCall;
-    private PrintStream helpOut = System.out;
+    private Consumer<String> helpConsumer = System.out::println;
     private String helpIndent;
     private Map<Class<?>, StringToType<?>> classConverters = new HashMap<>();
 
@@ -74,8 +74,8 @@ public class CliParserBuilder<T> {
         this.helpExitCode = code;
         return this;
     }
-    public CliParserBuilder<T> helpStream(final PrintStream helpOut) {
-        this.helpOut = helpOut;
+    public CliParserBuilder<T> helpConsumer(final Consumer<String> helpConsumer) {
+        this.helpConsumer = helpConsumer;
         return this;
     }
     public CliParserBuilder<T> indent(final String indent) {
@@ -109,7 +109,7 @@ public class CliParserBuilder<T> {
             if (isHelpSelected(arguments)) {
                 if (onHelpCall != null) onHelpCall.cliHelpRequested(arguments, args);
                 if (onHelpPrintHelpAndExit) {
-                    helpOut.println(getHelp(name, object.getClass()));
+                    helpConsumer.accept(getHelp(name, object.getClass()));
                     System.exit(helpExitCode);
                 }
             }
@@ -117,7 +117,7 @@ public class CliParserBuilder<T> {
         } catch (InvalidCommandLine e) {
             if (onErrorCall != null) onErrorCall.cliArgumentsInvalid(e, args);
             if (onErrorPrintHelpAndExit) {
-                helpOut.println(getHelp(name, object.getClass()));
+                helpConsumer.accept(getHelp(name, object.getClass()));
                 System.exit(errorExitCode);
             }
             throw e;
