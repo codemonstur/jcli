@@ -1,0 +1,9 @@
+1.2.0
+
+Removed travis building
+Improved help logging in builder
+Improved error logging for positionals
+Updated license
+Bump junit from 4.12 to 4.13.1
+Cleaned up docs
+Disabled preview features
