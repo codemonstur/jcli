@@ -25,7 +25,7 @@ public enum Reflection {;
         T toType(String value);
     }
     public interface ToFieldType {
-        Object toFieldType(Class<?> type, String value) throws InvalidArgumentValue;
+        Object toFieldType(Field field, Class<?> type, String value) throws InvalidArgumentValue;
     }
 
     /*
@@ -70,13 +70,13 @@ public enum Reflection {;
             , boolean.class, File.class, BigDecimal.class, BigInteger.class, URI.class, Path.class, Instant.class
             , LocalTime.class, LocalDate.class, LocalDateTime.class, OffsetDateTime.class, ZonedDateTime.class
             , OptionalDouble.class, OptionalInt.class, OptionalLong.class, Pattern.class, Charset.class, List.class
+            , Optional.class
             ));
     public static boolean isValidFieldType(final Class<?> type) {
         return VALID_FIELDS.contains(type) || type.isEnum();
     }
 
-
-    public static Object toFieldType(final Class<?> type, final String value) throws InvalidArgumentValue {
+    public static Object toFieldType(final Field field, final Class<?> type, final String value) throws InvalidArgumentValue {
         try {
             if (type.isAssignableFrom(String.class)) return value;
             if (type.isAssignableFrom(double.class)) return Double.valueOf(value);
@@ -106,6 +106,11 @@ public enum Reflection {;
             if (type.isAssignableFrom(LocalDateTime.class)) return LocalDateTime.parse(value);
             if (type.isAssignableFrom(OffsetDateTime.class)) return OffsetDateTime.parse(value);
             if (type.isAssignableFrom(ZonedDateTime.class)) return ZonedDateTime.parse(value);
+            if (type.isAssignableFrom(Optional.class)) {
+                if (field == null) throw new InvalidArgumentValue("Optional type as generic type");
+                if (value == null) return Optional.empty();
+                return Optional.of(toFieldType(field, getTypeOfGenericField(field, Object.class), value));
+            }
             if (type.isAssignableFrom(OptionalDouble.class)) {
                 return value == null || value.isEmpty()
                      ? OptionalDouble.empty()
@@ -132,7 +137,7 @@ public enum Reflection {;
         } catch (Exception e) {
             throw new InvalidArgumentValue(value);
         }
-        return null;
+        throw new IllegalArgumentException("Coding error, none of the types that we support matched the field type.");
     }
 
     public static boolean isBooleanType(final Field field) {
@@ -161,7 +166,7 @@ public enum Reflection {;
         return field.isAnnotationPresent(CliOption.class) || field.isAnnotationPresent(CliPositional.class);
     }
 
-    public static Class<?> getTypeOfGenericList(final Field field, final Class<?> defaultValue) {
+    public static Class<?> getTypeOfGenericField(final Field field, final Class<?> defaultValue) {
         final Type genericType = field.getGenericType();
         if (!(genericType instanceof ParameterizedType)) return defaultValue;
         final ParameterizedType paramType = (ParameterizedType) genericType;
@@ -170,4 +175,5 @@ public enum Reflection {;
         if (!(typeArguments[0] instanceof Class)) return defaultValue;
         return (Class<?>) typeArguments[0];
     }
+
 }

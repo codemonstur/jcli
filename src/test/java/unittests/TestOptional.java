@@ -4,6 +4,7 @@ import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 import org.junit.Test;
 
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -19,6 +20,7 @@ public class TestOptional {
         public String file;
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static class WithDefaults {
         @CliOption(name = 'l', defaultValue = "")
         public OptionalLong optionalLong;
@@ -28,6 +30,7 @@ public class TestOptional {
         public OptionalDouble optionalDouble;
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static class WithoutDefaults {
         @CliOption(name = 'l')
         public OptionalLong optionalLong;
@@ -35,6 +38,14 @@ public class TestOptional {
         public OptionalInt optionalInt;
         @CliOption(name = 'd')
         public OptionalDouble optionalDouble;
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public static class TypedOptional {
+        @CliOption(name = 's')
+        public Optional<String> optionalString;
+        @CliOption(name = 'i')
+        public Optional<Integer> optionalInteger;
     }
 
     @Test
@@ -71,6 +82,24 @@ public class TestOptional {
         assertFalse("Double is not set correctly", arguments.optionalDouble.isPresent());
         assertFalse("Long is not set correctly", arguments.optionalLong.isPresent());
         assertFalse("Int is not set correctly", arguments.optionalInt.isPresent());
+    }
+
+    @Test
+    public void typedOptionalIsSetWhenEmpty() throws InvalidCommandLine {
+        final String[] args = {};
+        final TypedOptional arguments = parseCommandLineArguments(args, TypedOptional::new);
+
+        assertFalse("String is not set correctly", arguments.optionalString.isPresent());
+        assertFalse("Integer is not set correctly", arguments.optionalInteger.isPresent());
+    }
+
+    @Test
+    public void typedOptionalIsSetWithValue() throws InvalidCommandLine {
+        final String[] args = { "-s", "hello", "-i", "5" };
+        final TypedOptional arguments = parseCommandLineArguments(args, TypedOptional::new);
+
+        assertEquals("String is not set correctly", "hello", arguments.optionalString.get());
+        assertEquals("Integer is not set correctly", Integer.valueOf(5), arguments.optionalInteger.get());
     }
 
 }
