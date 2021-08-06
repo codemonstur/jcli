@@ -2,7 +2,7 @@ package unittests;
 
 public class DisabledTstExiting {
     // FIXME these tests work fine but bob can't resolve the dependency due to it
-    //  using a version range. SO for now I've disabled the test and removed the dependency
+    //  using a version range. So for now I've disabled the test and removed the dependency
 //    @Rule
 //    public final ExpectedSystemExit exit = ExpectedSystemExit.none();
 //
