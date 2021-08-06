@@ -30,7 +30,7 @@ public class TestHelp {
         public URI uri;
         @CliOption(name = 'l', defaultValue = "")
         public OptionalLong optionalLong;
-        @CliPositional(index = 0)
+        @CliPositional
         public String action;
     }
 
