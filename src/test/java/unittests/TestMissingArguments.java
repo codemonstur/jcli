@@ -37,4 +37,5 @@ public class TestMissingArguments {
 
         fail("Parser failed to throw MissingCommandLineValue");
     }
+
 }

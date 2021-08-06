@@ -56,4 +56,5 @@ public class TestBuilderCallbacks {
 
         assertTrue("Error callback wasn't called", wasCalled.value);
     }
+
 }

@@ -8,6 +8,8 @@ import jcli.model.FieldAndPosition;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -42,27 +44,6 @@ public enum CliParser {;
         }
     }
 
-    private static List<FieldAndPosition> toFieldAndPositionList(final Class<?> clazz) {
-        final List<FieldAndPosition> list = new ArrayList<>();
-
-        int index = 0;
-        for (final Field field : listFields(clazz)) {
-            if (!field.isAnnotationPresent(CliPositional.class)) continue;
-            if (Modifier.isStatic(field.getModifiers())) throw new InvalidModifierStatic(field);
-            if (Modifier.isFinal(field.getModifiers())) throw new InvalidModifierFinal(field);
-
-            makeAccessible(field);
-
-            final CliPositional positional = field.getAnnotation(CliPositional.class);
-            if (!isValidFieldType(field.getType()))
-                throw new InvalidOptionType(field);
-
-            list.add(index++, new FieldAndPosition(field, positional));
-        }
-
-        return list;
-    }
-
     private static Map<String, FieldAndOption> toFieldAndOptionMap(final Class<?> clazz) throws InvalidOptionConfiguration {
         final Map<String, FieldAndOption> map = new HashMap<>();
 
@@ -90,26 +71,58 @@ public enum CliParser {;
         return map;
     }
 
+    private static List<FieldAndPosition> toFieldAndPositionList(final Class<?> clazz) {
+        final List<FieldAndPosition> list = new ArrayList<>();
+
+        boolean hasPositional = false;
+        boolean hasOptionalPositional = false;
+
+        int index = 0;
+        for (final Field field : listFields(clazz)) {
+            if (!field.isAnnotationPresent(CliPositional.class)) continue;
+            if (Modifier.isStatic(field.getModifiers())) throw new InvalidModifierStatic(field);
+            if (Modifier.isFinal(field.getModifiers())) throw new InvalidModifierFinal(field);
+            if (isListType(field) && hasPositional) throw new ConflictingPositionals();
+
+            hasPositional = true;
+            makeAccessible(field);
+
+            final CliPositional positional = field.getAnnotation(CliPositional.class);
+            if (hasOptionalPositional && FAKE_NULL.equals(positional.defaultValue()))
+                throw new MandatoryPositionalAfterOptional();
+
+            hasOptionalPositional = hasOptionalPositional || !FAKE_NULL.equals(positional.defaultValue());
+            if (isListType(field) && !FAKE_NULL.equals(positional.defaultValue()))
+                throw new DefaultForListPositional();
+            if (!isValidFieldType(field.getType()))
+                throw new InvalidOptionType(field);
+
+            list.add(index++, new FieldAndPosition(field, positional));
+        }
+
+        return list;
+    }
+
     private static void addFieldAndOption(final Map<String, FieldAndOption> map, final Field field, final CliOption option) {
         if (option.name() != ' ')
-            map.put(""+option.name(), new FieldAndOption(field, option));
+            map.put("" + option.name(), new FieldAndOption(field, option));
         if (!option.longName().isEmpty())
             map.put(option.longName(), new FieldAndOption(field, option));
     }
 
-    private static <T> T applyArgumentsToInstance(final String[] args, final Map<String, FieldAndOption> map
-            , final List<FieldAndPosition> list, final T instance, final ToFieldType convert) throws InvalidCommandLine, IllegalAccessException {
+    private static <T> T applyArgumentsToInstance(final String[] args, final Map<String, FieldAndOption> options
+            , final List<FieldAndPosition> positionals, final T instance, final ToFieldType convert) throws InvalidCommandLine, IllegalAccessException {
 
         initializeLists(instance);
 
-        final int totalNumberOfPositionalArguments = list.size();
+        final int totalNumberOfPositionalArguments = positionals.size();
         final Set<CliOption> parsedOptions = new HashSet<>();
 
         int positionalArgumentIndex = 1;
         // Set the arguments into the object
         for (int i = 0; i < args.length; i++) {
             if (isOption(args[i])) {
-                final FieldAndOption fao = map.remove(argumentToName(args[i]));
+                final FieldAndOption fao = options.remove(argumentToName(args[i]));
                 if (fao == null) throw new UnknownCommandLineArgument(args[i]);
                 parsedOptions.add(fao.option);
 
@@ -124,24 +137,30 @@ public enum CliParser {;
                     final boolean attachedForm = isAttachedForm(argument);
                     final String value = argumentToValue(args, i);
                     optionList.add(convert.toFieldType(toParameterType(fao.field), value));
-                    map.put(argumentToName(args[i]), fao);
+                    options.put(argumentToName(args[i]), fao);
                     if (!attachedForm) i++;
                     continue;
                 }
                 if (argumentIntoObject(args, i, fao.field, instance, convert)) i++;
             } else {
                 // it must be a positional if its not an option
-                if (list.isEmpty()) throw new TooManyPositionalArguments(totalNumberOfPositionalArguments, positionalArgumentIndex);
+                if (positionals.isEmpty()) throw new TooManyPositionalArguments(totalNumberOfPositionalArguments, positionalArgumentIndex);
                 positionalArgumentIndex++;
-                final FieldAndPosition fap = list.remove(0);
-                if (fap == null) throw new UnknownCommandLineArgument(args[i]);
-
-                fap.field.set(instance, convert.toFieldType(fap.field.getType(), args[i]));
+                if (isListType(positionals.get(0).field)) {
+                    final FieldAndPosition fap = positionals.get(0);
+                    final List<Object> list = (List) fap.field.get(instance);
+                    final Class<?> listType = getTypeOfGenericList(fap.field, String.class);
+                    final Object value = convert.toFieldType(listType, args[i]);
+                    list.add(value);
+                } else {
+                    final FieldAndPosition fap = positionals.remove(0);
+                    fap.field.set(instance, convert.toFieldType(fap.field.getType(), args[i]));
+                }
             }
         }
 
         // check the left over options
-        for (final FieldAndOption fao : map.values()) {
+        for (final FieldAndOption fao : options.values()) {
             if (parsedOptions.contains(fao.option)) continue;
             if (isListType(fao.field)) continue;
             if (fao.option.isMandatory()) throw new MissingArgument(fao.option);
@@ -152,25 +171,16 @@ public enum CliParser {;
         }
 
         // check the left over positionals
-        for (final FieldAndPosition fap : list) {
-            if (FAKE_NULL.equals(fap.position.defaultValue()))
-                throw new MissingArgument(fap.field);
+        if (positionals.size() != 1 || !isListType(positionals.get(0).field)) {
+            for (final FieldAndPosition fap : positionals) {
+                if (FAKE_NULL.equals(fap.position.defaultValue()))
+                    throw new MissingArgument(fap.field);
 
-            fap.field.set(instance, convert.toFieldType(fap.field.getType(), fap.position.defaultValue()));
+                fap.field.set(instance, convert.toFieldType(fap.field.getType(), fap.position.defaultValue()));
+            }
         }
 
         return instance;
-    }
-
-    private static <T> void initializeLists(final T instance) throws IllegalAccessException {
-        for (final Field field : listFields(instance.getClass())) {
-            if (!field.isAnnotationPresent(CliOption.class)) continue;
-            if (!isListType(field)) continue;
-
-            makeAccessible(field);
-
-            field.set(instance, new ArrayList<>());
-        }
     }
 
     private static boolean isOption(final String argument) {

@@ -15,6 +15,7 @@ import static java.lang.String.join;
 import static jcli.Reflection.*;
 import static jcli.Util.isNullOrEmpty;
 import static jcli.Util.padRight;
+import static jcli.annotations.Constants.FAKE_NULL;
 
 public enum CliHelp {;
 
@@ -63,7 +64,19 @@ public enum CliHelp {;
             if (maxNeedLength < optionNeed.length()) maxNeedLength = optionNeed.length();
             if (maxTypeLength < optionType.length()) maxTypeLength = optionType.length();
 
-            options.add(new HelpOption(optionName, optionNeed, optionType, option.description()));
+            options.add(new HelpOption(optionName, optionNeed, optionType, option.description(), option.defaultValue()));
+        }
+        for (final Field field : listFields(clazz)) {
+            if (!field.isAnnotationPresent(CliPositional.class)) continue;
+            if (Modifier.isStatic(field.getModifiers())) throw new InvalidModifierStatic(field);
+            if (Modifier.isFinal(field.getModifiers())) throw new InvalidModifierFinal(field);
+
+            final CliPositional positional = field.getAnnotation(CliPositional.class);
+            if (FAKE_NULL.equals(positional.defaultValue())) continue;
+
+            if (maxTypeLength < "positional".length()) maxTypeLength = "positional".length();
+
+            options.add(new HelpOption(field.getName(), "optional", "positional", "", positional.defaultValue()));
         }
 
         for (final HelpOption option : options) {
@@ -74,8 +87,12 @@ public enum CliHelp {;
                 .append(" ")
                 .append(padRight(option.type, maxTypeLength))
                 .append(indent)
-                .append(option.description)
-                .append("\n");
+                .append(option.description);
+            if (!FAKE_NULL.equals(option.defaultValue) && !isNullOrEmpty(option.defaultValue)) {
+                if (!isNullOrEmpty(option.description)) builder.append(" ");
+                builder.append("[default: ").append(option.defaultValue).append("]");
+            }
+            builder.append("\n");
         }
 
         return builder.toString();

@@ -1,11 +1,14 @@
 package jcli;
 
+import jcli.annotations.CliOption;
+import jcli.annotations.CliPositional;
 import jcli.annotations.CliUnderscoreIsDash;
 import jcli.errors.InvalidArgumentValue;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -143,9 +146,28 @@ public enum Reflection {;
         return (Class<?>) ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
     }
 
-//    public static boolean hasMissingDefault(final CliOption option, final Field field) {
-//        if (field.getType().equals(List.class)) return false;
-//        return !option.isMandatory() && !isBooleanType(field) && !option.isHelp() && option.defaultValue().equals(FAKE_NULL);
-//    }
+    public static <T> void initializeLists(final T instance) throws IllegalAccessException {
+        for (final Field field : listFields(instance.getClass())) {
+            if (!isOptionOrPositional(field)) continue;
+            if (!isListType(field)) continue;
 
+            makeAccessible(field);
+
+            field.set(instance, new ArrayList<>());
+        }
+    }
+
+    private static boolean isOptionOrPositional(final Field field) {
+        return field.isAnnotationPresent(CliOption.class) || field.isAnnotationPresent(CliPositional.class);
+    }
+
+    public static Class<?> getTypeOfGenericList(final Field field, final Class<?> defaultValue) {
+        final Type genericType = field.getGenericType();
+        if (!(genericType instanceof ParameterizedType)) return defaultValue;
+        final ParameterizedType paramType = (ParameterizedType) genericType;
+        final Type[] typeArguments = paramType.getActualTypeArguments();
+        if (typeArguments == null || typeArguments.length != 1) return defaultValue;
+        if (!(typeArguments[0] instanceof Class)) return defaultValue;
+        return (Class<?>) typeArguments[0];
+    }
 }

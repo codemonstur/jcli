@@ -19,12 +19,21 @@ public class TestOptional {
         public String file;
     }
 
-    public static class Optionals {
+    public static class WithDefaults {
         @CliOption(name = 'l', defaultValue = "")
         public OptionalLong optionalLong;
         @CliOption(name = 'i', defaultValue = "")
         public OptionalInt optionalInt;
         @CliOption(name = 'd', defaultValue = "")
+        public OptionalDouble optionalDouble;
+    }
+
+    public static class WithoutDefaults {
+        @CliOption(name = 'l')
+        public OptionalLong optionalLong;
+        @CliOption(name = 'i')
+        public OptionalInt optionalInt;
+        @CliOption(name = 'd')
         public OptionalDouble optionalDouble;
     }
 
@@ -47,7 +56,17 @@ public class TestOptional {
     @Test
     public void optionalsAreEmpty() throws InvalidCommandLine {
         final String[] args = {};
-        final Optionals arguments = parseCommandLineArguments(args, Optionals::new);
+        final WithDefaults arguments = parseCommandLineArguments(args, WithDefaults::new);
+
+        assertFalse("Double is not set correctly", arguments.optionalDouble.isPresent());
+        assertFalse("Long is not set correctly", arguments.optionalLong.isPresent());
+        assertFalse("Int is not set correctly", arguments.optionalInt.isPresent());
+    }
+
+    @Test
+    public void optionalsWithoutDefaultsAreEmpty() throws InvalidCommandLine {
+        final String[] args = {};
+        final WithoutDefaults arguments = parseCommandLineArguments(args, WithoutDefaults::new);
 
         assertFalse("Double is not set correctly", arguments.optionalDouble.isPresent());
         assertFalse("Long is not set correctly", arguments.optionalLong.isPresent());

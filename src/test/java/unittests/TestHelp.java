@@ -30,7 +30,9 @@ public class TestHelp {
         public URI uri;
         @CliOption(name = 'l', defaultValue = "")
         public OptionalLong optionalLong;
-        @CliPositional
+        @CliOption(name = 'e', defaultValue = "execute")
+        public String execute;
+        @CliPositional(defaultValue = "help")
         public String action;
     }
 
@@ -59,13 +61,16 @@ public class TestHelp {
             "Usage: help [options] action\n" +
             "\n" +
             "Options:\n" +
-            "   -f --file   mandatory value   The file to process\n" +
-            "   -h          optional  flag    Prints the help\n" +
-            "   -o          mandatory value   A URI, maybe youtube or something\n" +
-            "   -l          optional  value   \n";
+            "   -f --file   mandatory value        The file to process\n" +
+            "   -h          optional  flag         Prints the help\n" +
+            "   -o          mandatory value        A URI, maybe youtube or something\n" +
+            "   -l          optional  value        \n" +
+            "   -e          optional  value        [default: execute]\n" +
+            "   action      optional  positional   [default: help]\n";
 
         final String result = getHelp(null, LotsOfHelp.class);
 
         assertEquals("The output help doesn't match", help, result);
     }
+
 }
