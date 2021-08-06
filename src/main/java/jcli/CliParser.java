@@ -42,9 +42,10 @@ public enum CliParser {;
         }
     }
 
-    private static List<FieldAndPosition> toFieldAndPositionList(final Class clazz) {
+    private static List<FieldAndPosition> toFieldAndPositionList(final Class<?> clazz) {
         final List<FieldAndPosition> list = new ArrayList<>();
 
+        int index = 0;
         for (final Field field : listFields(clazz)) {
             if (!field.isAnnotationPresent(CliPositional.class)) continue;
             if (Modifier.isStatic(field.getModifiers())) throw new InvalidModifierStatic(field);
@@ -54,15 +55,15 @@ public enum CliParser {;
 
             final CliPositional positional = field.getAnnotation(CliPositional.class);
             if (!isValidFieldType(field.getType()))
-                throw new InvalidOptionType(positional);
+                throw new InvalidOptionType(field);
 
-            list.add(positional.index(), new FieldAndPosition(field, positional));
+            list.add(index++, new FieldAndPosition(field, positional));
         }
 
         return list;
     }
 
-    private static Map<String, FieldAndOption> toFieldAndOptionMap(final Class clazz) throws InvalidOptionConfiguration {
+    private static Map<String, FieldAndOption> toFieldAndOptionMap(final Class<?> clazz) throws InvalidOptionConfiguration {
         final Map<String, FieldAndOption> map = new HashMap<>();
 
         for (final Field field : listFields(clazz)) {
@@ -153,7 +154,7 @@ public enum CliParser {;
         // check the left over positionals
         for (final FieldAndPosition fap : list) {
             if (FAKE_NULL.equals(fap.position.defaultValue()))
-                throw new MissingArgument(fap.position);
+                throw new MissingArgument(fap.field);
 
             fap.field.set(instance, convert.toFieldType(fap.field.getType(), fap.position.defaultValue()));
         }

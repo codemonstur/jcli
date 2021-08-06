@@ -18,10 +18,10 @@ public class TestEnum {
         @CliOption(isMandatory = true, longName = "underscore")
         private ArgumentEnum enumDash;
 
-        @CliPositional(index = 0, defaultValue = "dummy")
+        @CliPositional(defaultValue = "dummy")
         private ArgumentEnum action;
 
-        @CliPositional(index = 1, defaultValue = "dummy")
+        @CliPositional(defaultValue = "dummy")
         private ArgumentEnum subaction;
     }
 

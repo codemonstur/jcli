@@ -15,7 +15,7 @@ public class TestPositional {
     public static class Arguments {
         @CliOption(name = 'l', defaultValue = "1")
         public long l;
-        @CliPositional(index = 0, defaultValue = "file.txt")
+        @CliPositional(defaultValue = "file.txt")
         public String file;
     }
 

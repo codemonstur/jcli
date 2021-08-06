@@ -7,6 +7,5 @@ import static jcli.annotations.Constants.FAKE_NULL;
 
 @Retention(RUNTIME)
 public @interface CliPositional {
-    int index();
     String defaultValue() default FAKE_NULL;
 }
