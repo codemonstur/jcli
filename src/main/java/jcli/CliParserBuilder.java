@@ -125,11 +125,11 @@ public class CliParserBuilder<T> {
     }
 
     private static ToFieldType newFieldToType(final Map<Class<?>, StringToType<?>> classConverters) {
-        return (type, value) -> {
+        return (field, type, value) -> {
             for (final Map.Entry<Class<?>, StringToType<?>> entry : classConverters.entrySet()) {
                 if (type.isAssignableFrom(entry.getKey())) entry.getValue().toType(value);
             }
-            return toFieldType(type, value);
+            return toFieldType(field, type, value);
         };
     }
 

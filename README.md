@@ -21,7 +21,7 @@ Include it as a dependency.
 <dependency>
     <groupId>com.github.codemonstur</groupId>
     <artifactId>jcli</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
@@ -50,7 +50,7 @@ public final class CliArguments {
     @CliOption(name = 'o', longName = "output-file", defaultValue = "")
     public String outputFile;
 
-    @CliPositional(index = 0)
+    @CliPositional
     public Action action;
 
     @CliOption(name = 'h', longName = "help", isHelp = true)
@@ -61,5 +61,5 @@ public final class CliArguments {
 
 ## Future features
 
-There are some ideas listed in `src/main/docs/future_features.md`
+There are some ideas listed in [future features](https://github.com/codemonstur/jcli/blob/master/src/docs/future_features.md)
 

@@ -41,3 +41,22 @@ The Boolean class could be considered an optional field. The behavior would be l
 - If the argument isn't provided set to null
 - All other values (or no value) throws exception
 
+### 6. Interactive setting
+
+https://picocli.info/#_interactive_password_options
+
+### 7. Listable flag options
+
+https://github.com/remkop/picocli#example
+
+### 8. More help features
+
+https://picocli.info/#_usage_help_api
+
+### 9. arity setting
+
+https://github.com/remkop/picocli#example
+
+### 10. Graal VM annotation processor
+
+https://github.com/remkop/picocli

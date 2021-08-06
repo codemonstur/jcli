@@ -8,8 +8,6 @@ import jcli.model.FieldAndPosition;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -136,7 +134,7 @@ public enum CliParser {;
                     final String argument = args[i];
                     final boolean attachedForm = isAttachedForm(argument);
                     final String value = argumentToValue(args, i);
-                    optionList.add(convert.toFieldType(toParameterType(fao.field), value));
+                    optionList.add(convert.toFieldType(null, toParameterType(fao.field), value));
                     options.put(argumentToName(args[i]), fao);
                     if (!attachedForm) i++;
                     continue;
@@ -149,12 +147,12 @@ public enum CliParser {;
                 if (isListType(positionals.get(0).field)) {
                     final FieldAndPosition fap = positionals.get(0);
                     final List<Object> list = (List) fap.field.get(instance);
-                    final Class<?> listType = getTypeOfGenericList(fap.field, String.class);
-                    final Object value = convert.toFieldType(listType, args[i]);
+                    final Class<?> listType = getTypeOfGenericField(fap.field, String.class);
+                    final Object value = convert.toFieldType(null, listType, args[i]);
                     list.add(value);
                 } else {
                     final FieldAndPosition fap = positionals.remove(0);
-                    fap.field.set(instance, convert.toFieldType(fap.field.getType(), args[i]));
+                    fap.field.set(instance, convert.toFieldType(fap.field, fap.field.getType(), args[i]));
                 }
             }
         }
@@ -164,10 +162,9 @@ public enum CliParser {;
             if (parsedOptions.contains(fao.option)) continue;
             if (isListType(fao.field)) continue;
             if (fao.option.isMandatory()) throw new MissingArgument(fao.option);
+            if (!hasDefaultToSet(fao)) continue;
 
-            if (fao.option.defaultValue().equals(FAKE_NULL)) continue;
-
-            fao.field.set(instance, toFieldType(fao.field.getType(), fao.option.defaultValue()));
+            fao.field.set(instance, toFieldType(fao.field, fao.field.getType(), toRealNull(fao.option.defaultValue())));
         }
 
         // check the left over positionals
@@ -176,11 +173,26 @@ public enum CliParser {;
                 if (FAKE_NULL.equals(fap.position.defaultValue()))
                     throw new MissingArgument(fap.field);
 
-                fap.field.set(instance, convert.toFieldType(fap.field.getType(), fap.position.defaultValue()));
+                fap.field.set(instance, convert.toFieldType(fap.field, fap.field.getType(), fap.position.defaultValue()));
             }
         }
 
         return instance;
+    }
+
+    private static String toRealNull(final String value) {
+        return FAKE_NULL.equals(value) ? null : value;
+    }
+
+    private static boolean hasDefaultToSet(final FieldAndOption fao) {
+        return !fao.option.defaultValue().equals(FAKE_NULL) || isOptionalClass(fao.field.getType());
+    }
+
+    private static boolean isOptionalClass(final Class<?> clazz) {
+        return clazz.equals(OptionalLong.class)
+            || clazz.equals(OptionalInt.class)
+            || clazz.equals(OptionalDouble.class)
+            || clazz.equals(Optional.class);
     }
 
     private static boolean isOption(final String argument) {
@@ -197,7 +209,7 @@ public enum CliParser {;
         final String argument = arguments[index];
         final boolean attachedForm = isAttachedForm(argument);
         final String value = argumentToValue(arguments, index);
-        field.set(instance, convert.toFieldType(field.getType(), value));
+        field.set(instance, convert.toFieldType(field, field.getType(), value));
         return !attachedForm;
     }
 
