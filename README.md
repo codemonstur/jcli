@@ -17,8 +17,6 @@ The design philosophy is; make command line argument parsing simple so you can s
 
 Include it as a dependency.
 
-![mvn dependency](src/docs/version.svg)
-
 ```
 <dependency>
     <groupId>com.github.codemonstur</groupId>
