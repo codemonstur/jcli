@@ -2,7 +2,7 @@ package jcli;
 
 public enum Util {;
 
-    public static boolean isNullOrEmpty(String value) {
+    public static boolean isNullOrEmpty(final String value) {
         return value == null || value.isEmpty();
     }
 

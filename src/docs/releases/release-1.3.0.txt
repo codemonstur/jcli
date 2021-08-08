@@ -1,0 +1,7 @@
+1.3.0
+
+Added default value output to help
+Added lists for positionals
+Improved error handling for bad input
+Added support for Optional<?>
+Removed need for 'index' setting in positional
