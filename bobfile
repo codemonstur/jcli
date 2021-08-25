@@ -8,3 +8,5 @@ dependencies:
     scope: test
   - repository: com.github.stefanbirkner:system-rules:1.19.0
     scope: test
+  - repository: com.tngtech.archunit:archunit-junit4:0.20.1
+    scope: test
