@@ -139,6 +139,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit4</artifactId>
+            <version>0.20.1</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>
