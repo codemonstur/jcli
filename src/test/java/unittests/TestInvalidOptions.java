@@ -26,7 +26,7 @@ public class TestInvalidOptions {
         public String file;
     }
 
-    @Test(expected = InvalidModifierStatic.class)
+    @Test(expected = InvalidOptionConfiguration.class)
     public void optionWithStaticModifier() throws InvalidCommandLine {
         final String[] args = {};
         parseCommandLineArguments(args, Static::new);
@@ -34,7 +34,7 @@ public class TestInvalidOptions {
         fail("Parser failed to throw exception InvalidModifierStatic");
     }
 
-    @Test(expected = InvalidModifierFinal.class)
+    @Test(expected = InvalidOptionConfiguration.class)
     public void optionWithFinalModifier() throws InvalidCommandLine {
         final String[] args = {};
         parseCommandLineArguments(args, Final::new);
@@ -42,7 +42,7 @@ public class TestInvalidOptions {
         fail("Parser failed to throw exception InvalidModifierFinal");
     }
 
-    @Test(expected = InvalidOptionName.class)
+    @Test(expected = InvalidOptionConfiguration.class)
     public void optionWithoutName() throws InvalidCommandLine {
         final String[] args = {};
         parseCommandLineArguments(args, NoName::new);

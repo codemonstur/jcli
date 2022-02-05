@@ -72,7 +72,7 @@ public class TestPositional {
     }
 
 
-    @Test(expected = MissingArgument.class)
+    @Test(expected = InvalidCommandLine.class)
     public void oneMandatoryNotThere() throws InvalidCommandLine {
         final String[] args = {};
         parseCommandLineArguments(args, OneMandatory::new);
@@ -95,7 +95,7 @@ public class TestPositional {
         assertEquals("Second is invalid", "world", arguments2.second);
     }
 
-    @Test(expected = MandatoryPositionalAfterOptional.class)
+    @Test(expected = InvalidPositionalConfiguration.class)
     public void mandatoryAfterOptional() throws InvalidCommandLine {
         final String[] args = { "hello" };
         parseCommandLineArguments(args, MandatoryAfterOptional::new);
@@ -103,7 +103,7 @@ public class TestPositional {
         fail("MandatoryAfterOptional not thrown");
     }
 
-    @Test(expected = TooManyPositionalArguments.class)
+    @Test(expected = InvalidCommandLine.class)
     public void tooManyPositionalArguments() throws InvalidCommandLine {
         final String[] args = { "hello", "one-too-many" };
         parseCommandLineArguments(args, OptionAndPositional::new);
@@ -148,7 +148,7 @@ public class TestPositional {
         assertEquals("Second positional is invalid", Integer.valueOf(2), arguments.positionals.get(1));
     }
 
-    @Test(expected = DefaultForListPositional.class)
+    @Test(expected = InvalidPositionalConfiguration.class)
     public void invalidPositionalConfigurationFails() throws InvalidCommandLine {
         final String[] args = { "1", "2" };
         parseCommandLineArguments(args, InvalidListConfig::new);

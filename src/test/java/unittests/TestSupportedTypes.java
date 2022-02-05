@@ -2,7 +2,7 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
-import jcli.errors.InvalidOptionType;
+import jcli.errors.InvalidOptionConfiguration;
 import org.junit.Test;
 
 import java.io.File;
@@ -155,7 +155,7 @@ public class TestSupportedTypes {
         public Set file;
     }
 
-    @Test(expected = InvalidOptionType.class)
+    @Test(expected = InvalidOptionConfiguration.class)
     public void optionWithInvalidType() throws InvalidCommandLine {
         final String[] args = {};
         parseCommandLineArguments(args, WrongFieldType::new);

@@ -16,6 +16,7 @@ import static jcli.Reflection.*;
 import static jcli.Util.isNullOrEmpty;
 import static jcli.Util.padRight;
 import static jcli.annotations.Constants.FAKE_NULL;
+import static jcli.errors.InvalidOptionConfiguration.*;
 
 public enum CliHelp {;
 
@@ -45,14 +46,14 @@ public enum CliHelp {;
         int maxTypeLength = 0;
         for (final Field field : listFields(clazz)) {
             if (!field.isAnnotationPresent(CliOption.class)) continue;
-            if (Modifier.isStatic(field.getModifiers())) throw new InvalidModifierStatic(field);
-            if (Modifier.isFinal(field.getModifiers())) throw new InvalidModifierFinal(field);
+            if (Modifier.isStatic(field.getModifiers())) throw newInvalidModifierStatic(field);
+            if (Modifier.isFinal(field.getModifiers())) throw newInvalidModifierFinal(field);
 
             final CliOption option = field.getAnnotation(CliOption.class);
             if (!isValidFieldType(field.getType()))
-                throw new InvalidOptionType(option);
+                throw newInvalidOptionType(option);
             if (option.name() == ' ' && option.longName().isEmpty())
-                throw new InvalidOptionName(field.getName());
+                throw newInvalidOptionName(field.getName());
 //            if (hasMissingDefault(option, field))
 //                throw new MissingDefaultForOption(option);
 
@@ -68,8 +69,8 @@ public enum CliHelp {;
         }
         for (final Field field : listFields(clazz)) {
             if (!field.isAnnotationPresent(CliPositional.class)) continue;
-            if (Modifier.isStatic(field.getModifiers())) throw new InvalidModifierStatic(field);
-            if (Modifier.isFinal(field.getModifiers())) throw new InvalidModifierFinal(field);
+            if (Modifier.isStatic(field.getModifiers())) throw newInvalidModifierStatic(field);
+            if (Modifier.isFinal(field.getModifiers())) throw newInvalidModifierFinal(field);
 
             final CliPositional positional = field.getAnnotation(CliPositional.class);
             if (FAKE_NULL.equals(positional.defaultValue())) continue;

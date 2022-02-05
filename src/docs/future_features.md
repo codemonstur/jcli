@@ -29,7 +29,7 @@ Builder.withResourceBundle(ResourceBundle.getBundle("UserOpts"))
 
 ### 5. Different way to treat Boolean's
 
-Currently the Boolean class works like the boolean primitive:
+Currently, the Boolean class works like the boolean primitive:
 - It is a flag
 - If the argument is there the value is set to true
 - If the argument isn't there the value is set to false

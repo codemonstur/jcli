@@ -14,6 +14,9 @@ import java.util.function.Supplier;
 import static java.lang.Boolean.TRUE;
 import static jcli.Reflection.*;
 import static jcli.annotations.Constants.FAKE_NULL;
+import static jcli.errors.InvalidCommandLine.*;
+import static jcli.errors.InvalidOptionConfiguration.*;
+import static jcli.errors.InvalidPositionalConfiguration.*;
 
 public enum CliParser {;
 
@@ -47,18 +50,18 @@ public enum CliParser {;
 
         for (final Field field : listFields(clazz)) {
             if (!field.isAnnotationPresent(CliOption.class)) continue;
-            if (Modifier.isStatic(field.getModifiers())) throw new InvalidModifierStatic(field);
-            if (Modifier.isFinal(field.getModifiers())) throw new InvalidModifierFinal(field);
+            if (Modifier.isStatic(field.getModifiers())) throw newInvalidModifierStatic(field);
+            if (Modifier.isFinal(field.getModifiers())) throw newInvalidModifierFinal(field);
 
             makeAccessible(field);
 
             final CliOption option = field.getAnnotation(CliOption.class);
             if (!isValidFieldType(field.getType()))
-                throw new InvalidOptionType(option);
+                throw newInvalidOptionType(option);
             if (option.name() == ' ' && option.longName().isEmpty())
-                throw new InvalidOptionName(field.getName());
+                throw newInvalidOptionName(field.getName());
             if (option.isHelp() && !isBooleanType(field))
-                throw new HelpTypeNotBoolean(field);
+                throw newHelpTypeNotBoolean(field);
 
             // TODO test if this is really desired, maybe better to just leave the field alone with whatever was defined in the class
             // if (hasMissingDefault(option, field)) throw new MissingDefaultForOption(option);
@@ -78,22 +81,22 @@ public enum CliParser {;
         int index = 0;
         for (final Field field : listFields(clazz)) {
             if (!field.isAnnotationPresent(CliPositional.class)) continue;
-            if (Modifier.isStatic(field.getModifiers())) throw new InvalidModifierStatic(field);
-            if (Modifier.isFinal(field.getModifiers())) throw new InvalidModifierFinal(field);
-            if (isListType(field) && hasPositional) throw new ConflictingPositionals();
+            if (Modifier.isStatic(field.getModifiers())) throw newInvalidModifierStatic(field);
+            if (Modifier.isFinal(field.getModifiers())) throw newInvalidModifierFinal(field);
+            if (isListType(field) && hasPositional) throw newConflictingPositionals();
 
             hasPositional = true;
             makeAccessible(field);
 
             final CliPositional positional = field.getAnnotation(CliPositional.class);
             if (hasOptionalPositional && FAKE_NULL.equals(positional.defaultValue()))
-                throw new MandatoryPositionalAfterOptional();
+                throw newMandatoryPositionalAfterOptional();
 
             hasOptionalPositional = hasOptionalPositional || !FAKE_NULL.equals(positional.defaultValue());
             if (isListType(field) && !FAKE_NULL.equals(positional.defaultValue()))
-                throw new DefaultForListPositional();
+                throw newDefaultForListPositional();
             if (!isValidFieldType(field.getType()))
-                throw new InvalidOptionType(field);
+                throw newInvalidOptionType(field);
 
             list.add(index++, new FieldAndPosition(field, positional));
         }
@@ -121,7 +124,7 @@ public enum CliParser {;
         for (int i = 0; i < args.length; i++) {
             if (isOption(args[i])) {
                 final FieldAndOption fao = options.remove(argumentToName(args[i]));
-                if (fao == null) throw new UnknownCommandLineArgument(args[i]);
+                if (fao == null) throw newUnknownCommandLineArgument(args[i]);
                 parsedOptions.add(fao.option);
 
                 if (isBooleanType(fao.field) || fao.option.isHelp()) {
@@ -142,7 +145,7 @@ public enum CliParser {;
                 if (argumentIntoObject(args, i, fao.field, instance, convert)) i++;
             } else {
                 // it must be a positional if its not an option
-                if (positionals.isEmpty()) throw new TooManyPositionalArguments(totalNumberOfPositionalArguments, positionalArgumentIndex);
+                if (positionals.isEmpty()) throw newTooManyPositionalArguments(totalNumberOfPositionalArguments, positionalArgumentIndex);
                 positionalArgumentIndex++;
                 if (isListType(positionals.get(0).field)) {
                     final FieldAndPosition fap = positionals.get(0);
@@ -161,7 +164,7 @@ public enum CliParser {;
         for (final FieldAndOption fao : options.values()) {
             if (parsedOptions.contains(fao.option)) continue;
             if (isListType(fao.field)) continue;
-            if (fao.option.isMandatory()) throw new MissingArgument(fao.option);
+            if (fao.option.isMandatory()) throw newMissingArgument(fao.option);
             if (!hasDefaultToSet(fao)) continue;
 
             fao.field.set(instance, toFieldType(fao.field, fao.field.getType(), toRealNull(fao.option.defaultValue())));
@@ -171,7 +174,7 @@ public enum CliParser {;
         if (positionals.size() != 1 || !isListType(positionals.get(0).field)) {
             for (final FieldAndPosition fap : positionals) {
                 if (FAKE_NULL.equals(fap.position.defaultValue()))
-                    throw new MissingArgument(fap.field);
+                    throw newMissingArgument(fap.field);
 
                 fap.field.set(instance, convert.toFieldType(fap.field, fap.field.getType(), fap.position.defaultValue()));
             }
@@ -199,13 +202,13 @@ public enum CliParser {;
         return !argument.isEmpty() && argument.charAt(0) == '-';
     }
 
-    private static void isFlagArgument(final String argument) throws AttachedFormFlagArgument {
-        if (argument.contains("=")) throw new AttachedFormFlagArgument();
+    private static void isFlagArgument(final String argument) throws InvalidCommandLine {
+        if (argument.contains("=")) throw newAttachedFormFlagArgument();
     }
 
     private static <T> boolean argumentIntoObject(final String[] arguments, final int index, final Field field,
                                                   final T instance, final ToFieldType convert)
-            throws MissingCommandLineValue, IllegalAccessException, InvalidArgumentValue {
+            throws InvalidCommandLine, IllegalAccessException {
         final String argument = arguments[index];
         final boolean attachedForm = isAttachedForm(argument);
         final String value = argumentToValue(arguments, index);
@@ -218,29 +221,29 @@ public enum CliParser {;
     }
 
     private static String argumentToName(final String argument) throws InvalidCommandLine {
-        if (argument.charAt(0) != '-') throw new InvalidCommandLineArgument(argument);
+        if (argument.charAt(0) != '-') throw newInvalidCommandLineArgument(argument);
         if (argument.startsWith("--")) {
-            if (argument.length() == 2) throw new CommandLineArgumentTooShort();
+            if (argument.length() == 2) throw newCommandLineArgumentTooShort();
             final int equalsIndex = argument.indexOf('=');
             return equalsIndex == -1 ? argument.substring(2) : argument.substring(2, equalsIndex);
         }
 
-        if (argument.length() == 1) throw new CommandLineArgumentTooShort();
+        if (argument.length() == 1) throw newCommandLineArgumentTooShort();
         int equalsIndex = argument.indexOf('=');
         if (equalsIndex == -1) {
-            if (argument.length() > 2) throw new SingleDashAttachedFormArgument(argument);
+            if (argument.length() > 2) throw newSingleDashAttachedFormArgument(argument);
             return argument.substring(1);
         }
-        if (equalsIndex == 1) throw new InvalidCommandLineArgument(argument);
-        if (equalsIndex > 2) throw new SingleDashAttachedFormArgument(argument);
+        if (equalsIndex == 1) throw newInvalidCommandLineArgument(argument);
+        if (equalsIndex > 2) throw newSingleDashAttachedFormArgument(argument);
         return argument.substring(1, 2);
     }
 
-    private static String argumentToValue(final String[] arguments, final int index) throws MissingCommandLineValue {
+    private static String argumentToValue(final String[] arguments, final int index) throws InvalidCommandLine {
         final String arg = arguments[index];
         final int equalsIndex = arg.indexOf('=');
         if (equalsIndex == -1 && index+1 >= arguments.length)
-            throw new MissingCommandLineValue(arg);
+            throw newMissingCommandLineValue(arg);
         return  equalsIndex == -1 ? arguments[index+1] : arg.substring(equalsIndex+1);
     }
 

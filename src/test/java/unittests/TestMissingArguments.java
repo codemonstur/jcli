@@ -14,7 +14,7 @@ public class TestMissingArguments {
         public String file;
     }
 
-    @Test(expected = UnknownCommandLineArgument.class)
+    @Test(expected = InvalidCommandLine.class)
     public void parseUnknownCommandLineOption() throws InvalidCommandLine {
         final String[] args = { "--something", "file.txt" };
         parseCommandLineArguments(args, Arguments::new);
@@ -22,7 +22,7 @@ public class TestMissingArguments {
         fail("Parser failed to throw UnknownCommandLineOption");
     }
 
-    @Test(expected = MissingArgument.class)
+    @Test(expected = InvalidCommandLine.class)
     public void parseMissingArgument() throws InvalidCommandLine {
         final String[] args = { };
         parseCommandLineArguments(args, Arguments::new);
@@ -30,7 +30,7 @@ public class TestMissingArguments {
         fail("Parser failed to throw MissingArgument");
     }
 
-    @Test(expected = MissingCommandLineValue.class)
+    @Test(expected = InvalidCommandLine.class)
     public void parseUnknownCommandLineValue() throws InvalidCommandLine {
         final String[] args = { "--file" };
         parseCommandLineArguments(args, Arguments::new);

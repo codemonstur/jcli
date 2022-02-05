@@ -2,7 +2,6 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
-import jcli.errors.MissingArgument;
 import org.junit.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
@@ -24,7 +23,7 @@ public class TestShortAndLongName {
         assertEquals("File was set with the correct value", "boe", arguments.file);
     }
 
-    @Test(expected = MissingArgument.class)
+    @Test(expected = InvalidCommandLine.class)
     public void optionWithMissingArgument() throws InvalidCommandLine {
         final String[] args = {};
         parseCommandLineArguments(args, Arguments::new);
