@@ -24,7 +24,7 @@ public class TestInvalidArguments {
         public URI uri;
     }
 
-    @Test(expected = CommandLineArgumentTooShort.class)
+    @Test(expected = InvalidCommandLine.class)
     public void argumentSingleDash() throws InvalidCommandLine {
         final String[] args = { "-" };
         parseCommandLineArguments(args, Arguments::new);
@@ -32,7 +32,7 @@ public class TestInvalidArguments {
         fail("Parser failed to throw exception CommandLineArgumentTooShort");
     }
 
-    @Test(expected = CommandLineArgumentTooShort.class)
+    @Test(expected = InvalidCommandLine.class)
     public void argumentDoubleDash() throws InvalidCommandLine {
         final String[] args = { "--" };
         parseCommandLineArguments(args, Arguments::new);
@@ -40,7 +40,7 @@ public class TestInvalidArguments {
         fail("Parser failed to throw exception CommandLineArgumentTooShort");
     }
 
-    @Test(expected = SingleDashAttachedFormArgument.class)
+    @Test(expected = InvalidCommandLine.class)
     public void argumentLongSingleDash() throws InvalidCommandLine {
         final String[] args = { "-file", "data.txt" };
         parseCommandLineArguments(args, Arguments::new);
@@ -48,7 +48,7 @@ public class TestInvalidArguments {
         fail("Parser failed to throw exception SingleDashLongFormArgument");
     }
 
-    @Test(expected = AttachedFormFlagArgument.class)
+    @Test(expected = InvalidCommandLine.class)
     public void argumentLongFlag() throws InvalidCommandLine {
         final String[] args = { "-f=boe" };
         parseCommandLineArguments(args, Flag::new);
@@ -56,7 +56,7 @@ public class TestInvalidArguments {
         fail("Parser failed to throw exception LongFormFlagArgument");
     }
 
-    @Test(expected = InvalidArgumentValue.class)
+    @Test(expected = InvalidCommandLine.class)
     public void argumentWrongValue() throws InvalidCommandLine {
         final String[] args = { "-o", "%&^*%" };
         parseCommandLineArguments(args, WrongValue::new);

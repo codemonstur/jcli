@@ -3,7 +3,7 @@ package jcli;
 import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
 import jcli.annotations.CliUnderscoreIsDash;
-import jcli.errors.InvalidArgumentValue;
+import jcli.errors.InvalidCommandLine;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -19,13 +19,15 @@ import java.time.*;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static jcli.errors.InvalidCommandLine.newInvalidArgumentValue;
+
 public enum Reflection {;
 
     public interface StringToType<T> {
         T toType(String value);
     }
     public interface ToFieldType {
-        Object toFieldType(Field field, Class<?> type, String value) throws InvalidArgumentValue;
+        Object toFieldType(Field field, Class<?> type, String value) throws InvalidCommandLine;
     }
 
     /*
@@ -76,7 +78,7 @@ public enum Reflection {;
         return VALID_FIELDS.contains(type) || type.isEnum();
     }
 
-    public static Object toFieldType(final Field field, final Class<?> type, final String value) throws InvalidArgumentValue {
+    public static Object toFieldType(final Field field, final Class<?> type, final String value) throws InvalidCommandLine {
         try {
             if (type.isAssignableFrom(String.class)) return value;
             if (type.isAssignableFrom(double.class)) return Double.valueOf(value);
@@ -107,7 +109,7 @@ public enum Reflection {;
             if (type.isAssignableFrom(OffsetDateTime.class)) return OffsetDateTime.parse(value);
             if (type.isAssignableFrom(ZonedDateTime.class)) return ZonedDateTime.parse(value);
             if (type.isAssignableFrom(Optional.class)) {
-                if (field == null) throw new InvalidArgumentValue("Optional type as generic type");
+                if (field == null) throw newInvalidArgumentValue("Optional type as generic type");
                 if (value == null) return Optional.empty();
                 return Optional.of(toFieldType(field, getTypeOfGenericField(field, Object.class), value));
             }
@@ -135,7 +137,7 @@ public enum Reflection {;
                 return Enum.valueOf((Class<Enum>)type, enumName);
             }
         } catch (Exception e) {
-            throw new InvalidArgumentValue(value);
+            throw newInvalidArgumentValue(value);
         }
         throw new IllegalArgumentException("Coding error, none of the types that we support matched the field type.");
     }
