@@ -37,7 +37,7 @@ public enum Reflection {;
      *    modifiersField.setAccessible(true);
      *    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
      *
-     * However, since Java 12 this hack no longer works. Instead you will get an exception:
+     * However, since Java 12 this hack no longer works. Instead, you will get an exception:
      *
      *    java.lang.NoSuchFieldException: modifiers
      *

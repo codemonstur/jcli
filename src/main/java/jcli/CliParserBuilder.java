@@ -117,6 +117,7 @@ public class CliParserBuilder<T> {
         } catch (InvalidCommandLine e) {
             if (onErrorCall != null) onErrorCall.cliArgumentsInvalid(e, args);
             if (onErrorPrintHelpAndExit) {
+                System.err.println("[ERROR] " + e.getMessage() + "\n");
                 helpConsumer.accept(getHelp(name, object.getClass()));
                 System.exit(errorExitCode);
             }
