@@ -1,10 +1,9 @@
 package example;
 
-import jcli.annotations.CliOption;
 import jcli.CliParserBuilder;
+import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 
-import static jcli.CliHelp.printHelp;
 import static jcli.CliParserBuilder.newCliParser;
 
 public class BuilderExample {
@@ -14,8 +13,9 @@ public class BuilderExample {
         public String file;
     }
 
-    public static void main(final String... args) {
-        printHelp("example", Arguments.class);
+    public static void main(final String... args) throws InvalidCommandLine {
+        exampleTwo();
+//        printHelp("example", Arguments.class);
     }
 
     public static void exampleOne(final String... args) throws InvalidCommandLine {
