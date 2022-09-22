@@ -115,7 +115,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.4.1</version>
                 <configuration>
                     <additionalOptions>-Xdoclint:all -Xdoclint:-missing</additionalOptions>
                 </configuration>
@@ -142,7 +142,7 @@
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit-junit4</artifactId>
-            <version>0.23.1</version>
+            <version>1.0.0-rc1</version>
             <scope>test</scope>
         </dependency>
 
