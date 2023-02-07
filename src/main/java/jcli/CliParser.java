@@ -167,7 +167,8 @@ public enum CliParser {;
             if (fao.option.isMandatory()) throw newMissingArgument(fao.option);
             if (!hasDefaultToSet(fao)) continue;
 
-            fao.field.set(instance, toFieldType(fao.field, fao.field.getType(), toRealNull(fao.option.defaultValue())));
+            fao.field.set(instance, toFieldType(fao.field, fao.field.getType(),
+                toRealNull(!fao.option.setDefaultWhenMissing(), fao.option.defaultValue())));
         }
 
         // check the left over positionals
@@ -183,12 +184,16 @@ public enum CliParser {;
         return instance;
     }
 
-    private static String toRealNull(final String value) {
-        return FAKE_NULL.equals(value) ? null : value;
+    private static String toRealNull(final boolean mustBeNull, final String value) {
+        return mustBeNull || FAKE_NULL.equals(value) ? null : value;
     }
 
+    // First, we always set Optional's to Optional.empty(), so that becomes true
+    // Second, if we have configured to not set the default do nothing, so that becomes false
+    // Finally, we must have a default to actually set
     private static boolean hasDefaultToSet(final FieldAndOption fao) {
-        return !fao.option.defaultValue().equals(FAKE_NULL) || isOptionalClass(fao.field.getType());
+        return isOptionalClass(fao.field.getType())
+            || (fao.option.setDefaultWhenMissing() && !fao.option.defaultValue().equals(FAKE_NULL));
     }
 
     private static boolean isOptionalClass(final Class<?> clazz) {
