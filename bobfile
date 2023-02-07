@@ -1,8 +1,16 @@
 include https://raw.githubusercontent.com/codemonstur/bobfiles/master/foss-lib-github-maven
 
+vendor: com.github.codemonstur
+name: jcli
 version: 1.4.0
+description: A command line parser
 enablePreview: false
 packaging: jar
+license:
+  name: MIT
+developer:
+  name: Jurgen Voorneveld
+  email: jegvoorneveld@gmail.com
 dependencies:
   - repository: junit:junit:4.13.2
     scope: test
