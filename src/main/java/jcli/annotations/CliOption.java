@@ -14,6 +14,9 @@ public @interface CliOption {
     String longName() default "";
     // I would love to set 'default null' here, but this is not allowed for annotations
     String defaultValue() default FAKE_NULL;
+    // Useful if you want to configure a default value to show in the help but not actually
+    // have it be there for your code
+    boolean setDefaultWhenMissing() default true;
     String description() default "";
 
 }

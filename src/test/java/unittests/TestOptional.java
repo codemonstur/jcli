@@ -16,7 +16,7 @@ import static org.junit.Assert.assertFalse;
 public class TestOptional {
 
     public static class Arguments {
-        @CliOption(name = 'f', defaultValue ="default")
+        @CliOption(name = 'f', defaultValue = "default")
         public String file;
     }
 

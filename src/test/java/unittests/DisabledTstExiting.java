@@ -1,8 +1,23 @@
 package unittests;
 
+import jcli.CliParserBuilder;
+import jcli.annotations.CliOption;
+import jcli.errors.InvalidCommandLine;
+import org.junit.Rule;
+import org.junit.Test;
+
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 public class DisabledTstExiting {
-    // FIXME these tests work fine but bob can't resolve the dependency due to it
-    //  using a version range. So for now I've disabled the test and removed the dependency
+    // FIXME these tests should work but there are multiple issues:
+    //  - Bob has trouble finding the necessary libraries because they are not hosted on MavenCentral
+    //  - The tests die because the code that intercepts System.exit() uses a Security manager which is deprecated
+    // Used dependency is:
+    // #  - repository: com.github.stefanbirkner:system-rules:1.19.0
+    // #    scope: test
+    // Disabled for now
+
 //    @Rule
 //    public final ExpectedSystemExit exit = ExpectedSystemExit.none();
 //
