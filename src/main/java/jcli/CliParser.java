@@ -30,7 +30,7 @@ public enum CliParser {;
         try {
             final Class<?> clazz = object.getClass();
             return applyArgumentsToInstance(args, toFieldAndOptionMap(clazz), toFieldAndPositionList(clazz), object, Reflection::toFieldType);
-        } catch (IllegalAccessException e) {
+        } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -40,7 +40,7 @@ public enum CliParser {;
         try {
             final Class<?> clazz = object.getClass();
             return applyArgumentsToInstance(args, toFieldAndOptionMap(clazz), toFieldAndPositionList(clazz), object, convert);
-        } catch (IllegalAccessException e) {
+        } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -234,7 +234,7 @@ public enum CliParser {;
         }
 
         if (argument.length() == 1) throw newCommandLineArgumentTooShort();
-        int equalsIndex = argument.indexOf('=');
+        final int equalsIndex = argument.indexOf('=');
         if (equalsIndex == -1) {
             if (argument.length() > 2) throw newSingleDashAttachedFormArgument(argument);
             return argument.substring(1);
