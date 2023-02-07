@@ -1,0 +1,4 @@
+1.4.0
+
+Added ability to not set the default
+Removed the exception hierarchy, just 3 exceptions left
