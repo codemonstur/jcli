@@ -12,6 +12,12 @@ public final class InvalidOptionConfiguration extends RuntimeException {
     public static InvalidOptionConfiguration newHelpTypeNotBoolean(final Field field) {
         return new InvalidOptionConfiguration("isHelp set on field that is not a boolean: " + field.getName());
     }
+    public static InvalidOptionConfiguration newVersionTypeNotBoolean(final Field field) {
+        return new InvalidOptionConfiguration("isVersion set on field that is not a boolean: " + field.getName());
+    }
+    public static InvalidOptionConfiguration newVersionAndHelp(final Field field) {
+        return new InvalidOptionConfiguration("isHelp and isVersion both set on a field: " + field.getName());
+    }
     public static InvalidOptionConfiguration newInvalidModifierFinal(final Field field) {
         return new InvalidOptionConfiguration("The field '" + field.getName() + "' is declared final. This is not supported. For details you can find a comment in the Parser code.");
     }
