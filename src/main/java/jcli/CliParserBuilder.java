@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.lang.Boolean.TRUE;
@@ -22,6 +23,9 @@ public class CliParserBuilder<T> {
     public interface CliHelpConsumer<A> {
         void cliHelpRequested(A arguments, String[] args);
     }
+    public interface CliVersionConsumer {
+        void printVersion(String vendor, String name, String version);
+    }
 
     public static <U> CliParserBuilder<U> newCliParser(final Supplier<U> supplier) {
         return new CliParserBuilder<U>().object(supplier);
@@ -34,11 +38,15 @@ public class CliParserBuilder<T> {
     private Supplier<T> supplier;
     private boolean onErrorPrintHelpAndExit = false;
     private boolean onHelpPrintHelpAndExit = false;
+    private boolean onVersionPrintVersionAndExit = false;
     private int helpExitCode = 1;
     private int errorExitCode = 2;
+    private int versionExitCode = 3;
     private CliErrorConsumer onErrorCall;
     private CliHelpConsumer<T> onHelpCall;
+    private CliVersionConsumer onVersionCall;
     private Consumer<String> helpConsumer = System.out::println;
+    private CliVersionConsumer versionConsumer = (vendor, name, version) -> System.out.println(name + " v" + version);
     private String helpIndent;
     private Map<Class<?>, StringToType<?>> classConverters = new HashMap<>();
 
@@ -78,6 +86,25 @@ public class CliParserBuilder<T> {
         this.helpConsumer = helpConsumer;
         return this;
     }
+
+    public CliParserBuilder<T> onVersionPrintVersionAndExit() {
+        onVersionPrintVersionAndExit = true;
+        return this;
+    }
+    public CliParserBuilder<T> onVersionCall(final CliVersionConsumer onVersionCall) {
+        this.onVersionCall = onVersionCall;
+        return this;
+    }
+    public CliParserBuilder<T> versionExitCode(final int code) {
+        this.versionExitCode = code;
+        return this;
+    }
+    public CliParserBuilder<T> versionConsumer(final CliVersionConsumer versionConsumer) {
+        this.versionConsumer = versionConsumer;
+        return this;
+    }
+
+
     public CliParserBuilder<T> indent(final String indent) {
         this.helpIndent = indent;
         return this;
@@ -97,7 +124,7 @@ public class CliParserBuilder<T> {
     public T parseSuppressErrors(final String[] args) {
         try {
             return parse(args);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return null;
         }
     }
@@ -106,6 +133,16 @@ public class CliParserBuilder<T> {
         final T object = supplier.get();
         try {
             final T arguments = parseCommandLineArguments(args, object, newFieldToType(classConverters));
+            if (isVersionSelected(arguments)) {
+                final String vendor = CliParserBuilder.class.getPackage().getImplementationVendor();
+                final String name = CliParserBuilder.class.getPackage().getImplementationTitle();
+                final String version = CliParserBuilder.class.getPackage().getSpecificationVersion();
+                if (onVersionCall != null) onVersionCall.printVersion(vendor, name, version);
+                if (onVersionPrintVersionAndExit) {
+                    versionConsumer.printVersion(vendor, name, version);
+                    System.exit(versionExitCode);
+                }
+            }
             if (isHelpSelected(arguments)) {
                 if (onHelpCall != null) onHelpCall.cliHelpRequested(arguments, args);
                 if (onHelpPrintHelpAndExit) {
@@ -114,7 +151,7 @@ public class CliParserBuilder<T> {
                 }
             }
             return arguments;
-        } catch (InvalidCommandLine e) {
+        } catch (final InvalidCommandLine e) {
             if (onErrorCall != null) onErrorCall.cliArgumentsInvalid(e, args);
             if (onErrorPrintHelpAndExit) {
                 System.err.println("[ERROR] " + e.getMessage() + "\n");
@@ -134,17 +171,26 @@ public class CliParserBuilder<T> {
         };
     }
 
+    private boolean isVersionSelected(final T arguments) {
+        return hasFlagSet(arguments, CliOption::isVersion);
+    }
+
     private boolean isHelpSelected(final T arguments) {
+        return hasFlagSet(arguments, CliOption::isHelp);
+    }
+
+    private boolean hasFlagSet(final T arguments, final Function<CliOption, Boolean> selector) {
         try {
             for (final Field field : listFields(arguments.getClass())) {
                 if (!field.isAnnotationPresent(CliOption.class)) continue;
                 makeAccessible(field);
                 final CliOption option = field.getAnnotation(CliOption.class);
-                if (option.isHelp() && field.get(arguments).equals(TRUE)) {
+                if (selector.apply(option) && field.get(arguments).equals(TRUE)) {
                     return true;
                 }
             }
-        } catch (IllegalAccessException e) { /* can't happen so lets just say false */ }
+        } catch (final IllegalAccessException ignored)
+        { /* can't happen so lets just say false */ }
 
         return false;
     }

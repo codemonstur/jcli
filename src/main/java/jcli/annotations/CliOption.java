@@ -10,6 +10,7 @@ public @interface CliOption {
 
     boolean isHelp() default false;
     boolean isMandatory() default false;
+    boolean isVersion() default false;
     char name() default ' ';
     String longName() default "";
     // I would love to set 'default null' here, but this is not allowed for annotations

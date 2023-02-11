@@ -18,6 +18,8 @@ public class DisabledTstExiting {
     // #    scope: test
     // Disabled for now
 
+    // FIXME add tests for isVersion
+
 //    @Rule
 //    public final ExpectedSystemExit exit = ExpectedSystemExit.none();
 //

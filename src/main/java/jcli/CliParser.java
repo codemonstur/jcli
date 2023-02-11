@@ -62,9 +62,10 @@ public enum CliParser {;
                 throw newInvalidOptionName(field.getName());
             if (option.isHelp() && !isBooleanType(field))
                 throw newHelpTypeNotBoolean(field);
-
-            // TODO test if this is really desired, maybe better to just leave the field alone with whatever was defined in the class
-            // if (hasMissingDefault(option, field)) throw new MissingDefaultForOption(option);
+            if (option.isVersion() && !isBooleanType(field))
+                throw newVersionTypeNotBoolean(field);
+            if (option.isVersion() && option.isHelp())
+                throw newVersionAndHelp(field);
 
             addFieldAndOption(map, field, option);
         }
