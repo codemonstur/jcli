@@ -15,5 +15,5 @@ developer:
 dependencies:
   - repository: junit:junit:4.13.2
     scope: test
-  - repository: com.tngtech.archunit:archunit-junit4:1.0.1
+  - repository: com.tngtech.archunit:archunit-junit4:1.1.0
     scope: test
