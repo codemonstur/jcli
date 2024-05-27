@@ -21,7 +21,7 @@ Include it as a dependency.
 <dependency>
     <groupId>com.github.codemonstur</groupId>
     <artifactId>jcli</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
 </dependency>
 ```
 
