@@ -61,7 +61,7 @@ Packaging
 Build and tests
 
 - Maven 3.6.3 minimum, all versions moved into properties, plugins refreshed
-- opt-in quality gates: mvn verify -P licenses (check-license) and -P security (CVE scan)
+- opt-in quality gates: mvn verify -P licenses (check-license) and -P vulnerabilities (CVE scan)
 - publishing to Maven Central through the central-publishing-maven-plugin
 - the test suite grew from 88 to 201 tests, green on Maven 3.6.3/JDK 17 and
   Maven 3.9/JDK 27
