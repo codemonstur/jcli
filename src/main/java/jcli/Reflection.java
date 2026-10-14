@@ -77,6 +77,18 @@ public enum Reflection {;
     public static boolean isValidFieldType(final Class<?> type) {
         return VALID_FIELDS.contains(type) || type.isEnum();
     }
+    public static boolean isValidFieldType(final Class<?> type, final Collection<Class<?>> convertedTypes) {
+        return convertedTypes.contains(type) || isValidFieldType(type);
+    }
+    public static boolean isValidListType(final Field field, final Collection<Class<?>> convertedTypes) {
+        if (!isListType(field)) return true;
+        // A raw list has no type information at all, it behaves like a List<String>
+        if (!(field.getGenericType() instanceof ParameterizedType)) return true;
+        final Type[] typeArguments = ((ParameterizedType)field.getGenericType()).getActualTypeArguments();
+        if (typeArguments.length != 1 || !(typeArguments[0] instanceof Class)) return false;
+        final Class<?> elementType = (Class<?>)typeArguments[0];
+        return !List.class.equals(elementType) && isValidFieldType(elementType, convertedTypes);
+    }
 
     public static Object toFieldType(final Field field, final Class<?> type, final String value) throws InvalidCommandLine {
         try {
@@ -149,8 +161,26 @@ public enum Reflection {;
         return field.getType().equals(List.class);
     }
 
+    public static boolean isNumericType(final Class<?> type) {
+        return byte.class.equals(type) || Byte.class.equals(type)
+            || short.class.equals(type) || Short.class.equals(type)
+            || int.class.equals(type) || Integer.class.equals(type)
+            || long.class.equals(type) || Long.class.equals(type)
+            || float.class.equals(type) || Float.class.equals(type)
+            || double.class.equals(type) || Double.class.equals(type)
+            || BigDecimal.class.equals(type) || BigInteger.class.equals(type);
+    }
+
+    /** The fields that a counting flag can store its count in. */
+    public static boolean isCountingType(final Class<?> type) {
+        return int.class.equals(type) || Integer.class.equals(type)
+            || long.class.equals(type) || Long.class.equals(type);
+    }
+
+    // Lists that are raw, or that use a wildcard, have no parameter type: fall back to String, the same
+    // way the parsing of positional lists does, instead of blowing up with a ClassCastException
     public static Class<?> toParameterType(final Field field) {
-        return (Class<?>) ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
+        return getTypeOfGenericField(field, String.class);
     }
 
     public static <T> void initializeLists(final T instance) throws IllegalAccessException {

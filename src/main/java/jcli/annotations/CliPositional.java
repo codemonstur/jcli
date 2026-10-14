@@ -7,5 +7,10 @@ import static jcli.annotations.Constants.FAKE_NULL;
 
 @Retention(RUNTIME)
 public @interface CliPositional {
+
     String defaultValue() default FAKE_NULL;
+    // Shown in the help output, defaults to the field name
+    String name() default "";
+    String description() default "";
+
 }

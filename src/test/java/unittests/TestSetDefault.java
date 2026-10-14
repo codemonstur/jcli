@@ -53,7 +53,7 @@ public class TestSetDefault {
 
     @Test
     public void includeDefaultValueInHelp() {
-        final String help = "Usage: test [options] \n" +
+        final String help = "Usage: test [options]\n" +
             "\n" +
             "Options:\n" +
             "   -f   optional value   [default: default]\n";

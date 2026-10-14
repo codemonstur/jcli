@@ -9,6 +9,8 @@ public @interface CliCommand {
 
     String name() default "";
     String description() default "";
-    String[] examples() default "";
+    // Shown below the options in the help output
+    String footer() default "";
+    String[] examples() default {};
 
 }

@@ -1,0 +1,72 @@
+2.0.0
+
+Breaking change: jcli now requires Java 17. 1.5.2 remains the last release for Java 8.
+Nothing else breaks: no public API was removed, see src/docs/migration-2.0.0.md.
+
+Highlights from the bug fixes
+
+- Two fields sharing an option name are now a configuration error instead of undefined
+  behaviour
+- A mandatory List option with no values is reported as missing
+- Raw List fields (no generic type) parse as List<String>
+- --help and --version no longer fail on missing mandatory arguments
+- The same option given twice is an error instead of silently keeping the last value
+- The usage line no longer ends with a trailing space
+
+Parsing
+
+- Short groups and attached values: -vq, -vfreport.txt, -f=report.txt, --file=report.txt
+- '--' ends the options, negative numbers are values instead of unknown options
+- Unknown options and subcommands suggest the closest match:
+  'Did you mean '--file'?'
+- Value errors name the option and the expected type:
+  The value 'abc' for '--count' is not a valid Integer
+
+Options
+
+- arity: explicit boolean values (--force=false), exactly N values, or as many as given
+- counting flags: -vvv becomes 3
+- interactive options that prompt for a value, with a pluggable prompter (passwords)
+- aliases, hidden options, deprecated options that warn when they are used
+- validation: allowedValues, regex, min, max, requires, excludes
+- converters per class (addClassConverter) and per field (fieldConverter)
+
+Defaults
+
+- defaults from a Map, Properties or ResourceBundle: defaultsFrom(...)
+- per option fallback to a system property or an environment variable
+- defaultValue on List options, comma separated, an empty string means an empty list
+- a default resolves a mandatory option, ignoreMissingMandatory() allows missing ones
+
+Help
+
+- sections per group, a footer, wrapped descriptions (helpWidth), and positionals that
+  document themselves with a name and a description
+- every help label and error message translatable through a ResourceBundle, with English
+  fallback for the keys you leave out
+- CliParserBuilder.getHelpText() returns the fully configured help as a string
+
+Structure
+
+- subcommands, nested ones too, parsed into a CommandResult, with their own options,
+  help and completion
+
+Packaging
+
+- completion scripts for bash, fish and zsh: CliCompletion.toBash/toFish/toZsh
+- GraalVM native-image support: an annotation processor writes the reflect-config.json
+  that native-image picks up from the classpath
+- builder exitHandler so tests never hit System.exit
+
+Build and tests
+
+- Maven 3.6.3 minimum, all versions moved into properties, plugins refreshed
+- opt-in quality gates: mvn verify -P licenses (check-license) and -P security (CVE scan)
+- publishing to Maven Central through the central-publishing-maven-plugin
+- the test suite grew from 88 to 201 tests, green on Maven 3.6.3/JDK 17 and
+  Maven 3.9/JDK 27
+
+Documentation
+
+- new guides in src/docs, starting at src/docs/index.md, with a migration guide
+  (src/docs/migration-2.0.0.md) and a full annotation reference

@@ -39,7 +39,7 @@ public class TestHelp {
     @Test
     public void printHelp() {
         final String help =
-            "Usage: test [options] \n" +
+            "Usage: test [options]\n" +
             "\n" +
             "Options:\n" +
             "   --file   mandatory value   The file to process\n";
