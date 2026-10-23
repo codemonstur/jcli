@@ -1,11 +1,11 @@
 package unittests;
 
 import jcli.annotations.CliOption;
-import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestVersion {
 
@@ -19,16 +19,20 @@ public class TestVersion {
         private String version;
     }
 
-    @Test(expected = InvalidOptionConfiguration.class)
-    public void setVersionAndHelp() throws InvalidCommandLine {
+    @Test
+    public void setVersionAndHelp() {
         final String[] args = { "--version" };
-        final VersionAndHelp arguments = parseCommandLineArguments(args, VersionAndHelp::new);
+
+        assertThrows(InvalidOptionConfiguration.class, () ->
+            parseCommandLineArguments(args, VersionAndHelp::new));
     }
 
-    @Test(expected = InvalidOptionConfiguration.class)
-    public void setVersionNotBoolean() throws InvalidCommandLine {
+    @Test
+    public void setVersionNotBoolean() {
         final String[] args = { "--version" };
-        final VersionNotBoolean arguments = parseCommandLineArguments(args, VersionNotBoolean::new);
+
+        assertThrows(InvalidOptionConfiguration.class, () ->
+            parseCommandLineArguments(args, VersionNotBoolean::new));
     }
 
 }

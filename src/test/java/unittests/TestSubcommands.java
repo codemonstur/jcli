@@ -6,12 +6,12 @@ import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static jcli.CliParserBuilder.newCliParser;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestSubcommands {
 
@@ -60,7 +60,7 @@ public class TestSubcommands {
         final CommandResult<Root> result = tool()
                 .parseWithSubcommands(new String[]{"--verbose", "build", "--output", "out", "main"});
 
-        assertTrue("The root verbose flag should be set", result.getRoot().verbose);
+        assertTrue(result.getRoot().verbose, "The root verbose flag should be set");
         assertEquals("build", result.getSubcommand());
         assertEquals(List.of("build"), result.getPath());
 
@@ -73,7 +73,7 @@ public class TestSubcommands {
     public void commandLineWithoutASubcommand() throws Exception {
         final CommandResult<Root> result = tool().parseWithSubcommands(new String[]{"--verbose"});
 
-        assertTrue("The root verbose flag should be set", result.getRoot().verbose);
+        assertTrue(result.getRoot().verbose, "The root verbose flag should be set");
         assertFalse(result.hasSubcommand());
         assertNull(result.getSubcommand());
         assertEquals(List.of(), result.getPath());
@@ -85,7 +85,7 @@ public class TestSubcommands {
             tool().parseWithSubcommands(new String[]{"buld"});
             fail("Parsing should have failed on the unknown subcommand");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("'buld' is not a valid command. Did you mean 'build'?", e.getMessage());
         }
     }
@@ -99,7 +99,7 @@ public class TestSubcommands {
 
         assertEquals(List.of("remote", "add"), result.getPath());
         assertEquals("add", result.getSubcommand());
-        assertTrue("The remote force flag should be set", result.get(RemoteRoot.class).force);
+        assertTrue(result.get(RemoteRoot.class).force, "The remote force flag should be set");
         assertEquals("http://example.com", result.get(Add.class).url);
     }
 
@@ -109,7 +109,7 @@ public class TestSubcommands {
             tool().parse(new String[]{"build"});
             fail("Parsing should have failed on the wrong entry point");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("This parser has subcommands registered, use parseWithSubcommands instead of parse"
                     , e.getMessage());
         }
@@ -123,7 +123,7 @@ public class TestSubcommands {
                 .parseWithSubcommands(new String[]{"build", "main"});
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The subcommand 'tool' is registered on a class that also has positional arguments, this is not supported"
                     , e.getMessage());
         }
@@ -148,10 +148,9 @@ public class TestSubcommands {
         tool().onHelpPrintHelpAndExit().exitHandler(code -> { }).helpConsumer(help::append)
             .parseWithSubcommands(new String[]{"-h"});
 
-        assertTrue("The help should list the commands:\n" + help, help.toString().contains("Commands:"));
-        assertTrue("The help should list build:\n" + help, help.toString().contains("build"));
-        assertTrue("The help should show the subcommand description:\n" + help
-                , help.toString().contains("Build the thing"));
+        assertTrue(help.toString().contains("Commands:"), "The help should list the commands:\n" + help);
+        assertTrue(help.toString().contains("build"), "The help should list build:\n" + help);
+        assertTrue(help.toString().contains("Build the thing"), "The help should show the subcommand description:\n" + help);
     }
 
 }

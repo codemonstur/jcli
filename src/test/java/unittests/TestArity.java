@@ -3,12 +3,12 @@ package unittests;
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestArity {
 
@@ -64,7 +64,7 @@ public class TestArity {
     public void booleanWithoutTheOptionIsNull() throws Exception {
         final Force arguments = parseCommandLineArguments(new String[]{}, Force::new);
 
-        assertNull("A value taking Boolean that is not given stays null", arguments.force);
+        assertNull(arguments.force, "A value taking Boolean that is not given stays null");
     }
 
     @Test
@@ -74,7 +74,7 @@ public class TestArity {
             parseCommandLineArguments(args, Force::new);
             fail("Parsing should have failed on a value that is not true or false");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The value 'yes' for '--force' must be true or false", e.getMessage());
         }
     }
@@ -86,7 +86,7 @@ public class TestArity {
             parseCommandLineArguments(args, Force::new);
             fail("Parsing should have failed on the missing value");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("Argument '--force' is missing a value", e.getMessage());
         }
     }
@@ -112,7 +112,7 @@ public class TestArity {
             parseCommandLineArguments(args, Pair::new);
             fail("Parsing should have failed on the missing value");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The option '--pair' expects 2 values but only 1 were given", e.getMessage());
         }
     }
@@ -122,7 +122,7 @@ public class TestArity {
         final Greedy arguments = parseCommandLineArguments(new String[]{"--files", "a", "b", "-v"}, Greedy::new);
 
         assertEquals(List.of("a", "b"), arguments.files);
-        assertTrue("The verbose flag should be set", arguments.verbose);
+        assertTrue(arguments.verbose, "The verbose flag should be set");
     }
 
     @Test
@@ -130,7 +130,7 @@ public class TestArity {
         final Greedy arguments = parseCommandLineArguments(new String[]{"-v", "--files", "a", "b"}, Greedy::new);
 
         assertEquals(List.of("a", "b"), arguments.files);
-        assertTrue("The verbose flag should be set", arguments.verbose);
+        assertTrue(arguments.verbose, "The verbose flag should be set");
     }
 
     @Test
@@ -139,7 +139,7 @@ public class TestArity {
             parseCommandLineArguments(new String[]{}, ArityOnString::new);
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The field 'file' declares an arity of 3 which requires a List field", e.getMessage());
         }
     }
@@ -150,7 +150,7 @@ public class TestArity {
             parseCommandLineArguments(new String[]{}, ArityOnHelp::new);
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The field 'help' is a help or version flag and cannot declare an arity", e.getMessage());
         }
     }

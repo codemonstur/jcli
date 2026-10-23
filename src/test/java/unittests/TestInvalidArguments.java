@@ -2,12 +2,12 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestInvalidArguments {
 
@@ -24,44 +24,42 @@ public class TestInvalidArguments {
         public URI uri;
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void argumentSingleDash() throws InvalidCommandLine {
+    @Test
+    public void argumentSingleDash() {
         final String[] args = { "-" };
-        parseCommandLineArguments(args, Arguments::new);
-
-        fail("Parser failed to throw exception CommandLineArgumentTooShort");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, Arguments::new));
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void argumentDoubleDash() throws InvalidCommandLine {
+    @Test
+    public void argumentDoubleDash() {
         final String[] args = { "--" };
-        parseCommandLineArguments(args, Arguments::new);
 
-        fail("Parser failed to throw exception CommandLineArgumentTooShort");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, Arguments::new));
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void argumentLongSingleDash() throws InvalidCommandLine {
+    @Test
+    public void argumentLongSingleDash() {
         final String[] args = { "-file", "data.txt" };
-        parseCommandLineArguments(args, Arguments::new);
-
-        fail("Parser failed to throw exception SingleDashLongFormArgument");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, Arguments::new));
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void argumentLongFlag() throws InvalidCommandLine {
+    @Test
+    public void argumentLongFlag() {
         final String[] args = { "-f=boe" };
-        parseCommandLineArguments(args, Flag::new);
 
-        fail("Parser failed to throw exception LongFormFlagArgument");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, Flag::new));
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void argumentWrongValue() throws InvalidCommandLine {
+    @Test
+    public void argumentWrongValue() {
         final String[] args = { "-o", "%&^*%" };
-        parseCommandLineArguments(args, WrongValue::new);
 
-        fail("Parser failed to throw exception InvalidArgumentValue");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, WrongValue::new));
     }
 
 }

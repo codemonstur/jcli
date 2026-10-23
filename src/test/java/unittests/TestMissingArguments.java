@@ -2,10 +2,10 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestMissingArguments {
 
@@ -14,28 +14,28 @@ public class TestMissingArguments {
         public String file;
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void parseUnknownCommandLineOption() throws InvalidCommandLine {
+    @Test
+    public void parseUnknownCommandLineOption() {
         final String[] args = { "--something", "file.txt" };
-        parseCommandLineArguments(args, Arguments::new);
 
-        fail("Parser failed to throw UnknownCommandLineOption");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, Arguments::new));
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void parseMissingArgument() throws InvalidCommandLine {
+    @Test
+    public void parseMissingArgument() {
         final String[] args = { };
-        parseCommandLineArguments(args, Arguments::new);
 
-        fail("Parser failed to throw MissingArgument");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, Arguments::new));
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void parseUnknownCommandLineValue() throws InvalidCommandLine {
+    @Test
+    public void parseUnknownCommandLineValue() {
         final String[] args = { "--file" };
-        parseCommandLineArguments(args, Arguments::new);
 
-        fail("Parser failed to throw MissingCommandLineValue");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, Arguments::new));
     }
 
 }

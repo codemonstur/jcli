@@ -77,8 +77,11 @@ public class Args { ... }
 
 ## Field rules
 
-* Fields must be `public` and non-static. They must not be `final`: the parser sets them
-  through reflection.
+* Fields may have any visibility and may be `final` when they are assigned in the
+  constructor: the parser sets them through reflection. They may not be `static`.
+* A `record` works as an arguments class: every component is a field, the parser calls the
+  canonical constructor with the parsed values. Components it does not fill get the type
+  defaults (`null`, `false`, `0`), use a compact constructor to compute defaults.
 * An option needs `name`, `longName` or both. With both, either form on the command line works.
 * Two fields may not share a name (including aliases).
 * Fields that are not annotated are ignored.

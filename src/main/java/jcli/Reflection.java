@@ -30,28 +30,27 @@ public enum Reflection {;
         Object toFieldType(Field field, Class<?> type, String value) throws InvalidCommandLine;
     }
 
-    /*
-     * This code used to remove the final modifier from the field using this code:
+    /**
+     * Fields must be made accessible before the parser can read or write them.
      *
-     *    Field modifiersField = Field.class.getDeclaredField("modifiers");
-     *    modifiersField.setAccessible(true);
-     *    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+     * This also grants write access to final fields: since Java 9 {@code Field.set} can
+     * write a non-static final field once {@code setAccessible(true)} has succeeded, and
+     * this library requires Java 17, so final fields on an arguments class are supported.
+     * An earlier version of this library rejected final fields instead, because before
+     * Java 9 the only way to write them was to strip the final modifier from the Field,
+     * a hack that stopped working in Java 12.
      *
-     * However, since Java 12 this hack no longer works. Instead, you will get an exception:
+     * Two caveats apply:
      *
-     *    java.lang.NoSuchFieldException: modifiers
+     *  - Final fields must be assigned in the constructor. A field that is initialized
+     *    with a compile-time constant (for example {@code final int count = 0;}) is
+     *    inlined at every read site by the compiler, and reads will keep returning the
+     *    constant no matter what the parser writes.
+     *  - Records cannot be used as an arguments class: all their fields are final and the
+     *    JDK refuses reflective writes to record components outright.
      *
-     * There is a workaround available for Java 12 using a VarHandle documented here:
-     * https://stackoverflow.com/questions/56039341/get-declared-fields-of-java-lang-reflect-fields-in-jdk12/56042394#56042394
-     * VarHandles were introduced in Java 9.
-     *
-     * We therefore have these options:
-     *
-     *  1. Use the original hack, making the library unusable in Java 12 and forwards
-     *  2. Use the new hack, making the library unusable in Java 8 and lower
-     *  3. Don't remove the final modifier, forcing users to provide a class with mutable fields
-     *
-     * I have chosen 3 for now, if a different solution presents itself I will revisit the decision.
+     * From Java 27 mutating a final field prints a warning, and a future release will
+     * require the {@code --enable-final-field-mutation=ALL-UNNAMED} flag for it.
      */
     public static void makeAccessible(final Field field) {
         field.setAccessible(true);

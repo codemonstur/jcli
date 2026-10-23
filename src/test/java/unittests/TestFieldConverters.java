@@ -4,12 +4,12 @@ import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
 import static jcli.CliParserBuilder.newCliParser;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestFieldConverters {
 
@@ -55,7 +55,7 @@ public class TestFieldConverters {
             newCliParser(OnlyCustom::new).parse(new String[]{});
             fail("Parsing should have failed on the unsupported type");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("Option 'host' has an invalid type", e.getMessage());
         }
     }
@@ -69,8 +69,8 @@ public class TestFieldConverters {
                         , java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                 .parse(new String[]{"--date", "2024-01-02", "--birthday", "03/04/2024", "src"});
 
-        assertEquals("The built in conversion should be untouched", LocalDate.of(2024, 1, 2), arguments.date);
-        assertEquals("The field converter should win", LocalDate.of(2024, 4, 3), arguments.birthday);
+        assertEquals(LocalDate.of(2024, 1, 2), arguments.date, "The built in conversion should be untouched");
+        assertEquals(LocalDate.of(2024, 4, 3), arguments.birthday, "The field converter should win");
     }
 
     @Test
@@ -82,10 +82,8 @@ public class TestFieldConverters {
                 .fieldConverter("birthday", LocalDate::parse)
                 .parse(new String[]{"--date", "2024-01-02", "--birthday", "2024-04-03", "src"});
 
-        assertEquals("The class converter applies where no field converter is registered"
-                , LocalDate.MIN, arguments.date);
-        assertEquals("The field converter applies to its own field"
-                , LocalDate.of(2024, 4, 3), arguments.birthday);
+        assertEquals(LocalDate.MIN, arguments.date, "The class converter applies where no field converter is registered");
+        assertEquals(LocalDate.of(2024, 4, 3), arguments.birthday, "The field converter applies to its own field");
     }
 
     @Test
@@ -99,7 +97,7 @@ public class TestFieldConverters {
                 .parse(new String[]{"--host", "x", "src"});
             fail("Parsing should have failed on the converter error");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The value 'x' for '--host' is not a valid Custom", e.getMessage());
         }
     }
@@ -114,8 +112,7 @@ public class TestFieldConverters {
             .onHelpPrintHelpAndExit().exitHandler(code -> { }).helpConsumer(help::append)
             .parse(new String[]{"-h"});
 
-        assertTrue("The help does not describe the converted option:\n" + help
-                , help.toString().contains("--host"));
+        assertTrue(help.toString().contains("--host"), "The help does not describe the converted option:\n" + help);
     }
 
 }

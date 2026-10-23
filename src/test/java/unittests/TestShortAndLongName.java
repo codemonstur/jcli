@@ -2,11 +2,11 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestShortAndLongName {
 
@@ -20,14 +20,14 @@ public class TestShortAndLongName {
         final String[] args = { "-f", "boe"};
         final Arguments arguments = parseCommandLineArguments(args, Arguments::new);
 
-        assertEquals("File was set with the correct value", "boe", arguments.file);
+        assertEquals("boe", arguments.file, "File was set with the correct value");
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void optionWithMissingArgument() throws InvalidCommandLine {
+    @Test
+    public void optionWithMissingArgument() {
         final String[] args = {};
-        parseCommandLineArguments(args, Arguments::new);
 
-        fail("The code failed to throw the MissingArgument exception");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, Arguments::new));
     }
 }

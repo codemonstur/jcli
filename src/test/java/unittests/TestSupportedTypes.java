@@ -3,7 +3,7 @@ package unittests;
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 import static java.lang.String.format;
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestSupportedTypes {
 
@@ -114,40 +114,40 @@ public class TestSupportedTypes {
             "--charset", "UTF-8", "--enum", "test"};
         final AllSupportedTypes arguments = parseCommandLineArguments(args, AllSupportedTypes::new);
 
-        assertNotNull(format("The %s argument was not set", "bigDecimal"), arguments.bigDecimal);
-        assertNotNull(format("The %s argument was not set", "bigInteger"), arguments.bigInteger);
-        assertNotNull(format("The %s argument was not set", "booleanClass"), arguments.booleanClass);
-        assertNotNull(format("The %s argument was not set", "byteClass"), arguments.byteClass);
-        assertNotNull(format("The %s argument was not set", "charClass"), arguments.charClass);
-        assertNotNull(format("The %s argument was not set", "charset"), arguments.charset);
-        assertNotNull(format("The %s argument was not set", "doubleClass"), arguments.doubleClass);
-        assertNotNull(format("The %s argument was not set", "file"), arguments.file);
-        assertNotNull(format("The %s argument was not set", "floatClass"), arguments.floatClass);
-        assertNotNull(format("The %s argument was not set", "instant"), arguments.instant);
-        assertNotNull(format("The %s argument was not set", "intClass"), arguments.intClass);
-        assertNotNull(format("The %s argument was not set", "localDate"), arguments.localDate);
-        assertNotNull(format("The %s argument was not set", "localDateTime"), arguments.localDateTime);
-        assertNotNull(format("The %s argument was not set", "localTime"), arguments.localTime);
-        assertNotNull(format("The %s argument was not set", "longClass"), arguments.longClass);
-        assertNotNull(format("The %s argument was not set", "offsetDateTime"), arguments.offsetDateTime);
-        assertNotNull(format("The %s argument was not set", "optionalDouble"), arguments.optionalDouble);
-        assertNotNull(format("The %s argument was not set", "optionalInt"), arguments.optionalInt);
-        assertNotNull(format("The %s argument was not set", "optionalLong"), arguments.optionalLong);
-        assertNotNull(format("The %s argument was not set", "path"), arguments.path);
-        assertNotNull(format("The %s argument was not set", "pattern"), arguments.pattern);
-        assertNotNull(format("The %s argument was not set", "shortClass"), arguments.shortClass);
-        assertNotNull(format("The %s argument was not set", "string"), arguments.string);
-        assertNotNull(format("The %s argument was not set", "uri"), arguments.uri);
-        assertNotNull(format("The %s argument was not set", "zonedDateTime"), arguments.zonedDateTime);
-        assertEquals(format("The %s argument was not set", "bytePrimitive"), 1, arguments.bytePrimitive);
-        assertEquals(format("The %s argument was not set", "charPrimitive"), 'a', arguments.charPrimitive);
-        assertEquals(format("The %s argument was not set", "intPrimitive"), 1, arguments.intPrimitive);
-        assertEquals(format("The %s argument was not set", "shortPrimitive"), 1, arguments.shortPrimitive);
-        assertEquals(format("The %s argument was not set", "doublePrimitive"),1.0, arguments.doublePrimitive, 0.0000001);
-        assertEquals(format("The %s argument was not set", "floatPrimitive"),1.0f, arguments.floatPrimitive, 0.0000001f);
-        assertEquals(format("The %s argument was not set", "longPrimitive"), 1, arguments.longPrimitive);
-        assertEquals(format("The %s argument was not set", "enumValue"), TestEnum.test, arguments.enumValue);
-        assertTrue(format("The %s argument was not set", "booleanPrimitive"), arguments.booleanPrimitive);
+        assertNotNull(arguments.bigDecimal, format("The %s argument was not set", "bigDecimal"));
+        assertNotNull(arguments.bigInteger, format("The %s argument was not set", "bigInteger"));
+        assertNotNull(arguments.booleanClass, format("The %s argument was not set", "booleanClass"));
+        assertNotNull(arguments.byteClass, format("The %s argument was not set", "byteClass"));
+        assertNotNull(arguments.charClass, format("The %s argument was not set", "charClass"));
+        assertNotNull(arguments.charset, format("The %s argument was not set", "charset"));
+        assertNotNull(arguments.doubleClass, format("The %s argument was not set", "doubleClass"));
+        assertNotNull(arguments.file, format("The %s argument was not set", "file"));
+        assertNotNull(arguments.floatClass, format("The %s argument was not set", "floatClass"));
+        assertNotNull(arguments.instant, format("The %s argument was not set", "instant"));
+        assertNotNull(arguments.intClass, format("The %s argument was not set", "intClass"));
+        assertNotNull(arguments.localDate, format("The %s argument was not set", "localDate"));
+        assertNotNull(arguments.localDateTime, format("The %s argument was not set", "localDateTime"));
+        assertNotNull(arguments.localTime, format("The %s argument was not set", "localTime"));
+        assertNotNull(arguments.longClass, format("The %s argument was not set", "longClass"));
+        assertNotNull(arguments.offsetDateTime, format("The %s argument was not set", "offsetDateTime"));
+        assertNotNull(arguments.optionalDouble, format("The %s argument was not set", "optionalDouble"));
+        assertNotNull(arguments.optionalInt, format("The %s argument was not set", "optionalInt"));
+        assertNotNull(arguments.optionalLong, format("The %s argument was not set", "optionalLong"));
+        assertNotNull(arguments.path, format("The %s argument was not set", "path"));
+        assertNotNull(arguments.pattern, format("The %s argument was not set", "pattern"));
+        assertNotNull(arguments.shortClass, format("The %s argument was not set", "shortClass"));
+        assertNotNull(arguments.string, format("The %s argument was not set", "string"));
+        assertNotNull(arguments.uri, format("The %s argument was not set", "uri"));
+        assertNotNull(arguments.zonedDateTime, format("The %s argument was not set", "zonedDateTime"));
+        assertEquals(1, arguments.bytePrimitive, format("The %s argument was not set", "bytePrimitive"));
+        assertEquals('a', arguments.charPrimitive, format("The %s argument was not set", "charPrimitive"));
+        assertEquals(1, arguments.intPrimitive, format("The %s argument was not set", "intPrimitive"));
+        assertEquals(1, arguments.shortPrimitive, format("The %s argument was not set", "shortPrimitive"));
+        assertEquals(1.0, arguments.doublePrimitive, 0.0000001, format("The %s argument was not set", "doublePrimitive"));
+        assertEquals(1.0f, arguments.floatPrimitive, 0.0000001f, format("The %s argument was not set", "floatPrimitive"));
+        assertEquals(1, arguments.longPrimitive, format("The %s argument was not set", "longPrimitive"));
+        assertEquals(TestEnum.test, arguments.enumValue, format("The %s argument was not set", "enumValue"));
+        assertTrue(arguments.booleanPrimitive, format("The %s argument was not set", "booleanPrimitive"));
     }
 
     public static class WrongFieldType {
@@ -155,12 +155,12 @@ public class TestSupportedTypes {
         public Set file;
     }
 
-    @Test(expected = InvalidOptionConfiguration.class)
-    public void optionWithInvalidType() throws InvalidCommandLine {
+    @Test
+    public void optionWithInvalidType() {
         final String[] args = {};
-        parseCommandLineArguments(args, WrongFieldType::new);
 
-        fail("Parser failed to throw exception InvalidOptionType");
+        assertThrows(InvalidOptionConfiguration.class, () ->
+            parseCommandLineArguments(args, WrongFieldType::new));
     }
 
 }

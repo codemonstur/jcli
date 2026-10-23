@@ -4,10 +4,10 @@ import jcli.CliCompletion;
 import jcli.annotations.CliCommand;
 import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParserBuilder.newCliParser;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestCompletion {
 
@@ -35,28 +35,28 @@ public class TestCompletion {
     public void bashListsTheOptions() {
         final String script = CliCompletion.toBash(Args.class);
 
-        assertTrue(script, script.contains("# bash completion for tool"));
-        assertTrue(script, script.contains("tool_completions()"));
-        assertTrue(script, script.contains("-f --file -h --help"));
-        assertTrue(script, script.contains("complete -F tool_completions tool"));
-        assertTrue("Positionals complete as files:\n" + script, script.contains("compgen -f"));
+        assertTrue(script.contains("# bash completion for tool"), script);
+        assertTrue(script.contains("tool_completions()"), script);
+        assertTrue(script.contains("-f --file -h --help"), script);
+        assertTrue(script.contains("complete -F tool_completions tool"), script);
+        assertTrue(script.contains("compgen -f"), "Positionals complete as files:\n" + script);
     }
 
     @Test
     public void fishListsTheOptionsWithDescriptions() {
         final String script = CliCompletion.toFish(Args.class);
 
-        assertTrue(script, script.contains("complete -c tool -s f -l file -r -F -d 'The file to read'"));
-        assertTrue(script, script.contains("complete -c tool -s h -l help -d 'Prints the help'"));
+        assertTrue(script.contains("complete -c tool -s f -l file -r -F -d 'The file to read'"), script);
+        assertTrue(script.contains("complete -c tool -s h -l help -d 'Prints the help'"), script);
     }
 
     @Test
     public void zshListsTheOptionsWithDescriptions() {
         final String script = CliCompletion.toZsh(Args.class);
 
-        assertTrue(script, script.contains("#compdef tool"));
-        assertTrue(script, script.contains("'-f[The file to read]:file:_files'"));
-        assertTrue(script, script.contains("'-h[Prints the help]'"));
+        assertTrue(script.contains("#compdef tool"), script);
+        assertTrue(script.contains("'-f[The file to read]:file:_files'"), script);
+        assertTrue(script.contains("'-h[Prints the help]'"), script);
     }
 
     @Test
@@ -64,9 +64,9 @@ public class TestCompletion {
         final String script = CliCompletion.toBash(newCliParser(Root::new).name("tool")
                 .subcommand("build", "Build it", newCliParser(Build::new)));
 
-        assertTrue(script, script.contains("case \"$command\" in"));
-        assertTrue(script, script.contains("build)"));
-        assertTrue(script, script.contains("-v --verbose build"));
+        assertTrue(script.contains("case \"$command\" in"), script);
+        assertTrue(script.contains("build)"), script);
+        assertTrue(script.contains("-v --verbose build"), script);
     }
 
     @Test
@@ -74,8 +74,8 @@ public class TestCompletion {
         final String script = CliCompletion.toFish(newCliParser(Root::new).name("tool")
                 .subcommand("build", "Build it", newCliParser(Build::new)));
 
-        assertTrue(script, script.contains("complete -c tool -a build -d 'Build it'"));
-        assertTrue(script, script.contains("-n 'not __fish_seen_subcommand_from build' -l output"));
+        assertTrue(script.contains("complete -c tool -a build -d 'Build it'"), script);
+        assertTrue(script.contains("-n 'not __fish_seen_subcommand_from build' -l output"), script);
     }
 
     @Test
@@ -83,9 +83,9 @@ public class TestCompletion {
         final String script = CliCompletion.toZsh(newCliParser(Root::new).name("tool")
                 .subcommand("build", "Build it", newCliParser(Build::new)));
 
-        assertTrue(script, script.contains("'1:command:->commands'"));
-        assertTrue(script, script.contains("compadd build"));
-        assertTrue(script, script.contains("'--output[Where to build]:output:_files'"));
+        assertTrue(script.contains("'1:command:->commands'"), script);
+        assertTrue(script.contains("compadd build"), script);
+        assertTrue(script.contains("'--output[Where to build]:output:_files'"), script);
     }
 
 }

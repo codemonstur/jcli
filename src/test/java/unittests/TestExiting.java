@@ -2,10 +2,10 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParserBuilder.newCliParser;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestExiting {
 
@@ -32,9 +32,9 @@ public class TestExiting {
             .helpConsumer(help::append)
             .parse(new String[]{"-h"});
 
-        assertEquals("The help exit code should be used", 7, exit[0]);
-        assertTrue("The help should be printed:\n" + help, help.toString().contains("Usage: tool"));
-        assertTrue("The parsed arguments are still returned", arguments.help);
+        assertEquals(7, exit[0], "The help exit code should be used");
+        assertTrue(help.toString().contains("Usage: tool"), "The help should be printed:\n" + help);
+        assertTrue(arguments.help, "The parsed arguments are still returned");
     }
 
     @Test
@@ -55,10 +55,9 @@ public class TestExiting {
             assertEquals("'--nope' is not a valid command line argument", e.getMessage());
         }
 
-        assertEquals("The error exit code should be used", 9, exit[0]);
-        assertEquals("The error line should have been printed", "[ERROR] '--nope' is not a valid command line argument\n"
-                , error.toString());
-        assertTrue("The help should be printed:\n" + help, help.toString().contains("Usage: tool"));
+        assertEquals(9, exit[0], "The error exit code should be used");
+        assertEquals("[ERROR] '--nope' is not a valid command line argument\n", error.toString(), "The error line should have been printed");
+        assertTrue(help.toString().contains("Usage: tool"), "The help should be printed:\n" + help);
     }
 
     @Test
@@ -72,9 +71,8 @@ public class TestExiting {
             .versionConsumer((vendor, name, value) -> version[0] = name + "/" + value)
             .parse(new String[]{"--version"});
 
-        assertEquals("The version exit code should be used", 5, exit[0]);
-        assertEquals("The version consumer should have been called with the parser name"
-                , "tool/" + versionOfTheJar(), version[0]);
+        assertEquals(5, exit[0], "The version exit code should be used");
+        assertEquals("tool/" + versionOfTheJar(), version[0], "The version consumer should have been called with the parser name");
     }
 
     @Test
@@ -86,7 +84,7 @@ public class TestExiting {
             .parse(new String[]{"--version"});
 
         assertEquals("tool", version[0]);
-        assertTrue("The parsed arguments are still returned", arguments.version);
+        assertTrue(arguments.version, "The parsed arguments are still returned");
     }
 
     /** The version comes from the manifest, which is absent when running from classes */

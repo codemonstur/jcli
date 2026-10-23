@@ -55,7 +55,9 @@ public final class CliReflectionProcessor extends AbstractProcessor {
     private void collect(final Element element) {
         if (element.getKind() != ElementKind.FIELD) return;
         final Element enclosing = element.getEnclosingElement();
-        if (enclosing == null || enclosing.getKind() != ElementKind.CLASS) return;
+        if (enclosing == null) return;
+        final ElementKind enclosingKind = enclosing.getKind();
+        if (enclosingKind != ElementKind.CLASS && enclosingKind != ElementKind.RECORD) return;
 
         final String className = ((TypeElement) enclosing).getQualifiedName().toString();
         classes.computeIfAbsent(className, key -> new TreeSet<>()).add(element.getSimpleName().toString());
@@ -94,7 +96,8 @@ public final class CliReflectionProcessor extends AbstractProcessor {
                 firstField = false;
                 json.append("{\"name\":\"").append(field).append("\"}");
             }
-            json.append("]}");
+            // the parser instantiates arguments classes with their constructor, records through the canonical one
+            json.append("],\"allDeclaredConstructors\":true}");
         }
         for (final String enumType : enums) {
             if (!first) json.append(",\n");

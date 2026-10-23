@@ -4,10 +4,10 @@ import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
 import jcli.annotations.CliUnderscoreIsDash;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestEnum {
 
@@ -35,10 +35,10 @@ public class TestEnum {
         final String[] args = { "--underscore", "dash-underscore", "--test", "test", "something" };
         final EnumTypes arguments = parseCommandLineArguments(args, EnumTypes::new);
 
-        assertEquals("Dash not converted to underscore", ArgumentEnum.dash_underscore, arguments.enumDash);
-        assertEquals("Correct value not converted", ArgumentEnum.test, arguments.enumTest);
-        assertEquals("Action positional has wrong value", ArgumentEnum.something, arguments.action);
-        assertEquals("Subaction positional is not the default", ArgumentEnum.dummy, arguments.subaction);
+        assertEquals(ArgumentEnum.dash_underscore, arguments.enumDash, "Dash not converted to underscore");
+        assertEquals(ArgumentEnum.test, arguments.enumTest, "Correct value not converted");
+        assertEquals(ArgumentEnum.something, arguments.action, "Action positional has wrong value");
+        assertEquals(ArgumentEnum.dummy, arguments.subaction, "Subaction positional is not the default");
     }
 
 }

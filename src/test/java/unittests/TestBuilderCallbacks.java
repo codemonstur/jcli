@@ -3,11 +3,11 @@ package unittests;
 import jcli.annotations.CliOption;
 import jcli.CliParserBuilder;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestBuilderCallbacks {
 
@@ -37,7 +37,7 @@ public class TestBuilderCallbacks {
             .onHelpCall((arguments, args1) -> wasCalled.value = TRUE)
             .parse(args);
 
-        assertTrue("Help callback wasn't called", wasCalled.value);
+        assertTrue(wasCalled.value, "Help callback wasn't called");
     }
 
     @Test
@@ -54,7 +54,7 @@ public class TestBuilderCallbacks {
                 .parse(args);
         } catch (Exception e) {}
 
-        assertTrue("Error callback wasn't called", wasCalled.value);
+        assertTrue(wasCalled.value, "Error callback wasn't called");
     }
 
 }

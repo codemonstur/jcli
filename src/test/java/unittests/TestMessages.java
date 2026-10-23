@@ -2,12 +2,12 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ListResourceBundle;
 
 import static jcli.CliParserBuilder.newCliParser;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMessages {
 
@@ -68,8 +68,8 @@ public class TestMessages {
         final String help = newCliParser(Args::new).name("zaehler")
                 .resourceBundle(new GermanBundle()).getHelpText();
 
-        assertTrue("The bundle translates the labels:\n" + help, help.contains("Verwendung: zaehler"));
-        assertTrue("The options are documented:\n" + help, help.contains("--count"));
+        assertTrue(help.contains("Verwendung: zaehler"), "The bundle translates the labels:\n" + help);
+        assertTrue(help.contains("--count"), "The options are documented:\n" + help);
     }
 
 }

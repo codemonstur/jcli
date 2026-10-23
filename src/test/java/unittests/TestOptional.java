@@ -2,7 +2,7 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -10,8 +10,8 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class TestOptional {
 
@@ -53,7 +53,7 @@ public class TestOptional {
         final String[] args = { };
         final Arguments arguments = parseCommandLineArguments(args, Arguments::new);
 
-        assertEquals("The file argument is not equal", "default", arguments.file);
+        assertEquals("default", arguments.file, "The file argument is not equal");
     }
 
     @Test
@@ -61,7 +61,7 @@ public class TestOptional {
         final String[] args = { "-f", "file.txt" };
         final Arguments arguments = parseCommandLineArguments(args, Arguments::new);
 
-        assertEquals("The hello argument is not equal", "file.txt", arguments.file);
+        assertEquals("file.txt", arguments.file, "The hello argument is not equal");
     }
 
     @Test
@@ -69,9 +69,9 @@ public class TestOptional {
         final String[] args = {};
         final WithDefaults arguments = parseCommandLineArguments(args, WithDefaults::new);
 
-        assertFalse("Double is not set correctly", arguments.optionalDouble.isPresent());
-        assertFalse("Long is not set correctly", arguments.optionalLong.isPresent());
-        assertFalse("Int is not set correctly", arguments.optionalInt.isPresent());
+        assertFalse(arguments.optionalDouble.isPresent(), "Double is not set correctly");
+        assertFalse(arguments.optionalLong.isPresent(), "Long is not set correctly");
+        assertFalse(arguments.optionalInt.isPresent(), "Int is not set correctly");
     }
 
     @Test
@@ -79,9 +79,9 @@ public class TestOptional {
         final String[] args = {};
         final WithoutDefaults arguments = parseCommandLineArguments(args, WithoutDefaults::new);
 
-        assertFalse("Double is not set correctly", arguments.optionalDouble.isPresent());
-        assertFalse("Long is not set correctly", arguments.optionalLong.isPresent());
-        assertFalse("Int is not set correctly", arguments.optionalInt.isPresent());
+        assertFalse(arguments.optionalDouble.isPresent(), "Double is not set correctly");
+        assertFalse(arguments.optionalLong.isPresent(), "Long is not set correctly");
+        assertFalse(arguments.optionalInt.isPresent(), "Int is not set correctly");
     }
 
     @Test
@@ -89,8 +89,8 @@ public class TestOptional {
         final String[] args = {};
         final TypedOptional arguments = parseCommandLineArguments(args, TypedOptional::new);
 
-        assertFalse("String is not set correctly", arguments.optionalString.isPresent());
-        assertFalse("Integer is not set correctly", arguments.optionalInteger.isPresent());
+        assertFalse(arguments.optionalString.isPresent(), "String is not set correctly");
+        assertFalse(arguments.optionalInteger.isPresent(), "Integer is not set correctly");
     }
 
     @Test
@@ -98,8 +98,8 @@ public class TestOptional {
         final String[] args = { "-s", "hello", "-i", "5" };
         final TypedOptional arguments = parseCommandLineArguments(args, TypedOptional::new);
 
-        assertEquals("String is not set correctly", "hello", arguments.optionalString.get());
-        assertEquals("Integer is not set correctly", Integer.valueOf(5), arguments.optionalInteger.get());
+        assertEquals("hello", arguments.optionalString.get(), "String is not set correctly");
+        assertEquals(Integer.valueOf(5), arguments.optionalInteger.get(), "Integer is not set correctly");
     }
 
 }

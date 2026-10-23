@@ -2,10 +2,10 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestDidYouMean {
 
@@ -23,7 +23,7 @@ public class TestDidYouMean {
             parseCommandLineArguments(args, Args::new);
             fail("Parsing should have failed on the typo");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("'--flie' is not a valid command line argument. Did you mean '--file'?", e.getMessage());
         }
     }
@@ -35,7 +35,7 @@ public class TestDidYouMean {
             parseCommandLineArguments(args, Args::new);
             fail("Parsing should have failed on the unknown option");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("'--zzzzzzzz' is not a valid command line argument", e.getMessage());
         }
     }
@@ -47,7 +47,7 @@ public class TestDidYouMean {
             parseCommandLineArguments(args, Args::new);
             fail("Parsing should have failed on the unknown option");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("'-x' is not a valid command line argument", e.getMessage());
         }
     }

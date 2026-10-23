@@ -2,10 +2,10 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestCounting {
 
@@ -78,7 +78,7 @@ public class TestCounting {
             parseCommandLineArguments(new String[]{}, CountingOnString::new);
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The field 'verbose' is a counting flag, this requires an int, Integer, long or Long field"
                     , e.getMessage());
         }
@@ -90,7 +90,7 @@ public class TestCounting {
             parseCommandLineArguments(new String[]{}, CountingMandatory::new);
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The field 'verbose' is a counting flag and cannot be mandatory, a count always has a value"
                     , e.getMessage());
         }
@@ -102,7 +102,7 @@ public class TestCounting {
             parseCommandLineArguments(new String[]{}, CountingWithArity::new);
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The field 'verbose' is a counting flag and cannot declare an arity", e.getMessage());
         }
     }

@@ -3,13 +3,13 @@ package unittests;
 import jcli.annotations.CliCommand;
 import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.OptionalLong;
 
 import static jcli.CliHelp.getHelp;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestHelp {
 
@@ -46,7 +46,7 @@ public class TestHelp {
 
         final String result = getHelp("test", Arguments.class);
 
-        assertEquals("The output help doesn't match", help, result);
+        assertEquals(help, result, "The output help doesn't match");
     }
 
     @Test
@@ -70,7 +70,7 @@ public class TestHelp {
 
         final String result = getHelp(null, LotsOfHelp.class);
 
-        assertEquals("The output help doesn't match", help, result);
+        assertEquals(help, result, "The output help doesn't match");
     }
 
 }

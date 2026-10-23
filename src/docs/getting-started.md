@@ -43,6 +43,15 @@ public class Args {
 }
 ```
 
+The fields may be `private` and can be `final`: the parser assigns them through
+reflection after construction. A final field must be assigned in the constructor, not with an
+inline constant initializer — a field like `final int verbose = 0;` is inlined
+at every read site by the compiler, and reads would never see the parsed value.
+A `record` works too, created with the class instead of a Supplier:
+`newCliParser(Args.class)` stages the values and calls the canonical constructor.
+A component that the parser does not fill gets `null`/`false`/`0`; compute a
+default in a compact constructor if you need one.
+
 Parse the command line with a builder:
 
 ```java

@@ -35,6 +35,11 @@ public class CliParserBuilder<T> {
     public static <U> CliParserBuilder<U> newCliParser(final Supplier<U> supplier) {
         return new CliParserBuilder<U>().object(supplier);
     }
+
+    /** Starts a parser for an arguments class: a record, or a class with a no-arg constructor. */
+    public static <U> CliParserBuilder<U> newCliParser(final Class<U> argumentsClass) {
+        return new CliParserBuilder<U>().object(argumentsClass);
+    }
     public static <U> CliParserBuilder<U> newCliParser() {
         return new CliParserBuilder<>();
     }
@@ -50,6 +55,7 @@ public class CliParserBuilder<T> {
 
     private String name;
     private Supplier<T> supplier;
+    private Class<T> argumentsClass;
     private boolean onErrorPrintHelpAndExit = false;
     private boolean onHelpPrintHelpAndExit = false;
     private boolean onVersionPrintVersionAndExit = false;
@@ -82,6 +88,14 @@ public class CliParserBuilder<T> {
     }
     public CliParserBuilder<T> object(final Supplier<T> supplier) {
         this.supplier = supplier;
+        this.argumentsClass = null;
+        return this;
+    }
+
+    /** Uses an arguments class instead of a Supplier: a record is built through its canonical constructor. */
+    public CliParserBuilder<T> object(final Class<T> argumentsClass) {
+        this.argumentsClass = argumentsClass;
+        this.supplier = null;
         return this;
     }
     public CliParserBuilder<T> onErrorPrintHelpAndExit() {
@@ -257,7 +271,7 @@ public class CliParserBuilder<T> {
     }
 
     Class<?> getArgumentsClass() {
-        return supplier.get().getClass();
+        return argumentsClass != null ? argumentsClass : supplier.get().getClass();
     }
 
     Map<String, Subcommand> getSubcommands() {
@@ -276,7 +290,9 @@ public class CliParserBuilder<T> {
     public T parse(final String[] args) throws InvalidCommandLine {
         if (!subcommands.isEmpty())
             throw newInvalidSubcommandConfiguration();
-        return parseWithSettings(args, supplier.get());
+        if (argumentsClass != null)
+            return parseWithSettings(args, context -> parseCommandLineArguments(args, argumentsClass, context));
+        return parseWithSettings(args, context -> parseCommandLineArguments(args, supplier.get(), context));
     }
 
     /**
@@ -290,21 +306,26 @@ public class CliParserBuilder<T> {
     }
 
     private CommandResult<?> parseInternal(final String[] args) throws InvalidCommandLine {
-        final Object object = supplier.get();
+        final Object object = argumentsClass == null ? supplier.get() : null;
+        final Class<?> rootClass = argumentsClass != null ? argumentsClass : object.getClass();
         final List<Object> chain = new ArrayList<>();
         final List<String> path = new ArrayList<>();
 
         int index = -1;
         if (!subcommands.isEmpty()) {
-            if (!CliParser.toFieldAndPositionList(object.getClass(), classConverters.keySet()
+            if (!CliParser.toFieldAndPositionList(rootClass, classConverters.keySet()
                     , fieldConverters.keySet()).isEmpty())
-                throw newSubcommandWithPositionals(isNullOrEmpty(name) ? object.getClass().getSimpleName() : name);
-            final Map<String, FieldAndOption> options = CliParser.toFieldAndOptionMap(object.getClass()
+                throw newSubcommandWithPositionals(isNullOrEmpty(name) ? rootClass.getSimpleName() : name);
+            final Map<String, FieldAndOption> options = CliParser.toFieldAndOptionMap(rootClass
                     , classConverters.keySet(), fieldConverters.keySet());
             index = CliParser.findSubcommandIndex(args, options);
         }
 
-        chain.add(parseWithSettings(index == -1 ? args : Arrays.copyOfRange(args, 0, index), object));
+        final String[] rootArgs = index == -1 ? args : Arrays.copyOfRange(args, 0, index);
+        if (object != null)
+            chain.add(parseWithSettings(rootArgs, context -> parseCommandLineArguments(rootArgs, object, context)));
+        else
+            chain.add(parseWithSettings(rootArgs, context -> parseCommandLineArguments(rootArgs, argumentsClass, context)));
 
         if (index != -1) {
             final String subcommandName = args[index];
@@ -325,9 +346,14 @@ public class CliParserBuilder<T> {
         return new CommandResult<>(chain, path);
     }
 
-    private <A> A parseWithSettings(final String[] args, final A object) throws InvalidCommandLine {
+    /** Runs the parse that was prepared for the arguments: an instance or a class. */
+    private interface DeferredParse<A> {
+        A parse(ParseContext context) throws InvalidCommandLine;
+    }
+
+    private <A> A parseWithSettings(final String[] args, final DeferredParse<A> parse) throws InvalidCommandLine {
         try {
-            final A arguments = parseCommandLineArguments(args, object, parseContext());
+            final A arguments = parse.parse(parseContext());
             if (isVersionSelected(arguments)) {
                 final Package currentPackage = CliParserBuilder.class.getPackage();
                 final String vendor = currentPackage.getImplementationVendor();

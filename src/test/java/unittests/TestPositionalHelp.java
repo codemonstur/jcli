@@ -2,10 +2,10 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliHelp.getHelp;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestPositionalHelp {
 
@@ -32,7 +32,7 @@ public class TestPositionalHelp {
             "   -h     optional  flag         Prints the help\n" +
             "   file   mandatory positional   \n";
 
-        assertEquals("The output help doesn't match", help, getHelp("test", Arguments.class));
+        assertEquals(help, getHelp("test", Arguments.class), "The output help doesn't match");
     }
 
     @Test
@@ -44,7 +44,7 @@ public class TestPositionalHelp {
             "   -h                        optional flag         Prints the help\n" +
             "   aVeryLongPositionalName   optional positional   [default: some-really-long-positional-name]\n";
 
-        assertEquals("The output help doesn't match", help, getHelp("test", LongPositional.class));
+        assertEquals(help, getHelp("test", LongPositional.class), "The output help doesn't match");
     }
 
 }

@@ -3,14 +3,13 @@ package unittests;
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestRawListOption {
 
@@ -35,22 +34,26 @@ public class TestRawListOption {
         final String[] args = { "-a", "one", "-a", "two" };
         final RawList arguments = parseCommandLineArguments(args, RawList::new);
 
-        assertNotNull("List does not exist", arguments.list);
-        assertEquals("List size is wrong", 2, arguments.list.size());
-        assertEquals("First item is wrong", "one", arguments.list.get(0));
-        assertEquals("Second item is wrong", "two", arguments.list.get(1));
+        assertNotNull(arguments.list, "List does not exist");
+        assertEquals(2, arguments.list.size(), "List size is wrong");
+        assertEquals("one", arguments.list.get(0), "First item is wrong");
+        assertEquals("two", arguments.list.get(1), "Second item is wrong");
     }
 
-    @Test(expected = InvalidOptionConfiguration.class)
-    public void unsupportedElementTypeIsRejected() throws InvalidCommandLine {
+    @Test
+    public void unsupportedElementTypeIsRejected() {
         final String[] args = { "-a", "one" };
-        parseCommandLineArguments(args, UnsupportedElements::new);
+
+        assertThrows(InvalidOptionConfiguration.class, () ->
+            parseCommandLineArguments(args, UnsupportedElements::new));
     }
 
-    @Test(expected = InvalidOptionConfiguration.class)
-    public void nestedListIsRejected() throws InvalidCommandLine {
+    @Test
+    public void nestedListIsRejected() {
         final String[] args = { "-a", "one" };
-        parseCommandLineArguments(args, NestedLists::new);
+
+        assertThrows(InvalidOptionConfiguration.class, () ->
+            parseCommandLineArguments(args, NestedLists::new));
     }
 
 }

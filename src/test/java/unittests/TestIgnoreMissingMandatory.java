@@ -3,10 +3,10 @@ package unittests;
 import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParserBuilder.newCliParser;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestIgnoreMissingMandatory {
 
@@ -25,7 +25,7 @@ public class TestIgnoreMissingMandatory {
             newCliParser(Args::new).parse(new String[]{});
             fail("Parsing should have failed on the missing mandatory option");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("Missing argument '--file'", e.getMessage());
         }
     }
@@ -34,9 +34,9 @@ public class TestIgnoreMissingMandatory {
     public void missingMandatoryIsIgnoredWhenConfigured() throws Exception {
         final Args arguments = newCliParser(Args::new).ignoreMissingMandatory().parse(new String[]{});
 
-        assertNull("The mandatory option stays null", arguments.file);
-        assertNull("The mandatory positional stays null", arguments.source);
-        assertEquals("Defaults are still applied", 3, arguments.count);
+        assertNull(arguments.file, "The mandatory option stays null");
+        assertNull(arguments.source, "The mandatory positional stays null");
+        assertEquals(3, arguments.count, "Defaults are still applied");
     }
 
     public static class DefaultedArgs {
@@ -48,8 +48,7 @@ public class TestIgnoreMissingMandatory {
     public void theAnnotationDefaultSatisfiesAMandatoryOption() throws Exception {
         final DefaultedArgs arguments = newCliParser(DefaultedArgs::new).parse(new String[]{});
 
-        assertEquals("A mandatory option is only missing when no source can provide a value"
-                , "/tmp/default", arguments.file);
+        assertEquals("/tmp/default", arguments.file, "A mandatory option is only missing when no source can provide a value");
     }
 
 }

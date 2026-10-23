@@ -2,9 +2,7 @@ package unittests;
 
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
-import com.tngtech.archunit.junit.ArchUnitRunner;
 import com.tngtech.archunit.lang.ArchRule;
-import org.junit.runner.RunWith;
 
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
@@ -12,7 +10,6 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 import static com.tngtech.archunit.library.DependencyRules.NO_CLASSES_SHOULD_DEPEND_UPPER_PACKAGES;
 import static com.tngtech.archunit.library.GeneralCodingRules.*;
 
-@RunWith(ArchUnitRunner.class)
 @AnalyzeClasses(packages = { "jcli" })
 public class TestArchitecture {
 

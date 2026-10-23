@@ -2,14 +2,14 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static jcli.CliParser.parseCommandLineArguments;
 import static jcli.CliParserBuilder.newCliParser;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestAliasesDeprecated {
 
@@ -47,7 +47,7 @@ public class TestAliasesDeprecated {
             parseCommandLineArguments(new String[]{}, DuplicateAlias::new);
             fail("Parsing should have failed on the duplicate name");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The option name 'o' is used by more than one field: other", e.getMessage());
         }
     }

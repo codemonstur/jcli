@@ -6,8 +6,11 @@ import jcli.errors.*;
 import jcli.model.FieldAndOption;
 import jcli.model.FieldAndPosition;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.RecordComponent;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Supplier;
@@ -34,6 +37,22 @@ public enum CliParser {;
         return parseCommandLineArguments(args, supplier.get());
     }
 
+    /** Parses into an arguments class: a record is built through its canonical constructor. */
+    public static <T> T parseCommandLineArguments(final String[] args, final Class<T> clazz)
+            throws InvalidOptionConfiguration, InvalidCommandLine {
+        return parseCommandLineArguments(args, clazz, Reflection::toFieldType);
+    }
+    public static <T> T parseCommandLineArguments(final String[] args, final Class<T> clazz, final ToFieldType convert)
+            throws InvalidOptionConfiguration, InvalidCommandLine {
+        return parseCommandLineArguments(args, clazz, convert, Collections.emptySet());
+    }
+    public static <T> T parseCommandLineArguments(final String[] args, final Class<T> clazz, final ToFieldType convert
+            , final Collection<Class<?>> convertedTypes) throws InvalidOptionConfiguration, InvalidCommandLine {
+        return parseCommandLineArguments(args, clazz, new ParseContext(convertedTypes, Messages.DEFAULT
+                , new ConsolePrompter(), convert, false, false, Collections.emptyMap(), Collections.emptyMap()
+                , System.err::println));
+    }
+
     public static <T> T parseCommandLineArguments(final String[] args, final T object)
             throws InvalidOptionConfiguration, InvalidCommandLine {
         return parseCommandLineArguments(args, object, Reflection::toFieldType);
@@ -53,14 +72,26 @@ public enum CliParser {;
 
     static <T> T parseCommandLineArguments(final String[] args, final T object, final ParseContext context)
             throws InvalidOptionConfiguration, InvalidCommandLine {
-        final Class<?> clazz = object.getClass();
+        return parseWithStore(args, object.getClass(), ValueStore.forInstance(object), context);
+    }
+
+    static <T> T parseCommandLineArguments(final String[] args, final Class<T> clazz, final ParseContext context)
+            throws InvalidOptionConfiguration, InvalidCommandLine {
+        return parseWithStore(args, clazz, ValueStore.forClass(clazz), context);
+    }
+
+    private static <T> T parseWithStore(final String[] args, final Class<?> clazz, final ValueStore store
+            , final ParseContext context) throws InvalidOptionConfiguration, InvalidCommandLine {
         final Map<String, FieldAndOption> options = toFieldAndOptionMap(clazz, context.convertedTypes
                 , context.fieldConverters.keySet());
         final List<FieldAndPosition> positionals = toFieldAndPositionList(clazz, context.convertedTypes
                 , context.fieldConverters.keySet());
         validateRelations(options);
         try {
-            return applyArgumentsToInstance(args, options, positionals, object, context);
+            applyArguments(args, options, positionals, store, context);
+            @SuppressWarnings("unchecked")
+            final T built = (T) store.build();
+            return built;
         } catch (final IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -74,7 +105,6 @@ public enum CliParser {;
         for (final Field field : listFields(clazz)) {
             if (!field.isAnnotationPresent(CliOption.class)) continue;
             if (Modifier.isStatic(field.getModifiers())) throw newInvalidModifierStatic(field);
-            if (Modifier.isFinal(field.getModifiers())) throw newInvalidModifierFinal(field);
 
             makeAccessible(field);
 
@@ -114,7 +144,6 @@ public enum CliParser {;
         for (final Field field : listFields(clazz)) {
             if (!field.isAnnotationPresent(CliPositional.class)) continue;
             if (Modifier.isStatic(field.getModifiers())) throw newInvalidModifierStatic(field);
-            if (Modifier.isFinal(field.getModifiers())) throw newInvalidModifierFinal(field);
             if (isListType(field) && hasPositional) throw newConflictingPositionals();
 
             hasPositional = true;
@@ -220,11 +249,10 @@ public enum CliParser {;
         map.put(name, new FieldAndOption(field, option));
     }
 
-    private static <T> T applyArgumentsToInstance(final String[] args, final Map<String, FieldAndOption> options
-            , final List<FieldAndPosition> positionals, final T instance, final ParseContext context) throws InvalidCommandLine, IllegalAccessException {
+    private static void applyArguments(final String[] args, final Map<String, FieldAndOption> options
+            , final List<FieldAndPosition> positionals, final ValueStore store, final ParseContext context) throws InvalidCommandLine, IllegalAccessException {
 
-        initializeLists(instance);
-        initializeCounters(instance, options);
+        initializeValues(store, options, positionals);
 
         final int totalNumberOfPositionalArguments = positionals.size();
         final Set<CliOption> parsedOptions = new HashSet<>();
@@ -243,14 +271,14 @@ public enum CliParser {;
                 if (!(context.allowPrefixedPositionals && !isKnownOptionToken(argument, options))) {
                     // '-vq' and '-fdata.txt': grouped short options, the last one may take a value
                     if (isShortCluster(argument)) {
-                        i += applyShortCluster(args, i, options, parsedOptions, instance, context);
+                        i += applyShortCluster(args, i, options, parsedOptions, store, context);
                         continue;
                     }
                     final String name = argumentToName(argument);
                     final FieldAndOption fao = options.get(name);
                     if (fao == null) throw context.localize(unknownArgumentError(argument, options));
                     i += applyOptionValue(args, i, argument, fao, isAttachedForm(argument), attachedValueOf(argument)
-                            , parsedOptions, instance, context);
+                            , parsedOptions, store, context);
                     continue;
                 }
             }
@@ -260,17 +288,17 @@ public enum CliParser {;
             positionalArgumentIndex++;
             final FieldAndPosition fap = positionals.get(0);
             if (isListType(fap.field)) {
-                final List<Object> list = (List) fap.field.get(instance);
+                final List<Object> list = (List) store.get(fap.field);
                 list.add(convertPositional(context, fap, argument));
             } else {
                 positionals.remove(0);
-                fap.field.set(instance, convertPositional(context, fap, argument));
+                store.set(fap.field, convertPositional(context, fap, argument));
             }
         }
 
         // --help and --version take precedence: never fail on missing mandatory
         // arguments or on broken requires/excludes when the user asked for help
-        if (isHelpRequested(options, instance)) return instance;
+        if (isHelpRequested(options, store)) return;
 
         checkRelations(options, parsedOptions, context);
 
@@ -285,19 +313,19 @@ public enum CliParser {;
             // an explicitly configured fallback beats the annotation default
             final String external = externalDefault(context, fao);
             if (external != null) {
-                setDefault(instance, fao.field, context, toName(fao.option), external);
+                setDefault(store, fao.field, context, toName(fao.option), external);
                 continue;
             }
             final boolean hasDefault = fao.option.setDefaultWhenMissing()
                     && !FAKE_NULL.equals(fao.option.defaultValue());
             if (isListType(fao.field)) {
                 if (hasDefault) {
-                    addListDefault(instance, fao, context);
+                    addListDefault(store, fao, context);
                     continue;
                 }
             } else if (hasDefault || isOptionalClass(fao.field.getType())) {
                 // Optionals are always initialized, even without a default they become empty
-                fao.field.set(instance, convertValue(context, fao.field, fao.field.getType(), toName(fao.option)
+                store.set(fao.field, convertValue(context, fao.field, fao.field.getType(), toName(fao.option)
                         , toRealNull(!hasDefault, fao.option.defaultValue()), fao.option));
                 if (hasDefault) continue;
             }
@@ -311,7 +339,7 @@ public enum CliParser {;
             for (final FieldAndPosition fap : positionals) {
                 final String external = externalDefaultPositional(context, fap);
                 if (external != null) {
-                    fap.field.set(instance, convertPositional(context, fap, external));
+                    store.set(fap.field, convertPositional(context, fap, external));
                     continue;
                 }
                 if (FAKE_NULL.equals(fap.position.defaultValue())) {
@@ -319,33 +347,33 @@ public enum CliParser {;
                     throw context.localize(newMissingArgument(fap.field));
                 }
 
-                fap.field.set(instance, convertPositional(context, fap, fap.position.defaultValue()));
+                store.set(fap.field, convertPositional(context, fap, fap.position.defaultValue()));
             }
         }
 
-        return instance;
+        return;
     }
 
-    private static <T> void addListDefault(final T instance, final FieldAndOption fao, final ParseContext context)
+    private static void addListDefault(final ValueStore store, final FieldAndOption fao, final ParseContext context)
             throws InvalidCommandLine, IllegalAccessException {
         if (!fao.option.setDefaultWhenMissing()) return;
         final String value = fao.option.defaultValue();
         if (FAKE_NULL.equals(value)) return;
-        final List<Object> list = (List) fao.field.get(instance);
+        final List<Object> list = (List) store.get(fao.field);
         for (final String element : splitListValue(value)) {
             list.add(convertValue(context, fao.field, toParameterType(fao.field), toName(fao.option), element, fao.option));
         }
     }
 
-    private static <T> void setDefault(final T instance, final Field field, final ParseContext context
+    private static void setDefault(final ValueStore store, final Field field, final ParseContext context
             , final String name, final String value) throws InvalidCommandLine, IllegalAccessException {
         if (isListType(field)) {
-            final List<Object> list = (List) field.get(instance);
+            final List<Object> list = (List) store.get(field);
             for (final String element : splitListValue(value)) {
                 list.add(convertValue(context, field, toParameterType(field), name, element, null));
             }
         } else {
-            field.set(instance, convertValue(context, field, field.getType(), name, value, null));
+            store.set(field, convertValue(context, field, field.getType(), name, value, null));
         }
     }
 
@@ -379,9 +407,9 @@ public enum CliParser {;
      * Applies a single option occurrence and returns how many extra arguments it consumed.
      * The token of the option itself is not counted, the caller always advances past it.
      */
-    private static <T> int applyOptionValue(final String[] args, final int index, final String displayName
+    private static int applyOptionValue(final String[] args, final int index, final String displayName
             , final FieldAndOption fao, final boolean attachedForm, final String attachedValue
-            , final Set<CliOption> parsedOptions, final T instance, final ParseContext context)
+            , final Set<CliOption> parsedOptions, final ValueStore store, final ParseContext context)
             throws InvalidCommandLine, IllegalAccessException {
 
         final CliOption option = fao.option;
@@ -395,8 +423,8 @@ public enum CliParser {;
 
         if (isFlagOption(fao)) {
             if (attachedForm) throw context.localize(newAttachedFormFlagArgument());
-            if (option.isCounting()) incrementCounter(fao, instance);
-            else fao.field.set(instance, TRUE);
+            if (option.isCounting()) incrementCounter(fao, store);
+            else store.set(fao.field, TRUE);
             return 0;
         }
 
@@ -405,7 +433,7 @@ public enum CliParser {;
 
         // '-v --files a b c': take as many values as there are
         if (isListType(fao.field) && arity == -1) {
-            final List<Object> list = (List) fao.field.get(instance);
+            final List<Object> list = (List) store.get(fao.field);
             if (attachedForm) {
                 list.add(convertValue(context, fao.field, elementType, displayName, attachedValue, option));
                 return 0;
@@ -421,7 +449,7 @@ public enum CliParser {;
 
         // '--pair a b': take exactly arity values
         if (isListType(fao.field) && arity > 1) {
-            final List<Object> list = (List) fao.field.get(instance);
+            final List<Object> list = (List) store.get(fao.field);
             if (attachedForm) {
                 final List<String> values = splitListValue(attachedValue);
                 if (values.size() != arity)
@@ -462,8 +490,8 @@ public enum CliParser {;
 
         final Class<?> type = isListType(fao.field) ? elementType : fao.field.getType();
         final Object converted = convertValue(context, fao.field, type, displayName, value, option);
-        if (isListType(fao.field)) ((List) fao.field.get(instance)).add(converted);
-        else fao.field.set(instance, converted);
+        if (isListType(fao.field)) ((List) store.get(fao.field)).add(converted);
+        else store.set(fao.field, converted);
         return consumed;
     }
 
@@ -483,9 +511,9 @@ public enum CliParser {;
         return fao.option.isCounting() || (isBooleanType(fao.field) && fao.option.arity() != 1);
     }
 
-    private static <T> int applyShortCluster(final String[] args, final int index
+    private static int applyShortCluster(final String[] args, final int index
             , final Map<String, FieldAndOption> options, final Set<CliOption> parsedOptions
-            , final T instance, final ParseContext context) throws InvalidCommandLine, IllegalAccessException {
+            , final ValueStore store, final ParseContext context) throws InvalidCommandLine, IllegalAccessException {
 
         final String argument = args[index];
         final int equalsIndex = argument.indexOf('=');
@@ -509,46 +537,53 @@ public enum CliParser {;
                 final String rest = names.substring(position + 1);
                 final boolean hasRest = !rest.isEmpty();
                 return applyOptionValue(args, index, displayName, fao, hasRest || attachedForm
-                        , hasRest ? rest : attachedValue, parsedOptions, instance, context);
+                        , hasRest ? rest : attachedValue, parsedOptions, store, context);
             }
             if (position == names.length() - 1 && attachedForm)
                 throw context.localize(newAttachedFormFlagArgument());
 
-            applyOptionValue(args, index, displayName, fao, false, null, parsedOptions, instance, context);
+            applyOptionValue(args, index, displayName, fao, false, null, parsedOptions, store, context);
         }
         return consumed;
     }
 
-    private static void initializeCounters(final Object instance, final Map<String, FieldAndOption> options)
-            throws IllegalAccessException {
-        final Set<CliOption> initialized = new HashSet<>();
+    /** Seeds the values that parsing accumulates into: a fresh list per List field, the start of every counter. */
+    private static void initializeValues(final ValueStore store, final Map<String, FieldAndOption> options
+            , final List<FieldAndPosition> positionals) throws IllegalAccessException {
+        final Set<Field> seeded = new HashSet<>();
         for (final FieldAndOption fao : options.values()) {
-            if (!initialized.add(fao.option)) continue;
-            if (!fao.option.isCounting()) continue;
-            final long start = FAKE_NULL.equals(fao.option.defaultValue())
-                ? 0L : Long.parseLong(fao.option.defaultValue());
-            if (isLong(fao.field)) fao.field.set(instance, start);
-            else fao.field.set(instance, (int) start);
+            if (!seeded.add(fao.field)) continue;
+            if (isListType(fao.field)) {
+                store.set(fao.field, new ArrayList<>());
+            } else if (fao.option.isCounting()) {
+                final long start = FAKE_NULL.equals(fao.option.defaultValue())
+                    ? 0L : Long.parseLong(fao.option.defaultValue());
+                if (isLong(fao.field)) store.set(fao.field, start);
+                else store.set(fao.field, (int) start);
+            }
+        }
+        for (final FieldAndPosition fap : positionals) {
+            if (isListType(fap.field) && seeded.add(fap.field)) store.set(fap.field, new ArrayList<>());
         }
     }
 
-    private static void incrementCounter(final FieldAndOption fao, final Object instance) throws IllegalAccessException {
-        final Object current = fao.field.get(instance);
-        if (isLong(fao.field)) fao.field.set(instance, ((Number) current).longValue() + 1L);
-        else fao.field.set(instance, ((Number) current).intValue() + 1);
+    private static void incrementCounter(final FieldAndOption fao, final ValueStore store) throws IllegalAccessException {
+        final Object current = store.get(fao.field);
+        if (isLong(fao.field)) store.set(fao.field, ((Number) current).longValue() + 1L);
+        else store.set(fao.field, ((Number) current).intValue() + 1);
     }
 
     private static boolean isLong(final Field field) {
         return Long.class.equals(field.getType()) || long.class.equals(field.getType());
     }
 
-    private static boolean isHelpRequested(final Map<String, FieldAndOption> options, final Object instance) {
+    private static boolean isHelpRequested(final Map<String, FieldAndOption> options, final ValueStore store) {
         final Set<CliOption> checked = new HashSet<>();
         for (final FieldAndOption fao : options.values()) {
             if (!checked.add(fao.option)) continue;
             if (!fao.option.isHelp() && !fao.option.isVersion()) continue;
             try {
-                if (TRUE.equals(fao.field.get(instance))) return true;
+                if (TRUE.equals(store.get(fao.field))) return true;
             } catch (final IllegalAccessException e) {
                 return false;
             }
@@ -764,6 +799,111 @@ public enum CliParser {;
         if (equalsIndex == 1) throw newInvalidCommandLineArgument(argument);
         if (equalsIndex > 2) throw newSingleDashAttachedFormArgument(argument);
         return argument.substring(1, 2);
+    }
+
+    private static <T> T newNoArgInstance(final Class<T> clazz) {
+        try {
+            final Constructor<T> constructor = clazz.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return constructor.newInstance();
+        } catch (final NoSuchMethodException | InstantiationException e) {
+            throw newMissingNoArgConstructor(clazz);
+        } catch (final InvocationTargetException e) {
+            final Throwable cause = e.getTargetException();
+            if (cause instanceof RuntimeException) throw (RuntimeException) cause;
+            if (cause instanceof Error) throw (Error) cause;
+            throw new RuntimeException(cause);
+        } catch (final ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Where the parser writes the values it converts: directly into a ready made arguments
+     * instance, or staged so that a record can be built through its canonical constructor.
+     * A record cannot be modified after construction, so every write is held until build().
+     */
+    private static final class ValueStore {
+
+        private final Object instance;
+        private final Class<?> recordClass;
+        private final Constructor<?> recordConstructor;
+        private final Map<String, Object> staged;
+
+        private ValueStore(final Object instance, final Class<?> recordClass, final Constructor<?> recordConstructor) {
+            this.instance = instance;
+            this.recordClass = recordClass;
+            this.recordConstructor = recordConstructor;
+            this.staged = recordClass == null ? null : new HashMap<>();
+        }
+
+        /** A store that writes every value into the given instance. */
+        public static ValueStore forInstance(final Object instance) {
+            return new ValueStore(instance, null, null);
+        }
+
+        /**
+         * A store that stages values for a record: the record does not exist yet, so values are
+         * collected until build() calls the canonical constructor. Any component that nothing
+         * wrote gets the default for its type, exactly like an untouched field of a class.
+         */
+        public static ValueStore forClass(final Class<?> clazz) {
+            if (!clazz.isRecord()) return new ValueStore(newNoArgInstance(clazz), null, null);
+            try {
+                final Class<?>[] parameterTypes = Arrays.stream(clazz.getRecordComponents())
+                        .map(RecordComponent::getType).toArray(Class<?>[]::new);
+                final Constructor<?> constructor = clazz.getDeclaredConstructor(parameterTypes);
+                constructor.setAccessible(true);
+                return new ValueStore(null, clazz, constructor);
+            } catch (final ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        /** Reads the current value: from the instance, or what was staged for this field so far. */
+        public Object get(final Field field) throws IllegalAccessException {
+            return recordClass == null ? field.get(instance) : staged.get(field.getName());
+        }
+
+        /** Writes a converted value: into the instance, or into the staging map of a record. */
+        public void set(final Field field, final Object value) throws IllegalAccessException {
+            if (recordClass == null) field.set(instance, value);
+            else staged.put(field.getName(), value);
+        }
+
+        /** Returns the instance, or calls the canonical constructor of a record with the staged values. */
+        public Object build() {
+            if (recordClass == null) return instance;
+            final RecordComponent[] components = recordClass.getRecordComponents();
+            final Object[] values = new Object[components.length];
+            for (int i = 0; i < values.length; i++) values[i] = valueOrDefault(components[i]);
+            try {
+                return recordConstructor.newInstance(values);
+            } catch (final InvocationTargetException e) {
+                // a compact constructor rejected the values: that error is the record's own, pass it on
+                final Throwable cause = e.getTargetException();
+                if (cause instanceof RuntimeException) throw (RuntimeException) cause;
+                if (cause instanceof Error) throw (Error) cause;
+                throw new RuntimeException(cause);
+            } catch (final ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private Object valueOrDefault(final RecordComponent component) {
+            final Object value = staged.get(component.getName());
+            if (value != null) return value;
+            final Class<?> type = component.getType();
+            if (type == boolean.class) return false;
+            if (type == byte.class) return (byte) 0;
+            if (type == short.class) return (short) 0;
+            if (type == char.class) return (char) 0;
+            if (type == int.class) return 0;
+            if (type == long.class) return 0L;
+            if (type == float.class) return 0F;
+            if (type == double.class) return 0D;
+            return null;
+        }
     }
 
 }

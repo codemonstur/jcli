@@ -3,10 +3,11 @@ package unittests;
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestDuplicateNames {
 
@@ -29,27 +30,31 @@ public class TestDuplicateNames {
         public String file;
     }
 
-    @Test(expected = InvalidOptionConfiguration.class)
-    public void duplicatedLongNameIsRejected() throws InvalidCommandLine {
+    @Test
+    public void duplicatedLongNameIsRejected() {
         final String[] args = { "--file", "file.txt" };
-        parseCommandLineArguments(args, DuplicatedLongNames::new);
+
+        assertThrows(InvalidOptionConfiguration.class, () ->
+            parseCommandLineArguments(args, DuplicatedLongNames::new));
     }
 
-    @Test(expected = InvalidOptionConfiguration.class)
-    public void shortAndLongCollisionIsRejected() throws InvalidCommandLine {
+    @Test
+    public void shortAndLongCollisionIsRejected() {
         final String[] args = { "-f", "file.txt" };
-        parseCommandLineArguments(args, ShortAndLongCollision::new);
+
+        assertThrows(InvalidOptionConfiguration.class, () ->
+            parseCommandLineArguments(args, ShortAndLongCollision::new));
     }
 
     @Test
     public void oneFieldCanDeclareBothNames() throws InvalidCommandLine {
         final String[] shortArgs = { "-f", "short.txt" };
         final SameFieldTwoNames fromShort = parseCommandLineArguments(shortArgs, SameFieldTwoNames::new);
-        assertEquals("The short name did not work", "short.txt", fromShort.file);
+        assertEquals("short.txt", fromShort.file, "The short name did not work");
 
         final String[] longArgs = { "--f", "long.txt" };
         final SameFieldTwoNames fromLong = parseCommandLineArguments(longArgs, SameFieldTwoNames::new);
-        assertEquals("The long name did not work", "long.txt", fromLong.file);
+        assertEquals("long.txt", fromLong.file, "The long name did not work");
     }
 
 }

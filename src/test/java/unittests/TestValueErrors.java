@@ -3,12 +3,12 @@ package unittests;
 import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestValueErrors {
 
@@ -34,7 +34,7 @@ public class TestValueErrors {
             parseCommandLineArguments(args, Count::new);
             fail("Parsing should have failed on the wrong format");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The value 'abc' for '--count' is not a valid int", e.getMessage());
         }
     }
@@ -46,7 +46,7 @@ public class TestValueErrors {
             parseCommandLineArguments(args, Files::new);
             fail("Parsing should have failed on the wrong format");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The value 'abc' for '--files' is not a valid Integer", e.getMessage());
         }
     }
@@ -58,7 +58,7 @@ public class TestValueErrors {
             parseCommandLineArguments(args, Offset::new);
             fail("Parsing should have failed on the wrong format");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The value 'abc' for 'offset' is not a valid int", e.getMessage());
         }
     }

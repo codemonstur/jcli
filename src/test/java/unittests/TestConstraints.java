@@ -3,10 +3,10 @@ package unittests;
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestConstraints {
 
@@ -76,7 +76,7 @@ public class TestConstraints {
             parseCommandLineArguments(new String[]{"--mode", "delete"}, Mode::new);
             fail("Parsing should have failed on the disallowed value");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The value 'delete' for '--mode' is not allowed, it must be one of: read, write"
                     , e.getMessage());
         }
@@ -95,7 +95,7 @@ public class TestConstraints {
             parseCommandLineArguments(new String[]{"--port", "0"}, Port::new);
             fail("Parsing should have failed on the value that is too small");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The value '0' for '--port' must be at least 1", e.getMessage());
         }
     }
@@ -106,7 +106,7 @@ public class TestConstraints {
             parseCommandLineArguments(new String[]{"--port", "70000"}, Port::new);
             fail("Parsing should have failed on the value that is too large");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The value '70000' for '--port' must be at most 65535", e.getMessage());
         }
     }
@@ -124,7 +124,7 @@ public class TestConstraints {
             parseCommandLineArguments(new String[]{"--host", "Example"}, Host::new);
             fail("Parsing should have failed on the value that does not match");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The value 'Example' for '--host' does not match the pattern [a-z]+\\.[a-z]+"
                     , e.getMessage());
         }
@@ -135,7 +135,7 @@ public class TestConstraints {
         final Related arguments = parseCommandLineArguments(new String[]{"--log", "x", "--verbose"}, Related::new);
 
         assertEquals("x", arguments.log);
-        assertTrue("The verbose flag should be set", arguments.verbose);
+        assertTrue(arguments.verbose, "The verbose flag should be set");
     }
 
     @Test
@@ -144,7 +144,7 @@ public class TestConstraints {
             parseCommandLineArguments(new String[]{"--log", "x"}, Related::new);
             fail("Parsing should have failed on the missing required option");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The option '--log' requires '--verbose'", e.getMessage());
         }
     }
@@ -155,7 +155,7 @@ public class TestConstraints {
             parseCommandLineArguments(new String[]{"--quiet", "--verbose"}, Related::new);
             fail("Parsing should have failed on the excluded combination");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("The option '--quiet' cannot be used together with '--verbose'", e.getMessage());
         }
     }
@@ -164,7 +164,7 @@ public class TestConstraints {
     public void excludedOptionIsAbsent() throws Exception {
         final Related arguments = parseCommandLineArguments(new String[]{"--quiet"}, Related::new);
 
-        assertTrue("The quiet flag should be set", arguments.quiet);
+        assertTrue(arguments.quiet, "The quiet flag should be set");
     }
 
     @Test
@@ -173,7 +173,7 @@ public class TestConstraints {
             parseCommandLineArguments(new String[]{}, MinOnString::new);
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The field 'file' declares min '1' and/or max '' which is not valid for a numeric field"
                     , e.getMessage());
         }
@@ -185,7 +185,7 @@ public class TestConstraints {
             parseCommandLineArguments(new String[]{}, BadRegex::new);
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The field 'file' declares a regex that does not compile", e.getMessage());
         }
     }
@@ -196,7 +196,7 @@ public class TestConstraints {
             parseCommandLineArguments(new String[]{}, MinAboveMax::new);
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The field 'port' declares min '10' and/or max '5' which is not valid for a numeric field"
                     , e.getMessage());
         }
@@ -208,7 +208,7 @@ public class TestConstraints {
             parseCommandLineArguments(new String[]{}, UnknownRelated::new);
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The field 'log' refers to 'nope' in its requires/excludes, but no option with that name exists"
                     , e.getMessage());
         }
@@ -218,8 +218,8 @@ public class TestConstraints {
     public void helpIsNotBlockedByABrokenRelation() throws Exception {
         final HelpWins arguments = parseCommandLineArguments(new String[]{"--log", "x", "--help"}, HelpWins::new);
 
-        assertTrue("The help flag should be set", arguments.help);
-        assertEquals("The broken requires must not stop --help", "x", arguments.log);
+        assertTrue(arguments.help, "The help flag should be set");
+        assertEquals("x", arguments.log, "The broken requires must not stop --help");
     }
 
 }

@@ -2,10 +2,10 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestAttachedLongForm {
 
@@ -24,7 +24,7 @@ public class TestAttachedLongForm {
         final String[] args = { "--file=data.txt" };
         final Arguments arguments = parseCommandLineArguments(args, Arguments::new);
 
-        assertEquals("file field contains wrong data", "data.txt", arguments.file);
+        assertEquals("data.txt", arguments.file, "file field contains wrong data");
     }
 
 }

@@ -4,10 +4,10 @@ import jcli.CliParserBuilder;
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParserBuilder.newCliParser;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestInteractive {
 
@@ -52,7 +52,7 @@ public class TestInteractive {
             builder.parse(new String[]{"--password"});
             fail("Parsing should have failed on the cancelled prompt");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("Could not read a value for '--password'", e.getMessage());
         }
     }
@@ -63,7 +63,7 @@ public class TestInteractive {
             newCliParser(InteractiveFlag::new).parse(new String[]{});
             fail("Parsing should have failed on the invalid configuration");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidOptionConfiguration);
+            assertInstanceOf(InvalidOptionConfiguration.class, e, "Wrong exception thrown: " + e);
             assertEquals("The field 'force' is interactive but is a flag. Interactive options take a value, so set an arity of 1."
                     , e.getMessage());
         }

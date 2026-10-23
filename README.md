@@ -30,7 +30,7 @@ Include it as a dependency.
 Use the builder to parse a class you decorated with the proper annotations.
 
 ```
-public static void main(final String.. args) {
+public static void main(final String... args) {
     final CliArguments arguments = newCliParser(CliArguments::new)
         .onErrorPrintHelpAndExit()
         .onHelpPrintHelpAndExit()
@@ -70,6 +70,8 @@ public final class CliArguments {
 - `arity`: options that take an explicit `true`/`false`, options that take exactly N values,
   and options that take as many values as you give them
 - Counting flags: `-vvv` becomes `3`
+- `private` and `final` fields on the arguments class, assigned by the parser through reflection
+- `record` argument classes, built through their canonical constructor (`newCliParser(Args.class)`)
 - Interactive options that prompt for their value, with a pluggable prompter
 - Value validation: `allowedValues`, `regex`, `min`, `max`, and options that `requires` or `excludes` others
 - Defaults from the annotation, from a Map, a Properties or a ResourceBundle, from a system property,

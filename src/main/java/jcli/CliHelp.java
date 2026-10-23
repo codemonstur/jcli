@@ -81,7 +81,6 @@ public enum CliHelp {;
         for (final Field field : listFields(clazz)) {
             if (!field.isAnnotationPresent(CliOption.class)) continue;
             if (Modifier.isStatic(field.getModifiers())) throw newInvalidModifierStatic(field);
-            if (Modifier.isFinal(field.getModifiers())) throw newInvalidModifierFinal(field);
 
             final CliOption option = field.getAnnotation(CliOption.class);
             if (option.isHidden()) continue;
@@ -113,7 +112,6 @@ public enum CliHelp {;
         for (final Field field : listFields(clazz)) {
             if (!field.isAnnotationPresent(CliPositional.class)) continue;
             if (Modifier.isStatic(field.getModifiers())) throw newInvalidModifierStatic(field);
-            if (Modifier.isFinal(field.getModifiers())) throw newInvalidModifierFinal(field);
 
             final CliPositional positional = field.getAnnotation(CliPositional.class);
             final boolean isOptional = !FAKE_NULL.equals(positional.defaultValue());

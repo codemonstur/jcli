@@ -3,12 +3,12 @@ package unittests;
 import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
 import jcli.errors.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestPositional {
 
@@ -58,8 +58,8 @@ public class TestPositional {
         final String[] args = { "-l", "2", "somefile.txt"};
         final OptionAndPositional arguments = parseCommandLineArguments(args, OptionAndPositional::new);
 
-        assertEquals("The l argument is not equal", 2, arguments.l);
-        assertEquals("The file argument is not equal", "somefile.txt", arguments.file);
+        assertEquals(2, arguments.l, "The l argument is not equal");
+        assertEquals("somefile.txt", arguments.file, "The file argument is not equal");
     }
 
     @Test
@@ -67,17 +67,17 @@ public class TestPositional {
         final String[] args = { };
         final OptionAndPositional arguments = parseCommandLineArguments(args, OptionAndPositional::new);
 
-        assertEquals("The l argument is not equal", 1, arguments.l);
-        assertEquals("The file argument is not equal", "file.txt", arguments.file);
+        assertEquals(1, arguments.l, "The l argument is not equal");
+        assertEquals("file.txt", arguments.file, "The file argument is not equal");
     }
 
 
-    @Test(expected = InvalidCommandLine.class)
-    public void oneMandatoryNotThere() throws InvalidCommandLine {
+    @Test
+    public void oneMandatoryNotThere() {
         final String[] args = {};
-        parseCommandLineArguments(args, OneMandatory::new);
 
-        fail("MissingArgument not thrown");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, OneMandatory::new));
     }
 
     @Test
@@ -85,30 +85,30 @@ public class TestPositional {
         final String[] args1 = { "hello" };
         final OneMandatory arguments1 = parseCommandLineArguments(args1, OneMandatory::new);
 
-        assertNotNull("First is null", arguments1.first);
-        assertEquals("First is invalid", "hello", arguments1.first);
-        assertEquals("Second is invalid", "second", arguments1.second);
+        assertNotNull(arguments1.first, "First is null");
+        assertEquals("hello", arguments1.first, "First is invalid");
+        assertEquals("second", arguments1.second, "Second is invalid");
 
         final String[] args2 = { "hello", "world" };
         final OneMandatory arguments2 = parseCommandLineArguments(args2, OneMandatory::new);
 
-        assertEquals("Second is invalid", "world", arguments2.second);
+        assertEquals("world", arguments2.second, "Second is invalid");
     }
 
-    @Test(expected = InvalidPositionalConfiguration.class)
-    public void mandatoryAfterOptional() throws InvalidCommandLine {
+    @Test
+    public void mandatoryAfterOptional() {
         final String[] args = { "hello" };
-        parseCommandLineArguments(args, MandatoryAfterOptional::new);
 
-        fail("MandatoryAfterOptional not thrown");
+        assertThrows(InvalidPositionalConfiguration.class, () ->
+            parseCommandLineArguments(args, MandatoryAfterOptional::new));
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void tooManyPositionalArguments() throws InvalidCommandLine {
+    @Test
+    public void tooManyPositionalArguments() {
         final String[] args = { "hello", "one-too-many" };
-        parseCommandLineArguments(args, OptionAndPositional::new);
 
-        fail("TooManyPositionalArguments not thrown");
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, OptionAndPositional::new));
     }
 
     @Test
@@ -116,8 +116,8 @@ public class TestPositional {
         final String[] args = { };
         final ListWithoutType arguments = parseCommandLineArguments(args, ListWithoutType::new);
 
-        assertNotNull("Positionals list is null", arguments.positionals);
-        assertEquals("Positional length is invalid", 0, arguments.positionals.size());
+        assertNotNull(arguments.positionals, "Positionals list is null");
+        assertEquals(0, arguments.positionals.size(), "Positional length is invalid");
     }
 
     @Test
@@ -125,16 +125,16 @@ public class TestPositional {
         final String[] args = { "hello", "another-one" };
         final ListWithoutType a2 = parseCommandLineArguments(args, ListWithoutType::new);
 
-        assertNotNull("Positional list is null", a2.positionals);
-        assertEquals("Positional length is invalid", 2, a2.positionals.size());
-        assertEquals("First positional is invalid", "hello", a2.positionals.get(0));
-        assertEquals("Second positional is invalid", "another-one", a2.positionals.get(1));
+        assertNotNull(a2.positionals, "Positional list is null");
+        assertEquals(2, a2.positionals.size(), "Positional length is invalid");
+        assertEquals("hello", a2.positionals.get(0), "First positional is invalid");
+        assertEquals("another-one", a2.positionals.get(1), "Second positional is invalid");
 
         final ListOfStrings a3 = parseCommandLineArguments(args, ListOfStrings::new);
-        assertNotNull("Positional list is null", a3.positionals);
-        assertEquals("Positional length is invalid", 2, a3.positionals.size());
-        assertEquals("First positional is invalid", "hello", a3.positionals.get(0));
-        assertEquals("Second positional is invalid", "another-one", a3.positionals.get(1));
+        assertNotNull(a3.positionals, "Positional list is null");
+        assertEquals(2, a3.positionals.size(), "Positional length is invalid");
+        assertEquals("hello", a3.positionals.get(0), "First positional is invalid");
+        assertEquals("another-one", a3.positionals.get(1), "Second positional is invalid");
     }
 
     @Test
@@ -142,17 +142,17 @@ public class TestPositional {
         final String[] args = { "1", "2" };
         final ListOfIntegers arguments = parseCommandLineArguments(args, ListOfIntegers::new);
 
-        assertNotNull("Positional list is null", arguments.positionals);
-        assertEquals("Positional length is invalid", 2, arguments.positionals.size());
-        assertEquals("First positional is invalid", Integer.valueOf(1), arguments.positionals.get(0));
-        assertEquals("Second positional is invalid", Integer.valueOf(2), arguments.positionals.get(1));
+        assertNotNull(arguments.positionals, "Positional list is null");
+        assertEquals(2, arguments.positionals.size(), "Positional length is invalid");
+        assertEquals(Integer.valueOf(1), arguments.positionals.get(0), "First positional is invalid");
+        assertEquals(Integer.valueOf(2), arguments.positionals.get(1), "Second positional is invalid");
     }
 
-    @Test(expected = InvalidPositionalConfiguration.class)
-    public void invalidPositionalConfigurationFails() throws InvalidCommandLine {
+    @Test
+    public void invalidPositionalConfigurationFails() {
         final String[] args = { "1", "2" };
-        parseCommandLineArguments(args, InvalidListConfig::new);
 
-        fail("DefaultForListPositional not thrown");
+        assertThrows(InvalidPositionalConfiguration.class, () ->
+            parseCommandLineArguments(args, InvalidListConfig::new));
     }
 }

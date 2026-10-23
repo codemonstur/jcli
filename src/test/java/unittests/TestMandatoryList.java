@@ -2,12 +2,13 @@ package unittests;
 
 import jcli.annotations.CliOption;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestMandatoryList {
 
@@ -16,10 +17,12 @@ public class TestMandatoryList {
         public List<String> items;
     }
 
-    @Test(expected = InvalidCommandLine.class)
-    public void missingMandatoryListThrows() throws InvalidCommandLine {
+    @Test
+    public void missingMandatoryListThrows() {
         final String[] args = { };
-        parseCommandLineArguments(args, MandatoryList::new);
+
+        assertThrows(InvalidCommandLine.class, () ->
+            parseCommandLineArguments(args, MandatoryList::new));
     }
 
     @Test
@@ -27,9 +30,9 @@ public class TestMandatoryList {
         final String[] args = { "--item", "one", "--item", "two" };
         final MandatoryList arguments = parseCommandLineArguments(args, MandatoryList::new);
 
-        assertEquals("List size is wrong", 2, arguments.items.size());
-        assertEquals("First item is wrong", "one", arguments.items.get(0));
-        assertEquals("Second item is wrong", "two", arguments.items.get(1));
+        assertEquals(2, arguments.items.size(), "List size is wrong");
+        assertEquals("one", arguments.items.get(0), "First item is wrong");
+        assertEquals("two", arguments.items.get(1), "Second item is wrong");
     }
 
     @Test
@@ -37,9 +40,9 @@ public class TestMandatoryList {
         final String[] args = { "--item=one", "--item=two" };
         final MandatoryList arguments = parseCommandLineArguments(args, MandatoryList::new);
 
-        assertEquals("List size is wrong", 2, arguments.items.size());
-        assertEquals("First item is wrong", "one", arguments.items.get(0));
-        assertEquals("Second item is wrong", "two", arguments.items.get(1));
+        assertEquals(2, arguments.items.size(), "List size is wrong");
+        assertEquals("one", arguments.items.get(0), "First item is wrong");
+        assertEquals("two", arguments.items.get(1), "Second item is wrong");
     }
 
 }

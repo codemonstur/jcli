@@ -3,7 +3,7 @@ package unittests;
 import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
 import jcli.errors.InvalidCommandLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.ListResourceBundle;
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import static jcli.CliParserBuilder.newCliParser;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestDefaults {
 
@@ -75,8 +75,7 @@ public class TestDefaults {
         final Args arguments = newCliParser(Args::new).defaultsFrom(defaults)
                 .parse(new String[]{"bundle-source"});
 
-        assertEquals("The environment variable JCLI_TEST_LEVEL does not exist in the test JVM, so the map wins"
-                , "from-map", arguments.level);
+        assertEquals("from-map", arguments.level, "The environment variable JCLI_TEST_LEVEL does not exist in the test JVM, so the map wins");
     }
 
     @Test
@@ -133,9 +132,8 @@ public class TestDefaults {
                     .defaultsFrom(Map.of("config", "from-map"))
                     .parse(new String[]{});
 
-            assertEquals("The system property resolves the mandatory option"
-                    , "from-property", arguments.mode);
-            assertEquals("The defaults map resolves the mandatory option", "from-map", arguments.config);
+            assertEquals("from-property", arguments.mode, "The system property resolves the mandatory option");
+            assertEquals("from-map", arguments.config, "The defaults map resolves the mandatory option");
         } finally {
             System.clearProperty("jcli.test.mode");
         }
@@ -147,9 +145,8 @@ public class TestDefaults {
             newCliParser(MandatoryArgs::new).parse(new String[]{});
             fail("Parsing should have failed on the missing mandatory option");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
-            assertTrue("Unexpected message: " + e.getMessage()
-                    , e.getMessage().startsWith("Missing argument"));
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
+            assertTrue(e.getMessage().startsWith("Missing argument"), "Unexpected message: " + e.getMessage());
         }
     }
 

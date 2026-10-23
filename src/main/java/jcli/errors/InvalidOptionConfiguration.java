@@ -18,9 +18,6 @@ public final class InvalidOptionConfiguration extends RuntimeException {
     public static InvalidOptionConfiguration newVersionAndHelp(final Field field) {
         return new InvalidOptionConfiguration("isHelp and isVersion both set on a field: " + field.getName());
     }
-    public static InvalidOptionConfiguration newInvalidModifierFinal(final Field field) {
-        return new InvalidOptionConfiguration("The field '" + field.getName() + "' is declared final. This is not supported. For details you can find a comment in the Parser code.");
-    }
     public static InvalidOptionConfiguration newInvalidModifierStatic(final Field field) {
         return new InvalidOptionConfiguration("The field '" + field.getName() + "' is declared static. Annotated fields cannot be static.");
     }
@@ -98,6 +95,10 @@ public final class InvalidOptionConfiguration extends RuntimeException {
     }
     public static InvalidOptionConfiguration newInvalidSubcommandConfiguration() {
         return new InvalidOptionConfiguration("This parser has subcommands registered, use parseWithSubcommands instead of parse");
+    }
+    public static InvalidOptionConfiguration newMissingNoArgConstructor(final Class<?> clazz) {
+        return new InvalidOptionConfiguration("The class '" + clazz.getName()
+                + "' has no no-arg constructor, needed when the parser is created with a class instead of a Supplier");
     }
 
 }

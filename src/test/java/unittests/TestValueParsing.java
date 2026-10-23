@@ -4,10 +4,10 @@ import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static jcli.CliParser.parseCommandLineArguments;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestValueParsing {
 
@@ -44,7 +44,7 @@ public class TestValueParsing {
             parseCommandLineArguments(args, FileAndHelp::new);
             fail("Parsing should have failed with a missing value");
         } catch (final Exception e) {
-            assertTrue("Wrong exception thrown: " + e, e instanceof InvalidCommandLine);
+            assertInstanceOf(InvalidCommandLine.class, e, "Wrong exception thrown: " + e);
             assertEquals("Argument '--file' is missing a value", e.getMessage());
         }
     }
@@ -54,7 +54,7 @@ public class TestValueParsing {
         final String[] args = { "--count", "-5" };
         final Count arguments = parseCommandLineArguments(args, Count::new);
 
-        assertEquals("The count argument is not equal", -5, arguments.count);
+        assertEquals(-5, arguments.count, "The count argument is not equal");
     }
 
     @Test
@@ -62,7 +62,7 @@ public class TestValueParsing {
         final String[] args = { "--count=-5" };
         final Count arguments = parseCommandLineArguments(args, Count::new);
 
-        assertEquals("The count argument is not equal", -5, arguments.count);
+        assertEquals(-5, arguments.count, "The count argument is not equal");
     }
 
     @Test
@@ -70,7 +70,7 @@ public class TestValueParsing {
         final String[] args = { "-5" };
         final Offset arguments = parseCommandLineArguments(args, Offset::new);
 
-        assertEquals("The offset argument is not equal", -5, arguments.offset);
+        assertEquals(-5, arguments.offset, "The offset argument is not equal");
     }
 
     @Test
@@ -78,9 +78,9 @@ public class TestValueParsing {
         final String[] args = { "--file", "file.txt", "--", "-h" };
         final FileAndAction arguments = parseCommandLineArguments(args, FileAndAction::new);
 
-        assertEquals("The file argument is not equal", "file.txt", arguments.file);
-        assertFalse("The help flag should not be set", arguments.help);
-        assertEquals("The action argument is not equal", "-h", arguments.action);
+        assertEquals("file.txt", arguments.file, "The file argument is not equal");
+        assertFalse(arguments.help, "The help flag should not be set");
+        assertEquals("-h", arguments.action, "The action argument is not equal");
     }
 
 }

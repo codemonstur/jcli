@@ -4,7 +4,7 @@ import jcli.annotations.CliOption;
 import jcli.annotations.CliPositional;
 import jcli.errors.InvalidCommandLine;
 import jcli.errors.InvalidOptionConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -12,8 +12,7 @@ import java.util.Collections;
 import static jcli.CliHelp.getHelp;
 import static jcli.CliParser.parseCommandLineArguments;
 import static jcli.CliParserBuilder.newCliParser;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestCustomConverters {
 
@@ -47,7 +46,7 @@ public class TestCustomConverters {
             .addClassConverter(Custom.class, Custom::new)
             .parse(new String[]{"--custom", "hello"});
 
-        assertEquals("The converter was not used", "hello", arguments.custom.value);
+        assertEquals("hello", arguments.custom.value, "The converter was not used");
     }
 
     @Test
@@ -56,7 +55,7 @@ public class TestCustomConverters {
             .addClassConverter(Custom.class, Custom::new)
             .parse(new String[]{"hello"});
 
-        assertEquals("The converter was not used", "hello", arguments.custom.value);
+        assertEquals("hello", arguments.custom.value, "The converter was not used");
     }
 
     @Test
@@ -66,20 +65,22 @@ public class TestCustomConverters {
             .addClassConverter(LocalDate.class, value -> LocalDate.MIN)
             .parse(new String[]{"--custom", "hello", "--date", "2020-01-01"});
 
-        assertEquals("The registered converter was ignored", LocalDate.MIN, arguments.date);
+        assertEquals(LocalDate.MIN, arguments.date, "The registered converter was ignored");
     }
 
     @Test
     public void helpAcceptsConvertedTypes() {
         final String help = getHelp("test", Arguments.class, Collections.singleton(Custom.class));
 
-        assertTrue("The help does not describe the custom option", help.contains("--custom"));
+        assertTrue(help.contains("--custom"), "The help does not describe the custom option");
     }
 
-    @Test(expected = InvalidOptionConfiguration.class)
-    public void typeWithoutAConverterIsRejected() throws InvalidCommandLine {
+    @Test
+    public void typeWithoutAConverterIsRejected() {
         final String[] args = { "--custom", "hello" };
-        parseCommandLineArguments(args, WithoutConverter::new);
+
+        assertThrows(InvalidOptionConfiguration.class, () ->
+            parseCommandLineArguments(args, WithoutConverter::new));
     }
 
 }
