@@ -91,7 +91,10 @@ public final class CliArguments {
 
 ## Future features
 
-None. 
+- Annotation-driven custom converters, declared on the option instead of on the builder:
+  either `@CliOption(..., mappedBy = MyMapper.class)` where the parser instantiates a `StringToType`
+  mapper class, or a registry of mapper interfaces that turn a `Class<T>` and a String into a T
+
 Please share any ideas you might have.
 
 ## Documentation
