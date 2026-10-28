@@ -70,3 +70,12 @@ Documentation
 
 - new guides in src/docs, starting at src/docs/index.md, with a migration guide
   (src/docs/migration-2.0.0.md) and a full annotation reference
+
+Changes since jcli-2.0.0:
+- Update implementation and project configuration
+- Build fixes, removed dead test
+- Build fixes, Convert tests to Junit 6
+- Create the release notes directory before writing the release notes
+- chore: commit pending local changes
+- Add make coverage target with JaCoCo and coverage summary helper
+- Renamed the security profile to vulnerabilities, harmonized the Makefile
