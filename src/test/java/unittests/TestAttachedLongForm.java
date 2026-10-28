@@ -9,11 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestAttachedLongForm {
 
-/*
-    FIXME add this feature
-    argv = { "-fdata.txt" }; // attached short form
-*/
-
     public static class Arguments {
         @CliOption(longName = "file", isMandatory = true)
         public String file;

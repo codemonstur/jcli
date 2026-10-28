@@ -13,7 +13,7 @@ developer:
   name: Jurgen Voorneveld
   email: jegvoorneveld@gmail.com
 dependencies:
-  - repository: junit:junit:4.13.2
+  - repository: org.junit.jupiter:junit-jupiter:6.1.3
     scope: test
   - repository: com.tngtech.archunit:archunit-junit4:1.1.0
     scope: test
