@@ -210,16 +210,8 @@
                         <configuration>
                             <includeTestDependencies>true</includeTestDependencies>
                             <rules>
-                                <rule>url:equal:http://www.opensource.org/licenses/bsd-license.php</rule>
-                                <rule>url:equal:http://opensource.org/licenses/BSD-3-Clause</rule>
-                                <rule>url:regex:(http|https)://(www.)?opensource.org/licenses/(MIT|mit-license.php)</rule>
-                                <rule>name:equal:The MIT License</rule>
                                 <rule>url:equal:https://opensource.org/license/mit</rule>
                                 <rule>name:regex:(The )?Apache(\s|-)(Software )?(License |License, )?(Version |version )?2\.0</rule>
-                                <rule>url:equal:http://www.eclipse.org/legal/epl-v10.html</rule>
-                                <rule>name:equal:Eclipse Public License 1.0</rule>
-                                <rule>url:equal:http://www.eclipse.org/org/documents/edl-v10.php</rule>
-                                <rule>url:equal:http://www.mozilla.org/MPL/2.0/</rule>
                                 <rule>url:equal:https://www.eclipse.org/legal/epl-v20.html</rule>
                             </rules>
                         </configuration>
