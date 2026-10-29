@@ -2,7 +2,7 @@ include https://raw.githubusercontent.com/codemonstur/bobfiles/master/foss-lib-g
 
 vendor: com.github.codemonstur
 name: jcli
-version: 1.5.2
+version: 2.0.1
 release: 8
 description: A command line parser
 enablePreview: false
