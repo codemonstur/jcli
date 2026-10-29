@@ -1,0 +1,5 @@
+2.0.1
+
+Overall small fixes;
+- Improved the build
+- Improved tests
