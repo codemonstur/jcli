@@ -137,6 +137,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <phase>package</phase>
                         <goals><goal>jar</goal></goals>
                     </execution>
                 </executions>
@@ -149,7 +150,7 @@
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
-                        <phase>deploy</phase>
+                        <phase>package</phase>
                         <goals><goal>jar</goal></goals>
                     </execution>
                 </executions>
@@ -228,6 +229,7 @@
             </activation>
             <build>
                 <plugins>
+
                     <plugin>
                         <groupId>com.github.codemonstur</groupId>
                         <artifactId>maven-check-cves</artifactId>
@@ -242,6 +244,7 @@
                             <includeTestDependencies>true</includeTestDependencies>
                         </configuration>
                     </plugin>
+
                 </plugins>
             </build>
         </profile>
