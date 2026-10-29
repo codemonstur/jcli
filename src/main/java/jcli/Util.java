@@ -10,31 +10,63 @@ import java.util.Locale;
 
 import static java.lang.String.format;
 
+/**
+ * The Util enum.
+ */
 public enum Util {;
 
+    /**
+     * isNullOrEmpty.
+     * @param value the value
+     * @return the result
+     */
     public static boolean isNullOrEmpty(final String value) {
         return value == null || value.isEmpty();
     }
 
+    /**
+     * padRight.
+     * @param s the s
+     * @param n the n
+     * @return the result
+     */
     public static String padRight(final String s, final int n) {
         if (s.length() == n) return s;
         return String.format("%1$-" + n + "s", s);
     }
 
-    /** How a name is shown to users: '-f' for a single character, '--file' for anything else. */
+    /**
+     * How a name is shown to users: '-f' for a single character, '--file' for anything else.
+      * @param name the name
+      * @return the result
+     */
     public static String toDisplayName(final String name) {
         return name.length() == 1 ? "-" + name : "--" + name;
     }
 
+    /**
+     * toName.
+     * @param option the option
+     * @return the result
+     */
     public static String toName(final jcli.annotations.CliOption option) {
         return option.longName().isEmpty() ? toDisplayName("" + option.name()) : "--" + option.longName();
     }
 
+    /**
+     * toName.
+     * @param fap the fap
+     * @return the result
+     */
     public static String toName(final FieldAndPosition fap) {
         return isNullOrEmpty(fap.position.name()) ? fap.field.getName() : fap.position.name();
     }
 
-    /** The default of a List option is a comma separated list, an empty default is an empty list. */
+    /**
+     * The default of a List option is a comma separated list, an empty default is an empty list.
+      * @param value the value
+      * @return the result
+     */
     public static List<String> splitListValue(final String value) {
         if (value == null || value.isEmpty()) return Collections.emptyList();
         final String[] values = value.split(",");
@@ -47,6 +79,9 @@ public enum Util {;
      * Finds the candidate closest to what the user typed, or null when nothing is close enough.
      * Used to turn 'unknown option' errors into 'did you mean' suggestions.
      * Single characters get no suggestion: every letter is one edit away from every other.
+      * @param value the value
+      * @param candidates the candidates
+     * @return the result
      */
     public static String closestMatch(final String value, final Collection<String> candidates) {
         if (value.length() < 2) return null;
@@ -64,6 +99,12 @@ public enum Util {;
         return bestDistance <= Math.max(2, value.length() / 2) ? best : null;
     }
 
+    /**
+     * levenshtein.
+     * @param a the a
+     * @param b the b
+     * @return the result
+     */
     private static int levenshtein(final String a, final String b) {
         final int[] previous = new int[b.length() + 1];
         final int[] current = new int[b.length() + 1];
@@ -79,6 +120,11 @@ public enum Util {;
         return previous[b.length()];
     }
 
+    /**
+     * suggestionMessage.
+     * @param suggestion the suggestion
+     * @return the result
+     */
     public static String suggestionMessage(final String suggestion) {
         return format("Did you mean '%s'?", suggestion);
     }

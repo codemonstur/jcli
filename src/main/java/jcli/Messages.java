@@ -12,22 +12,43 @@ import java.util.ResourceBundle;
  */
 public final class Messages {
 
+    /**
+     * The null.
+     */
     public static final Messages DEFAULT = new Messages(null);
 
     private final ResourceBundle bundle;
 
+    /**
+     * Messages.
+     * @param bundle the bundle
+     */
     public Messages(final ResourceBundle bundle) {
         this.bundle = bundle;
     }
 
+    /**
+     * hasBundle.
+     * @return the result
+     */
     public boolean hasBundle() {
         return bundle != null;
     }
 
+    /**
+     * getBundle.
+     * @return the result
+     */
     public ResourceBundle getBundle() {
         return bundle;
     }
 
+    /**
+     * get.
+     * @param key the key
+     * @param english the english
+     * @return the result
+     */
     public String get(final String key, final String english) {
         if (bundle == null) return english;
         try {
@@ -37,6 +58,13 @@ public final class Messages {
         }
     }
 
+    /**
+     * format.
+     * @param key the key
+     * @param english the english
+     * @param params the params
+     * @return the result
+     */
     public String format(final String key, final String english, final Object... params) {
         if (bundle == null || !bundle.containsKey(key)) return english;
         try {

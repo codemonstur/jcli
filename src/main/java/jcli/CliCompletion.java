@@ -45,32 +45,80 @@ public enum CliCompletion {;
         final List<Command> subcommands = new ArrayList<>();
     }
 
+    /**
+     * toBash.
+     * @param clazz the clazz
+     * @return the result
+     */
     public static String toBash(final Class<?> clazz) {
         return toBash(toCommandName(clazz), clazz);
     }
+    /**
+     * toBash.
+     * @param commandName the commandName
+     * @param clazz the clazz
+     * @return the result
+     */
     public static String toBash(final String commandName, final Class<?> clazz) {
         return bash(toCommand(commandName, clazz));
     }
+    /**
+     * toBash.
+     * @param builder the builder
+     * @return the result
+     */
     public static String toBash(final CliParserBuilder<?> builder) {
         return bash(toCommand(builder));
     }
 
+    /**
+     * toFish.
+     * @param clazz the clazz
+     * @return the result
+     */
     public static String toFish(final Class<?> clazz) {
         return toFish(toCommandName(clazz), clazz);
     }
+    /**
+     * toFish.
+     * @param commandName the commandName
+     * @param clazz the clazz
+     * @return the result
+     */
     public static String toFish(final String commandName, final Class<?> clazz) {
         return fish(toCommand(commandName, clazz));
     }
+    /**
+     * toFish.
+     * @param builder the builder
+     * @return the result
+     */
     public static String toFish(final CliParserBuilder<?> builder) {
         return fish(toCommand(builder));
     }
 
+    /**
+     * toZsh.
+     * @param clazz the clazz
+     * @return the result
+     */
     public static String toZsh(final Class<?> clazz) {
         return toZsh(toCommandName(clazz), clazz);
     }
+    /**
+     * toZsh.
+     * @param commandName the commandName
+     * @param clazz the clazz
+     * @return the result
+     */
     public static String toZsh(final String commandName, final Class<?> clazz) {
         return zsh(toCommand(commandName, clazz));
     }
+    /**
+     * toZsh.
+     * @param builder the builder
+     * @return the result
+     */
     public static String toZsh(final CliParserBuilder<?> builder) {
         return zsh(toCommand(builder));
     }
@@ -83,6 +131,12 @@ public enum CliCompletion {;
         return clazz.getSimpleName().toLowerCase(Locale.ROOT);
     }
 
+    /**
+     * toCommand.
+     * @param name the name
+     * @param clazz the clazz
+     * @return the result
+     */
     private static Command toCommand(final String name, final Class<?> clazz) {
         final Command command = new Command();
         command.name = name;
@@ -111,6 +165,11 @@ public enum CliCompletion {;
         return command;
     }
 
+    /**
+     * toCommand.
+     * @param builder the builder
+     * @return the result
+     */
     private static Command toCommand(final CliParserBuilder<?> builder) {
         final Class<?> clazz = builder.getArgumentsClass();
         final Command command = toCommand(isNullOrEmpty(builder.getName()) ? toCommandName(clazz) : builder.getName()
@@ -123,6 +182,11 @@ public enum CliCompletion {;
         return command;
     }
 
+    /**
+     * bash.
+     * @param root the root
+     * @return the result
+     */
     private static String bash(final Command root) {
         final String function = sanitize(root.name) + "_completions";
         final StringBuilder script = new StringBuilder();
@@ -153,6 +217,11 @@ public enum CliCompletion {;
         return script.toString();
     }
 
+    /**
+     * bashCompletions.
+     * @param command the command
+     * @return the result
+     */
     private static String bashCompletions(final Command command) {
         final StringBuilder words = new StringBuilder();
         for (final OptionSpec option : command.options) {
@@ -164,6 +233,11 @@ public enum CliCompletion {;
             + words.toString().trim() + "\" -- \"$cur\") ); else COMPREPLY=( $(compgen -f -- \"$cur\") ); fi";
     }
 
+    /**
+     * fish.
+     * @param root the root
+     * @return the result
+     */
     private static String fish(final Command root) {
         final StringBuilder script = new StringBuilder();
         appendFish(script, root.name, root, "");
@@ -198,6 +272,11 @@ public enum CliCompletion {;
             appendFish(script, rootName, sub, childCondition);
     }
 
+    /**
+     * zsh.
+     * @param root the root
+     * @return the result
+     */
     private static String zsh(final Command root) {
         final String function = sanitize(root.name);
         final StringBuilder script = new StringBuilder();
@@ -238,11 +317,22 @@ public enum CliCompletion {;
         return script.toString();
     }
 
+    /**
+     * appendZshArguments.
+     * @param script the script
+     * @param command the command
+     * @param indent the indent
+     */
     private static void appendZshArguments(final StringBuilder script, final Command command, final String indent) {
         for (final OptionSpec option : command.options)
             script.append(indent).append(zshArgument(option)).append(" \\\n");
     }
 
+    /**
+     * zshArgument.
+     * @param option the option
+     * @return the result
+     */
     private static String zshArgument(final OptionSpec option) {
         final String spec = option.shortName != null ? "-" + option.shortName : "--" + option.longName;
         final String description = zshEscape(option.description);
@@ -257,6 +347,11 @@ public enum CliCompletion {;
             .replace("[", " ").replace("]", " ").replace("'", "").trim();
     }
 
+    /**
+     * sanitize.
+     * @param name the name
+     * @return the result
+     */
     private static String sanitize(final String name) {
         final StringBuilder sanitized = new StringBuilder(name.length());
         for (final char c : name.toCharArray())

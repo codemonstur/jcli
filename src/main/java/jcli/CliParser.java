@@ -27,25 +27,68 @@ import static jcli.errors.InvalidCommandLine.*;
 import static jcli.errors.InvalidOptionConfiguration.*;
 import static jcli.errors.InvalidPositionalConfiguration.*;
 
+/**
+ * The CliParser enum.
+ */
 public enum CliParser {;
 
     private static final Pattern NEGATIVE_NUMBER = Pattern.compile("-\\d+(\\.\\d+)?");
     private static final String END_OF_OPTIONS = "--";
 
+    /**
+     * parseCommandLineArguments.
+     * @param <T> the type parameter
+     * @param args the args
+     * @param supplier the supplier
+     * @return the result
+      * @throws jcli.errors.InvalidCommandLine if an error occurs
+     * @throws InvalidOptionConfiguration if an error occurs
+     * @throws InvalidCommandLine if an error occurs
+     */
     public static <T> T parseCommandLineArguments(final String[] args, final Supplier<T> supplier)
             throws InvalidOptionConfiguration, InvalidCommandLine {
         return parseCommandLineArguments(args, supplier.get());
     }
 
-    /** Parses into an arguments class: a record is built through its canonical constructor. */
+    /**
+     * Parses into an arguments class: a record is built through its canonical constructor.
+      * @param <T> the type parameter
+      * @param args the args
+      * @param clazz the clazz
+     * @return the result
+     * @throws InvalidOptionConfiguration if an error occurs
+     * @throws InvalidCommandLine if an error occurs
+     */
     public static <T> T parseCommandLineArguments(final String[] args, final Class<T> clazz)
             throws InvalidOptionConfiguration, InvalidCommandLine {
         return parseCommandLineArguments(args, clazz, Reflection::toFieldType);
     }
+    /**
+     * parseCommandLineArguments.
+     * @param <T> the type parameter
+     * @param args the args
+     * @param clazz the clazz
+     * @param convert the convert
+     * @return the result
+      * @throws jcli.errors.InvalidCommandLine if an error occurs
+     * @throws InvalidOptionConfiguration if an error occurs
+     * @throws InvalidCommandLine if an error occurs
+     */
     public static <T> T parseCommandLineArguments(final String[] args, final Class<T> clazz, final ToFieldType convert)
             throws InvalidOptionConfiguration, InvalidCommandLine {
         return parseCommandLineArguments(args, clazz, convert, Collections.emptySet());
     }
+    /**
+     * parseCommandLineArguments.
+     * @param <T> the type parameter
+     * @return the result
+      * @param args the args
+      * @param clazz the clazz
+      * @param convert the convert
+     * @param convertedTypes the convertedTypes
+     * @throws InvalidOptionConfiguration if an error occurs
+     * @throws InvalidCommandLine if an error occurs
+     */
     public static <T> T parseCommandLineArguments(final String[] args, final Class<T> clazz, final ToFieldType convert
             , final Collection<Class<?>> convertedTypes) throws InvalidOptionConfiguration, InvalidCommandLine {
         return parseCommandLineArguments(args, clazz, new ParseContext(convertedTypes, Messages.DEFAULT
@@ -53,16 +96,48 @@ public enum CliParser {;
                 , System.err::println));
     }
 
+    /**
+     * parseCommandLineArguments.
+     * @param <T> the type parameter
+     * @param args the args
+     * @param object the object
+     * @return the result
+      * @throws jcli.errors.InvalidCommandLine if an error occurs
+     * @throws InvalidOptionConfiguration if an error occurs
+     * @throws InvalidCommandLine if an error occurs
+     */
     public static <T> T parseCommandLineArguments(final String[] args, final T object)
             throws InvalidOptionConfiguration, InvalidCommandLine {
         return parseCommandLineArguments(args, object, Reflection::toFieldType);
     }
 
+    /**
+     * parseCommandLineArguments.
+     * @param <T> the type parameter
+     * @param args the args
+     * @param object the object
+     * @param convert the convert
+     * @return the result
+      * @throws jcli.errors.InvalidCommandLine if an error occurs
+     * @throws InvalidOptionConfiguration if an error occurs
+     * @throws InvalidCommandLine if an error occurs
+     */
     public static <T> T parseCommandLineArguments(final String[] args, final T object, final ToFieldType convert)
             throws InvalidOptionConfiguration, InvalidCommandLine {
         return parseCommandLineArguments(args, object, convert, Collections.emptySet());
     }
 
+    /**
+     * parseCommandLineArguments.
+     * @param <T> the type parameter
+     * @return the result
+      * @param args the args
+      * @param object the object
+      * @param convert the convert
+     * @param convertedTypes the convertedTypes
+     * @throws InvalidOptionConfiguration if an error occurs
+     * @throws InvalidCommandLine if an error occurs
+     */
     public static <T> T parseCommandLineArguments(final String[] args, final T object, final ToFieldType convert
             , final Collection<Class<?>> convertedTypes) throws InvalidOptionConfiguration, InvalidCommandLine {
         return parseCommandLineArguments(args, object, new ParseContext(convertedTypes, Messages.DEFAULT
@@ -93,6 +168,11 @@ public enum CliParser {;
             final T built = (T) store.build();
             return built;
         } catch (final IllegalAccessException e) {
+            /**
+             * RuntimeException.
+             * @param e the e
+             * @return the result
+             */
             throw new RuntimeException(e);
         }
     }
@@ -112,17 +192,42 @@ public enum CliParser {;
             // a field converter accepts any type, only it can convert the value
             if (!convertedFields.contains(field.getName())) {
                 if (!isValidFieldType(field.getType(), convertedTypes))
+                    /**
+                     * newInvalidOptionType.
+                     * @param option the option
+                     * @return the result
+                     */
                     throw newInvalidOptionType(option);
                 if (!isValidListType(field, convertedTypes))
+                    /**
+                     * newInvalidOptionType.
+                     * @param option the option
+                     * @return the result
+                     */
                     throw newInvalidOptionType(option);
             }
             if (option.name() == ' ' && option.longName().isEmpty())
                 throw newInvalidOptionName(field.getName());
             if (option.isHelp() && !isBooleanType(field))
+                /**
+                 * newHelpTypeNotBoolean.
+                 * @param field the field
+                 * @return the result
+                 */
                 throw newHelpTypeNotBoolean(field);
             if (option.isVersion() && !isBooleanType(field))
+                /**
+                 * newVersionTypeNotBoolean.
+                 * @param field the field
+                 * @return the result
+                 */
                 throw newVersionTypeNotBoolean(field);
             if (option.isVersion() && option.isHelp())
+                /**
+                 * newVersionAndHelp.
+                 * @param field the field
+                 * @return the result
+                 */
                 throw newVersionAndHelp(field);
 
             validateOptionAnnotations(field, option);
@@ -151,15 +256,33 @@ public enum CliParser {;
 
             final CliPositional positional = field.getAnnotation(CliPositional.class);
             if (hasOptionalPositional && FAKE_NULL.equals(positional.defaultValue()))
+                /**
+                 * newMandatoryPositionalAfterOptional.
+                 * @return the result
+                 */
                 throw newMandatoryPositionalAfterOptional();
 
             hasOptionalPositional = hasOptionalPositional || !FAKE_NULL.equals(positional.defaultValue());
             if (isListType(field) && !FAKE_NULL.equals(positional.defaultValue()))
+                /**
+                 * newDefaultForListPositional.
+                 * @return the result
+                 */
                 throw newDefaultForListPositional();
             if (!convertedFields.contains(field.getName())) {
                 if (!isValidFieldType(field.getType(), convertedTypes))
+                    /**
+                     * newInvalidOptionType.
+                     * @param field the field
+                     * @return the result
+                     */
                     throw newInvalidOptionType(field);
                 if (!isValidListType(field, convertedTypes))
+                    /**
+                     * newInvalidOptionType.
+                     * @param field the field
+                     * @return the result
+                     */
                     throw newInvalidOptionType(field);
             }
 
@@ -184,6 +307,11 @@ public enum CliParser {;
                 try {
                     Long.parseLong(option.defaultValue());
                 } catch (final NumberFormatException e) {
+                    /**
+                     * newInvalidCountingDefault.
+                     * @param field the field
+                     * @return the result
+                     */
                     throw newInvalidCountingDefault(field);
                 }
             }
@@ -208,6 +336,11 @@ public enum CliParser {;
             try {
                 Pattern.compile(option.regex());
             } catch (final PatternSyntaxException e) {
+                /**
+                 * newInvalidRegex.
+                 * @param field the field
+                 * @return the result
+                 */
                 throw newInvalidRegex(field);
             }
         }
@@ -233,6 +366,12 @@ public enum CliParser {;
         }
     }
 
+    /**
+     * addFieldAndOption.
+     * @param map the map
+     * @param field the field
+     * @param option the option
+     */
     private static void addFieldAndOption(final Map<String, FieldAndOption> map, final Field field, final CliOption option) {
         if (option.name() != ' ')
             addFieldAndOption(map, "" + option.name(), field, option);
@@ -354,6 +493,14 @@ public enum CliParser {;
         return;
     }
 
+    /**
+     * addListDefault.
+     * @param store the store
+     * @param fao the fao
+     * @param context the context
+     * @throws InvalidCommandLine if an error occurs
+     * @throws IllegalAccessException if an error occurs
+     */
     private static void addListDefault(final ValueStore store, final FieldAndOption fao, final ParseContext context)
             throws InvalidCommandLine, IllegalAccessException {
         if (!fao.option.setDefaultWhenMissing()) return;
@@ -395,6 +542,12 @@ public enum CliParser {;
         return null;
     }
 
+    /**
+     * externalDefaultPositional.
+     * @param context the context
+     * @param fap the fap
+     * @return the result
+     */
     private static String externalDefaultPositional(final ParseContext context, final FieldAndPosition fap) {
         final String name = toName(fap);
         if (context.defaults.containsKey(name)) return context.defaults.get(name);
@@ -406,6 +559,18 @@ public enum CliParser {;
     /**
      * Applies a single option occurrence and returns how many extra arguments it consumed.
      * The token of the option itself is not counted, the caller always advances past it.
+     * @param args the args
+     * @param index the index
+     * @param displayName the displayName
+     * @param fao the fao
+     * @param attachedForm the attachedForm
+     * @param attachedValue the attachedValue
+     * @param parsedOptions the parsedOptions
+     * @param store the store
+     * @param context the context
+     * @return the result
+     * @throws InvalidCommandLine if an error occurs
+     * @throws IllegalAccessException if an error occurs
      */
     private static int applyOptionValue(final String[] args, final int index, final String displayName
             , final FieldAndOption fao, final boolean attachedForm, final String attachedValue
@@ -502,6 +667,11 @@ public enum CliParser {;
             : newMissingCommandLineValue(displayName);
     }
 
+    /**
+     * isTrueOrFalse.
+     * @param value the value
+     * @return the result
+     */
     private static boolean isTrueOrFalse(final String value) {
         return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
     }
@@ -567,16 +737,33 @@ public enum CliParser {;
         }
     }
 
+    /**
+     * incrementCounter.
+     * @param fao the fao
+     * @param store the store
+     * @throws IllegalAccessException if an error occurs
+     */
     private static void incrementCounter(final FieldAndOption fao, final ValueStore store) throws IllegalAccessException {
         final Object current = store.get(fao.field);
         if (isLong(fao.field)) store.set(fao.field, ((Number) current).longValue() + 1L);
         else store.set(fao.field, ((Number) current).intValue() + 1);
     }
 
+    /**
+     * isLong.
+     * @param field the field
+     * @return the result
+     */
     private static boolean isLong(final Field field) {
         return Long.class.equals(field.getType()) || long.class.equals(field.getType());
     }
 
+    /**
+     * isHelpRequested.
+     * @param options the options
+     * @param store the store
+     * @return the result
+     */
     private static boolean isHelpRequested(final Map<String, FieldAndOption> options, final ValueStore store) {
         final Set<CliOption> checked = new HashSet<>();
         for (final FieldAndOption fao : options.values()) {
@@ -612,6 +799,14 @@ public enum CliParser {;
         }
     }
 
+    /**
+     * convertPositional.
+     * @param context the context
+     * @param fap the fap
+     * @param value the value
+     * @return the result
+     * @throws InvalidCommandLine if an error occurs
+     */
     private static Object convertPositional(final ParseContext context, final FieldAndPosition fap, final String value)
             throws InvalidCommandLine {
         final Class<?> type = isListType(fap.field) ? toParameterType(fap.field) : fap.field.getType();
@@ -650,6 +845,12 @@ public enum CliParser {;
             throw context.localize(newValueTooLarge(name, value, option.max()));
     }
 
+    /**
+     * unknownArgumentError.
+     * @param token the token
+     * @param options the options
+     * @return the result
+     */
     private static InvalidCommandLine unknownArgumentError(final String token, final Map<String, FieldAndOption> options) {
         final String typed = token.startsWith("--") ? token.substring(2) : token.substring(1);
         final String suggestion = closestMatch(typed, options.keySet());
@@ -669,6 +870,9 @@ public enum CliParser {;
     /**
      * Finds the first token that is neither an option nor the value of an option.
      * That is where a subcommand starts. Returns -1 when the command line has no subcommand.
+     * @param args the args
+     * @param options the options
+     * @return the result
      */
     static int findSubcommandIndex(final String[] args, final Map<String, FieldAndOption> options) {
         boolean noMoreOptions = false;
@@ -715,6 +919,11 @@ public enum CliParser {;
         return 0;
     }
 
+    /**
+     * safeName.
+     * @param argument the argument
+     * @return the result
+     */
     private static String safeName(final String argument) {
         try {
             return argumentToName(argument);
@@ -723,10 +932,21 @@ public enum CliParser {;
         }
     }
 
+    /**
+     * toRealNull.
+     * @param mustBeNull the mustBeNull
+     * @param value the value
+     * @return the result
+     */
     private static String toRealNull(final boolean mustBeNull, final String value) {
         return mustBeNull || FAKE_NULL.equals(value) ? null : value;
     }
 
+    /**
+     * isOptionalClass.
+     * @param clazz the clazz
+     * @return the result
+     */
     private static boolean isOptionalClass(final Class<?> clazz) {
         return clazz.equals(OptionalLong.class)
             || clazz.equals(OptionalInt.class)
@@ -734,6 +954,12 @@ public enum CliParser {;
             || clazz.equals(Optional.class);
     }
 
+    /**
+     * isOption.
+     * @param argument the argument
+     * @param options the options
+     * @return the result
+     */
     private static boolean isOption(final String argument, final Map<String, FieldAndOption> options) {
         if (!isOption(argument)) return false;
         if (!isNegativeNumber(argument)) return true;
@@ -741,20 +967,40 @@ public enum CliParser {;
         return argument.length() == 2 && options.containsKey(argument.substring(1));
     }
 
+    /**
+     * isOption.
+     * @param argument the argument
+     * @return the result
+     */
     private static boolean isOption(final String argument) {
         return !argument.isEmpty() && argument.charAt(0) == '-';
     }
 
+    /**
+     * isNegativeNumber.
+     * @param argument the argument
+     * @return the result
+     */
     private static boolean isNegativeNumber(final String argument) {
         return NEGATIVE_NUMBER.matcher(argument).matches();
     }
 
     // Values that look like another option are not values at all, negative numbers are the exception
+    /**
+     * looksLikeOption.
+     * @param argument the argument
+     * @return the result
+     */
     private static boolean looksLikeOption(final String argument) {
         return isOption(argument) && !isNegativeNumber(argument);
     }
 
     // '-vq' or '-fdata.txt': a single dash with more than one character
+    /**
+     * isShortCluster.
+     * @param argument the argument
+     * @return the result
+     */
     private static boolean isShortCluster(final String argument) {
         return argument.length() > 2 && argument.charAt(0) == '-' && !argument.startsWith("--");
     }
@@ -773,15 +1019,31 @@ public enum CliParser {;
         return name != null && options.containsKey(name);
     }
 
+    /**
+     * isAttachedForm.
+     * @param argument the argument
+     * @return the result
+     */
     private static boolean isAttachedForm(final String argument) {
         return argument.contains("=");
     }
 
+    /**
+     * attachedValueOf.
+     * @param argument the argument
+     * @return the result
+     */
     private static String attachedValueOf(final String argument) {
         final int equalsIndex = argument.indexOf('=');
         return equalsIndex == -1 ? null : argument.substring(equalsIndex + 1);
     }
 
+    /**
+     * argumentToName.
+     * @param argument the argument
+     * @return the result
+     * @throws InvalidCommandLine if an error occurs
+     */
     private static String argumentToName(final String argument) throws InvalidCommandLine {
         if (argument.charAt(0) != '-') throw newInvalidCommandLineArgument(argument);
         if (argument.startsWith("--")) {
@@ -801,19 +1063,40 @@ public enum CliParser {;
         return argument.substring(1, 2);
     }
 
+    /**
+     * newNoArgInstance.
+     * @param clazz the clazz
+     * @return the result
+     * @param <T> the type parameter
+     */
     private static <T> T newNoArgInstance(final Class<T> clazz) {
         try {
             final Constructor<T> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (final NoSuchMethodException | InstantiationException e) {
+            /**
+             * newMissingNoArgConstructor.
+             * @param clazz the clazz
+             * @return the result
+             */
             throw newMissingNoArgConstructor(clazz);
         } catch (final InvocationTargetException e) {
             final Throwable cause = e.getTargetException();
             if (cause instanceof RuntimeException) throw (RuntimeException) cause;
             if (cause instanceof Error) throw (Error) cause;
+            /**
+             * RuntimeException.
+             * @param cause the cause
+             * @return the result
+             */
             throw new RuntimeException(cause);
         } catch (final ReflectiveOperationException e) {
+            /**
+             * RuntimeException.
+             * @param e the e
+             * @return the result
+             */
             throw new RuntimeException(e);
         }
     }
@@ -830,6 +1113,13 @@ public enum CliParser {;
         private final Constructor<?> recordConstructor;
         private final Map<String, Object> staged;
 
+        /**
+         * ValueStore.
+         * @param instance the instance
+         * @param recordClass the recordClass
+         * @param recordConstructor the recordConstructor
+         * @return the result
+         */
         private ValueStore(final Object instance, final Class<?> recordClass, final Constructor<?> recordConstructor) {
             this.instance = instance;
             this.recordClass = recordClass;
@@ -846,6 +1136,8 @@ public enum CliParser {;
          * A store that stages values for a record: the record does not exist yet, so values are
          * collected until build() calls the canonical constructor. Any component that nothing
          * wrote gets the default for its type, exactly like an untouched field of a class.
+         * @param clazz the clazz
+         * @return the result
          */
         public static ValueStore forClass(final Class<?> clazz) {
             if (!clazz.isRecord()) return new ValueStore(newNoArgInstance(clazz), null, null);
@@ -856,6 +1148,11 @@ public enum CliParser {;
                 constructor.setAccessible(true);
                 return new ValueStore(null, clazz, constructor);
             } catch (final ReflectiveOperationException e) {
+                /**
+                 * RuntimeException.
+                 * @param e the e
+                 * @return the result
+                 */
                 throw new RuntimeException(e);
             }
         }
@@ -884,12 +1181,27 @@ public enum CliParser {;
                 final Throwable cause = e.getTargetException();
                 if (cause instanceof RuntimeException) throw (RuntimeException) cause;
                 if (cause instanceof Error) throw (Error) cause;
+                /**
+                 * RuntimeException.
+                 * @param cause the cause
+                 * @return the result
+                 */
                 throw new RuntimeException(cause);
             } catch (final ReflectiveOperationException e) {
+                /**
+                 * RuntimeException.
+                 * @param e the e
+                 * @return the result
+                 */
                 throw new RuntimeException(e);
             }
         }
 
+        /**
+         * valueOrDefault.
+         * @param component the component
+         * @return the result
+         */
         private Object valueOrDefault(final RecordComponent component) {
             final Object value = staged.get(component.getName());
             if (value != null) return value;

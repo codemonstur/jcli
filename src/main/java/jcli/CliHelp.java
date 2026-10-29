@@ -21,30 +21,80 @@ import static jcli.Util.padRight;
 import static jcli.annotations.Constants.FAKE_NULL;
 import static jcli.errors.InvalidOptionConfiguration.*;
 
+/**
+ * The CliHelp enum.
+ */
 public enum CliHelp {;
 
+    /**
+     * printHelp.
+     * @param clazz the clazz
+     */
     public static void printHelp(final Class<?> clazz) {
         System.out.println(getHelp(null, clazz));
     }
+    /**
+     * printHelp.
+     * @param name the name
+     * @param clazz the clazz
+     */
     public static void printHelp(final String name, final Class<?> clazz) {
         System.out.println(getHelp(name, clazz));
     }
 
+    /**
+     * getHelp.
+     * @param clazz the clazz
+     * @return the result
+     * @throws InvalidOptionConfiguration if an error occurs
+     */
     public static String getHelp(final Class<?> clazz) throws InvalidOptionConfiguration {
         return getHelp(null, clazz);
     }
+    /**
+     * getHelp.
+     * @param name the name
+     * @param clazz the clazz
+     * @return the result
+     * @throws InvalidOptionConfiguration if an error occurs
+     */
     public static String getHelp(final String name, final Class<?> clazz) throws InvalidOptionConfiguration {
         return getHelp(name, clazz, Collections.emptySet());
     }
+    /**
+     * getHelp.
+     * @return the result
+      * @param name the name
+      * @param clazz the clazz
+      * @param convertedTypes the convertedTypes
+     * @throws InvalidOptionConfiguration if an error occurs
+     */
     public static String getHelp(final String name, final Class<?> clazz
             , final Collection<Class<?>> convertedTypes) throws InvalidOptionConfiguration {
         return getHelp(name, "   ", clazz, convertedTypes);
     }
 
+    /**
+     * getHelp.
+     * @param builderName the builderName
+     * @param indent the indent
+     * @param clazz the clazz
+     * @return the result
+     * @throws InvalidOptionConfiguration if an error occurs
+     */
     public static String getHelp(final String builderName, final String indent, final Class<?> clazz) throws InvalidOptionConfiguration {
         return getHelp(builderName, indent, clazz, Collections.emptySet());
     }
 
+    /**
+     * getHelp.
+     * @return the result
+      * @param builderName the builderName
+      * @param indent the indent
+      * @param clazz the clazz
+     * @param convertedTypes the convertedTypes
+     * @throws InvalidOptionConfiguration if an error occurs
+     */
     public static String getHelp(final String builderName, final String indent, final Class<?> clazz
             , final Collection<Class<?>> convertedTypes) throws InvalidOptionConfiguration {
         return getHelp(builderName, indent, clazz, convertedTypes, Collections.emptySet());
@@ -86,6 +136,11 @@ public enum CliHelp {;
             if (option.isHidden()) continue;
             // a field converter accepts any type, only it can convert the value
             if (!convertedFields.contains(field.getName()) && !isValidFieldType(field.getType(), convertedTypes))
+                /**
+                 * newInvalidOptionType.
+                 * @param option the option
+                 * @return the result
+                 */
                 throw newInvalidOptionType(option);
             if (option.name() == ' ' && option.longName().isEmpty())
                 throw newInvalidOptionName(field.getName());
@@ -164,6 +219,12 @@ public enum CliHelp {;
         }
     }
 
+    /**
+     * describe.
+     * @param option the option
+     * @param messages the messages
+     * @return the result
+     */
     private static String describe(final HelpOption option, final Messages messages) {
         final StringBuilder text = new StringBuilder();
         if (!isNullOrEmpty(option.description)) text.append(option.description);
@@ -195,6 +256,11 @@ public enum CliHelp {;
         return lines;
     }
 
+    /**
+     * spaces.
+     * @param count the count
+     * @return the result
+     */
     private static String spaces(final int count) {
         final StringBuilder spaces = new StringBuilder(count);
         for (int i = 0; i < count; i++) spaces.append(' ');
@@ -213,6 +279,11 @@ public enum CliHelp {;
                 .append(entry.getValue()).append("\n");
     }
 
+    /**
+     * printFooter.
+     * @param builder the builder
+     * @param clazz the clazz
+     */
     private static void printFooter(final StringBuilder builder, final Class<?> clazz) {
         if (!clazz.isAnnotationPresent(CliCommand.class)) return;
         final String footer = clazz.getAnnotation(CliCommand.class).footer();
@@ -256,6 +327,11 @@ public enum CliHelp {;
             .append(messages.get("help.options", "Options:")).append("\n");
     }
 
+    /**
+     * hasExamples.
+     * @param examples the examples
+     * @return the result
+     */
     private static boolean hasExamples(String[] examples) {
         if (examples == null) return false;
         for (final String example : examples) {
@@ -264,6 +340,11 @@ public enum CliHelp {;
         return false;
     }
 
+    /**
+     * toPositionalNames.
+     * @param clazz the clazz
+     * @return the result
+     */
     private static List<String> toPositionalNames(Class<?> clazz) {
         final List<String> names = new ArrayList<>();
         for (final Field field : listFields(clazz)) {
@@ -274,6 +355,11 @@ public enum CliHelp {;
         return names;
     }
 
+    /**
+     * toName.
+     * @param option the option
+     * @return the result
+     */
     private static String toName(final CliOption option) {
         final List<String > builder = new ArrayList<>();
         if (option.name() != ' ') builder.add("-"+option.name());

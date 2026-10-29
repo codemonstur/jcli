@@ -32,19 +32,39 @@ import java.util.TreeSet;
  * The file is written to META-INF/native-image/jcli/reflect-config.json of the compiled output, which
  * native-image picks up automatically when it is on the classpath. Enums used as a field type are listed
  * with allDeclaredFields because the parser looks them up with Enum.valueOf.
+ * @param CliOption the CliOption
+ * @param CliPositional the CliPositional
+ * @return the result
+ */
+/**
+ * The CliReflectionProcessor class.
  */
 @SupportedAnnotationTypes({"jcli.annotations.CliOption", "jcli.annotations.CliPositional"})
 public final class CliReflectionProcessor extends AbstractProcessor {
+
+    /** Creates a new processor. */
+    public CliReflectionProcessor() {
+    }
 
     private final SortedMap<String, SortedSet<String>> classes = new TreeMap<>();
     private final SortedSet<String> enums = new TreeSet<>();
 
     @Override
+    /**
+     * getSupportedSourceVersion.
+     * @return the result
+     */
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.latestSupported();
     }
 
     @Override
+    /**
+     * process.
+     * @param annotations the annotations
+     * @param roundEnv the roundEnv
+     * @return the result
+     */
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
         for (final Element element : roundEnv.getElementsAnnotatedWith(CliOption.class)) collect(element);
         for (final Element element : roundEnv.getElementsAnnotatedWith(CliPositional.class)) collect(element);
@@ -52,6 +72,10 @@ public final class CliReflectionProcessor extends AbstractProcessor {
         return true;
     }
 
+    /**
+     * collect.
+     * @param element the element
+     */
     private void collect(final Element element) {
         if (element.getKind() != ElementKind.FIELD) return;
         final Element enclosing = element.getEnclosingElement();
@@ -69,6 +93,9 @@ public final class CliReflectionProcessor extends AbstractProcessor {
         }
     }
 
+    /**
+     * write.
+     */
     private void write() {
         if (classes.isEmpty()) return;
         try {
@@ -83,6 +110,10 @@ public final class CliReflectionProcessor extends AbstractProcessor {
         }
     }
 
+    /**
+     * toJson.
+     * @return the result
+     */
     private String toJson() {
         final StringBuilder json = new StringBuilder("[\n");
         boolean first = true;

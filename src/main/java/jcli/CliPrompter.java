@@ -7,6 +7,11 @@ package jcli;
  */
 public interface CliPrompter {
 
+    /**
+     * prompt.
+     * @param message the message
+     * @return the result
+     */
     String prompt(String message);
 
 }

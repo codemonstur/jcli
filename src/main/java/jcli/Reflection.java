@@ -21,12 +21,35 @@ import java.util.regex.Pattern;
 
 import static jcli.errors.InvalidCommandLine.newInvalidArgumentValue;
 
+/**
+ * The Reflection enum.
+ */
 public enum Reflection {;
 
+    /**
+     * The StringToType interface.
+     * @param <T> the type parameter
+     */
     public interface StringToType<T> {
+        /**
+         * toType.
+         * @param value the value
+         * @return the result
+         */
         T toType(String value);
     }
+    /**
+     * The ToFieldType interface.
+     */
     public interface ToFieldType {
+        /**
+         * toFieldType.
+         * @param field the field
+         * @param type the type
+         * @param value the value
+         * @return the result
+         * @throws InvalidCommandLine if an error occurs
+         */
         Object toFieldType(Field field, Class<?> type, String value) throws InvalidCommandLine;
     }
 
@@ -51,14 +74,26 @@ public enum Reflection {;
      *
      * From Java 27 mutating a final field prints a warning, and a future release will
      * require the {@code --enable-final-field-mutation=ALL-UNNAMED} flag for it.
+      * @param field the field
      */
     public static void makeAccessible(final Field field) {
         field.setAccessible(true);
     }
 
+    /**
+     * listFields.
+     * @param type the type
+     * @return the result
+     */
     public static List<Field> listFields(final Class<?> type) {
         return listFields(new ArrayList<>(), type);
     }
+    /**
+     * listFields.
+     * @param fields the fields
+     * @param type the type
+     * @return the result
+     */
     public static List<Field> listFields(final List<Field> fields, final Class<?> type) {
         fields.addAll(Arrays.asList(type.getDeclaredFields()));
         if (type.getSuperclass() != null) listFields(fields, type.getSuperclass());
@@ -73,12 +108,29 @@ public enum Reflection {;
             , OptionalDouble.class, OptionalInt.class, OptionalLong.class, Pattern.class, Charset.class, List.class
             , Optional.class
             ));
+    /**
+     * isValidFieldType.
+     * @param type the type
+     * @return the result
+     */
     public static boolean isValidFieldType(final Class<?> type) {
         return VALID_FIELDS.contains(type) || type.isEnum();
     }
+    /**
+     * isValidFieldType.
+     * @param type the type
+     * @param convertedTypes the convertedTypes
+     * @return the result
+     */
     public static boolean isValidFieldType(final Class<?> type, final Collection<Class<?>> convertedTypes) {
         return convertedTypes.contains(type) || isValidFieldType(type);
     }
+    /**
+     * isValidListType.
+     * @param field the field
+     * @param convertedTypes the convertedTypes
+     * @return the result
+     */
     public static boolean isValidListType(final Field field, final Collection<Class<?>> convertedTypes) {
         if (!isListType(field)) return true;
         // A raw list has no type information at all, it behaves like a List<String>
@@ -89,6 +141,14 @@ public enum Reflection {;
         return !List.class.equals(elementType) && isValidFieldType(elementType, convertedTypes);
     }
 
+    /**
+     * toFieldType.
+     * @param field the field
+     * @param type the type
+     * @param value the value
+     * @return the result
+     * @throws InvalidCommandLine if an error occurs
+     */
     public static Object toFieldType(final Field field, final Class<?> type, final String value) throws InvalidCommandLine {
         try {
             if (type.isAssignableFrom(String.class)) return value;
@@ -148,18 +208,38 @@ public enum Reflection {;
                 return Enum.valueOf((Class<Enum>)type, enumName);
             }
         } catch (Exception e) {
+            /**
+             * newInvalidArgumentValue.
+             * @param value the value
+             * @return the result
+             */
             throw newInvalidArgumentValue(value);
         }
         throw new IllegalArgumentException("Coding error, none of the types that we support matched the field type.");
     }
 
+    /**
+     * isBooleanType.
+     * @param field the field
+     * @return the result
+     */
     public static boolean isBooleanType(final Field field) {
         return field.getType().equals(Boolean.class) || field.getType().equals(boolean.class);
     }
+    /**
+     * isListType.
+     * @param field the field
+     * @return the result
+     */
     public static boolean isListType(final Field field) {
         return field.getType().equals(List.class);
     }
 
+    /**
+     * isNumericType.
+     * @param type the type
+     * @return the result
+     */
     public static boolean isNumericType(final Class<?> type) {
         return byte.class.equals(type) || Byte.class.equals(type)
             || short.class.equals(type) || Short.class.equals(type)
@@ -170,7 +250,11 @@ public enum Reflection {;
             || BigDecimal.class.equals(type) || BigInteger.class.equals(type);
     }
 
-    /** The fields that a counting flag can store its count in. */
+    /**
+     * The fields that a counting flag can store its count in.
+      * @param type the type
+      * @return the result
+     */
     public static boolean isCountingType(final Class<?> type) {
         return int.class.equals(type) || Integer.class.equals(type)
             || long.class.equals(type) || Long.class.equals(type);
@@ -178,10 +262,21 @@ public enum Reflection {;
 
     // Lists that are raw, or that use a wildcard, have no parameter type: fall back to String, the same
     // way the parsing of positional lists does, instead of blowing up with a ClassCastException
+    /**
+     * toParameterType.
+     * @param field the field
+     * @return the result
+     */
     public static Class<?> toParameterType(final Field field) {
         return getTypeOfGenericField(field, String.class);
     }
 
+    /**
+     * initializeLists.
+     * @param <T> the type parameter
+     * @param instance the instance
+     * @throws IllegalAccessException if an error occurs
+     */
     public static <T> void initializeLists(final T instance) throws IllegalAccessException {
         for (final Field field : listFields(instance.getClass())) {
             if (!isOptionOrPositional(field)) continue;
@@ -193,10 +288,21 @@ public enum Reflection {;
         }
     }
 
+    /**
+     * isOptionOrPositional.
+     * @param field the field
+     * @return the result
+     */
     private static boolean isOptionOrPositional(final Field field) {
         return field.isAnnotationPresent(CliOption.class) || field.isAnnotationPresent(CliPositional.class);
     }
 
+    /**
+     * getTypeOfGenericField.
+     * @param field the field
+     * @param defaultValue the defaultValue
+     * @return the result
+     */
     public static Class<?> getTypeOfGenericField(final Field field, final Class<?> defaultValue) {
         final Type genericType = field.getGenericType();
         if (!(genericType instanceof ParameterizedType)) return defaultValue;

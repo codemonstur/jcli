@@ -12,9 +12,18 @@ import java.nio.charset.StandardCharsets;
  */
 public final class ConsolePrompter implements CliPrompter {
 
+    /** Creates a new console prompter. */
+    public ConsolePrompter() {
+    }
+
     private static final BufferedReader STDIN = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
     @Override
+    /**
+     * prompt.
+     * @param message the message
+     * @return the result
+     */
     public String prompt(final String message) {
         final Console console = System.console();
         if (console != null) {

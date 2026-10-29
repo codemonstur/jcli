@@ -43,6 +43,11 @@ final class ParseContext {
         this.deprecations = deprecations;
     }
 
+    /**
+     * localize.
+     * @param error the error
+     * @return the result
+     */
     InvalidCommandLine localize(final InvalidCommandLine error) {
         return messages.hasBundle() ? error.localize(messages.getBundle()) : error;
     }
